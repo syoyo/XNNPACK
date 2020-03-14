@@ -45,9 +45,8 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y build-essential
             sudo apt-get install -y gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu
-            mkdir build
-            cd build
-            CC=aarch64-linux-gnu-gcc-8 CXX=aarch64-linux-gnu-g++-8 cmake -DXNNPACK_BUILD_TESTS=Off -DXNNPACK_BUILD_BENCHMARKS=Off ..
+            ./scripts/bootstrap-gcc-aarch64-cross.sh
+            cd build-cross
             make VERBOSE=1
 
   build:
