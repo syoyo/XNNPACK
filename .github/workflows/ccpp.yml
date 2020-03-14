@@ -30,6 +30,25 @@ jobs:
           make VERBOSE=1
           make test
 
+  # Cross-compile XNNPACK for aarch64 linux target
+  build-cross-aarch64:
+
+    runs-on: ubuntu-18.04
+    name: Build on cross aarch64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: CmakeAndBuild
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y build-essential
+            sudo apt-get install -y gcc-8-aarch64-linux-gnu g++-8-aarch64-linux-gnu
+            mkdir build
+            cd build
+            CC=aarch64-linux-gnu-gcc-8 CXX=aarch64-linux-gnu-g++-8 cmake ..
+            make VERBOSE=1
+
   build:
 
     runs-on: ubuntu-latest
