@@ -7,8 +7,6 @@ on:
     branches: [ master ]
 
 jobs:
-
-jobs:
   # Build on qemu-emulated aarch64 Ubuntu
   build-native-aarch64:
 
