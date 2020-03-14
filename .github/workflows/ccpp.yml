@@ -21,9 +21,9 @@ jobs:
         architecture: aarch64
         distribution: ubuntu18.04
         # TODO(syoyo): Run test in separate step
+        # `patch` is required to apply a patch for cpuinfo source code
         run: |
           apt-get update
-          # `patch` is required to apply a patch for cpuinfo source code
           apt-get install -y batch cmake gcc g++ clang
           mkdir build
           cd build
