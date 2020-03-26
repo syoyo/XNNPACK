@@ -66,13 +66,12 @@ http_archive(
 # cpuinfo library, used for detecting processor characteristics
 http_archive(
     name = "cpuinfo",
-    strip_prefix = "cpuinfo-d6c0f915ee737f961915c9d17f1679b6777af207",
-    sha256 = "146fc61c3cf63d7d88db963876929a4d373f621fb65568b895efa0857f467770",
+    strip_prefix = "cpuinfo-0cc563acb9baac39f2c1349bc42098c4a1da59e3",
+    sha256 = "80625d0b69a3d69b70c2236f30db2c542d0922ccf9bb51a61bc39c49fac91a35",
     urls = [
-        "https://github.com/pytorch/cpuinfo/archive/d6c0f915ee737f961915c9d17f1679b6777af207.tar.gz",
+        "https://github.com/pytorch/cpuinfo/archive/0cc563acb9baac39f2c1349bc42098c4a1da59e3.tar.gz",
     ],
     build_file = "@//third_party:cpuinfo.BUILD",
-    patches = ["@//third_party:cpuinfo.patch"],
 )
 
 # psimd library, used for fallback 128-bit SIMD micro-kernels
@@ -84,6 +83,16 @@ http_archive(
         "https://github.com/Maratyszcza/psimd/archive/88882f601f8179e1987b7e7cf4a8012c9080ad44.tar.gz",
     ],
     build_file = "@//third_party:psimd.BUILD",
+)
+
+# Ruy library, used to benchmark against
+http_archive(
+   name = "ruy",
+   strip_prefix = "ruy-3d62e9545bd15c5df9ccfdd8453b93d64a6dd8eb",
+   sha256 = "ca3024739684d5aba3612072511f508e88b34231ac8d19c8c3cc6598b6bb535d",
+   urls = [
+       "https://github.com/google/ruy/archive/3d62e9545bd15c5df9ccfdd8453b93d64a6dd8eb.zip",
+   ],
 )
 
 # Android NDK location and version is auto-detected from $ANDROID_NDK_HOME environment variable
