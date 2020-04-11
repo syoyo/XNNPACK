@@ -175,7 +175,7 @@ enum xnn_status xnn_create_fully_connected_nc_q8(
 
   fully_connected_op->ukernel.type = xnn_ukernel_type_gemm;
   fully_connected_op->ukernel.gemm = (struct xnn_ukernel_gemm) {
-    .general_case = xnn_params.q8.gemm.gemm,
+    .general_case = xnn_params.q8.gemm.minmax.gemm,
     .mr = xnn_params.q8.gemm.mr,
     .nr = nr,
     .kr = kr,
@@ -304,14 +304,20 @@ enum xnn_status xnn_create_fully_connected_nc_f32(
   fully_connected_op->input_pixel_stride = input_stride;
   fully_connected_op->output_pixel_stride = output_stride;
 
-  fully_connected_op->f32_output_params = xnn_init_f32_output_params(output_min, output_max);
+  fully_connected_op->f32_minmax_params = xnn_init_f32_minmax_params(output_min, output_max);
 
   fully_connected_op->type = xnn_operator_type_fully_connected_nc_f32;
 
+  const struct gemm_fused_ukernels* ukernels = &xnn_params.f32.gemm.minmax;
+  const bool linear_activation = (output_max == INFINITY) && (output_min == -output_max);
+  if (linear_activation && xnn_params.f32.gemm.linear.gemm.function[XNN_UARCH_DEFAULT] != NULL) {
+    ukernels = &xnn_params.f32.gemm.linear;
+  }
+
   fully_connected_op->ukernel.type = xnn_ukernel_type_gemm;
   fully_connected_op->ukernel.gemm = (struct xnn_ukernel_gemm) {
-    .general_case = xnn_params.f32.gemm.gemm,
-    .mr1_case = xnn_params.f32.gemm.gemm1,
+    .general_case = ukernels->gemm,
+    .mr1_case = ukernels->gemm1,
     .mr = xnn_params.f32.gemm.mr,
     .nr = nr,
     .kr = kr,
@@ -450,6 +456,6 @@ enum xnn_status xnn_setup_fully_connected_nc_f32(
     2 /* log2(sizeof(filter element)) = log2(sizeof(float)) */,
     sizeof(float) /* sizeof(bias element) */,
     2 /* log2(sizeof(output element)) = log2(sizeof(float)) */,
-    &fully_connected_op->f32_output_params,
+    &fully_connected_op->f32_minmax_params,
     pthreadpool_get_threads_count(threadpool));
 }

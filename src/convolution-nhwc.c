@@ -50,7 +50,7 @@ static const struct dwconv_parameters* find_dwigemm_ukernel(
     size_t num_ukernels)
 {
   while (num_ukernels-- != 0) {
-    if (ukernel->mr == kernel_size) {
+    if (ukernel->primary_tile == kernel_size) {
       return ukernel;
     }
     ukernel++;
@@ -246,9 +246,9 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
     case xnn_ukernel_type_dwconv:
     {
       assert(dwconv_parameters != NULL);
-      assert(dwconv_parameters->mr == kernel_size);
+      assert(dwconv_parameters->primary_tile == kernel_size);
 
-      const uint32_t c_stride = round_up_po2(groups, dwconv_parameters->cr);
+      const uint32_t c_stride = round_up_po2(groups, dwconv_parameters->channel_tile);
       const size_t packed_weights_size = (sizeof(uint8_t) * kernel_size + sizeof(int32_t)) * c_stride;
       convolution_op->packed_weights = xnn_allocate_simd_memory(packed_weights_size);
       if (convolution_op->packed_weights == NULL) {
@@ -259,21 +259,21 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
       if (flags & XNN_FLAG_DEPTHWISE_CONVOLUTION) {
         xnn_pack_q8_dwconv_hwg_w(
           kernel_height, kernel_width,
-          groups, dwconv_parameters->cr,
+          groups, dwconv_parameters->channel_tile,
           input_zero_point, kernel_zero_point,
           kernel, bias, convolution_op->packed_weights);
       } else {
         xnn_pack_q8_dwconv_ghw_w(
           kernel_height, kernel_width,
-          groups, dwconv_parameters->cr,
+          groups, dwconv_parameters->channel_tile,
           input_zero_point, kernel_zero_point,
           kernel, bias, convolution_op->packed_weights);
       }
 
       convolution_op->ukernel.dwconv = (struct xnn_ukernel_dwconv) {
-        .unipass_function = dwconv_parameters->up,
-        .mr = dwconv_parameters->mr,
-        .qr = dwconv_parameters->qr,
+        .unipass_function = dwconv_parameters->minmax.unipass,
+        .primary_tile = dwconv_parameters->primary_tile,
+        .incremental_tile = dwconv_parameters->incremental_tile,
       };
 
       zero_size = sizeof(uint8_t) * c_stride + XNN_EXTRA_BYTES;
@@ -307,7 +307,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
             .mr = xnn_params.q8.gemm.mr,
             .nr = nr,
             .kr = kr,
-            .general_case = xnn_params.q8.gemm.gemm,
+            .general_case = xnn_params.q8.gemm.minmax.gemm,
           };
           break;
         case xnn_ukernel_type_igemm:
@@ -328,7 +328,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
             .mr = xnn_params.q8.gemm.mr,
             .nr = nr,
             .kr = kr,
-            .general_case = xnn_params.q8.gemm.igemm,
+            .general_case = xnn_params.q8.gemm.minmax.igemm,
           };
           break;
         default:
@@ -552,6 +552,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
   } else {
     ukernel_type = xnn_ukernel_type_igemm;
   }
+  const bool linear_activation = (output_max == INFINITY) && (output_min == -output_max);
 
   size_t zero_size = 0;
   switch (ukernel_type) {
@@ -578,9 +579,9 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
     case xnn_ukernel_type_dwconv:
     {
       assert(dwconv_parameters != NULL);
-      assert(dwconv_parameters->mr == kernel_size);
+      assert(dwconv_parameters->primary_tile == kernel_size);
 
-      const uint32_t c_stride = round_up_po2(groups, dwconv_parameters->cr);
+      const uint32_t c_stride = round_up_po2(groups, dwconv_parameters->channel_tile);
       const size_t packed_weights_size = (kernel_size + 1) * sizeof(float) * c_stride;
       convolution_op->packed_weights = xnn_allocate_simd_memory(packed_weights_size);
       if (convolution_op->packed_weights == NULL) {
@@ -591,19 +592,23 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
       if (flags & XNN_FLAG_DEPTHWISE_CONVOLUTION) {
         xnn_pack_f32_dwconv_hwg_w(
           kernel_height, kernel_width,
-          groups, dwconv_parameters->cr,
+          groups, dwconv_parameters->channel_tile,
           kernel, bias, convolution_op->packed_weights);
       } else {
         xnn_pack_f32_dwconv_ghw_w(
           kernel_height, kernel_width,
-          groups, dwconv_parameters->cr,
+          groups, dwconv_parameters->channel_tile,
           kernel, bias, convolution_op->packed_weights);
       }
 
+      const union dwconv_fused_ukernels* ukernels = &dwconv_parameters->minmax;
+      if (linear_activation && dwconv_parameters->linear.unipass != NULL) {
+        ukernels = &dwconv_parameters->linear;
+      }
       convolution_op->ukernel.dwconv = (struct xnn_ukernel_dwconv) {
-        .unipass_function = dwconv_parameters->up,
-        .mr = dwconv_parameters->mr,
-        .qr = dwconv_parameters->qr,
+        .unipass_function = ukernels->unipass,
+        .primary_tile = dwconv_parameters->primary_tile,
+        .incremental_tile = dwconv_parameters->incremental_tile,
       };
 
       zero_size = sizeof(float) * c_stride;
@@ -626,6 +631,10 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
       }
       memset(convolution_op->packed_weights, 0, packed_group_weights_size * groups);
 
+      const struct gemm_fused_ukernels* ukernels = &xnn_params.f32.gemm.minmax;
+      if (linear_activation && xnn_params.f32.gemm.linear.gemm.function[XNN_UARCH_DEFAULT] != NULL) {
+        ukernels = &xnn_params.f32.gemm.linear;
+      }
       switch (ukernel_type) {
         case xnn_ukernel_type_gemm:
           xnn_pack_f32_gemm_goi_w(
@@ -636,8 +645,8 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
             .mr = xnn_params.f32.gemm.mr,
             .nr = nr,
             .kr = kr,
-            .general_case = xnn_params.f32.gemm.gemm,
-            .mr1_case = xnn_params.f32.gemm.gemm1,
+            .general_case = ukernels->gemm,
+            .mr1_case = ukernels->gemm1,
           };
           break;
         case xnn_ukernel_type_igemm:
@@ -656,8 +665,8 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
             .mr = xnn_params.f32.gemm.mr,
             .nr = nr,
             .kr = kr,
-            .general_case = xnn_params.f32.gemm.igemm,
-            .mr1_case = xnn_params.f32.gemm.igemm1,
+            .general_case = ukernels->igemm,
+            .mr1_case = ukernels->igemm1,
           };
           break;
         default:
@@ -698,7 +707,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
   convolution_op->input_pixel_stride = input_pixel_stride;
   convolution_op->output_pixel_stride = output_pixel_stride;
 
-  convolution_op->f32_output_params = xnn_init_f32_output_params(output_min, output_max);
+  convolution_op->f32_minmax_params = xnn_init_f32_minmax_params(output_min, output_max);
 
   convolution_op->type = xnn_operator_type_convolution_nhwc_f32;
   convolution_op->ukernel.type = ukernel_type;
@@ -1132,6 +1141,6 @@ enum xnn_status xnn_setup_convolution2d_nhwc_f32(
     2 /* log2(sizeof(filter element)) = log2(sizeof(float)) */,
     sizeof(float) /* sizeof(bias element) */,
     2 /* log2(sizeof(output element)) = log2(sizeof(float)) */,
-    &convolution_op->f32_output_params,
+    &convolution_op->f32_minmax_params,
     pthreadpool_get_threads_count(threadpool));
 }

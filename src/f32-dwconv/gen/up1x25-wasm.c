@@ -21,13 +21,11 @@ void xnn_f32_dwconv_ukernel_up1x25__wasm(
     float* output,
     size_t input_stride,
     size_t output_increment,
-    const union xnn_f32_output_params params[restrict static 1])
+    const union xnn_f32_default_params params[restrict static 1])
 {
   assert(channels != 0);
   assert(output_width != 0);
 
-  const float vmin = params->scalar.min;
-  const float vmax = params->scalar.max;
   do {
     const float* i0 = input[0];
     assert(i0 != NULL);
@@ -189,10 +187,7 @@ void xnn_f32_dwconv_ukernel_up1x25__wasm(
       w += 26;
 
 
-      float vacc0 = __builtin_wasm_max_f32(vacc0p0, vmin);
-      vacc0 = __builtin_wasm_min_f32(vacc0, vmax);
-
-      *output++ = vacc0;
+      *output++ = vacc0p0;
     } while (--c != 0);
 
     output = (float*) ((uintptr_t) output + output_increment);
