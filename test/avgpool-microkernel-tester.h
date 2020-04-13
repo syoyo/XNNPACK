@@ -209,7 +209,7 @@ class AvgPoolMicrokernelTester {
     return this->iterations_;
   }
 
-  void Test(xnn_q8_avgpool_up_ukernel_function avgpool, Variant variant = Variant::Native) const {
+  void Test(xnn_q8_avgpool_minmax_unipass_ukernel_function avgpool_minmax, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto u8rng = std::bind(std::uniform_int_distribution<uint8_t>(), rng);
@@ -280,7 +280,7 @@ class AvgPoolMicrokernelTester {
       }
 
       // Call optimized micro-kernel.
-      avgpool(output_pixels(), pooling_elements(), channels(),
+      avgpool_minmax(output_pixels(), pooling_elements(), channels(),
         indirect_input.data(), input_offset() * sizeof(uint8_t), zero.data(),
         output.data(),
         step() * sizeof(void*),
@@ -311,7 +311,7 @@ class AvgPoolMicrokernelTester {
     }
   }
 
-  void Test(xnn_q8_avgpool_mp_ukernel_function avgpool, Variant variant = Variant::Native) const {
+  void Test(xnn_q8_avgpool_minmax_multipass_ukernel_function avgpool_minmax, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto u8rng = std::bind(std::uniform_int_distribution<uint8_t>(), rng);
@@ -383,7 +383,7 @@ class AvgPoolMicrokernelTester {
       }
 
       // Call optimized micro-kernel.
-      avgpool(output_pixels(), pooling_elements(), channels(),
+      avgpool_minmax(output_pixels(), pooling_elements(), channels(),
         indirect_input.data(), input_offset() * sizeof(uint8_t), zero.data(),
         buffer.data(), output.data(),
         (step() - (packed_pooling_elements() - incremental_pooling_tile())) * sizeof(void*),
@@ -414,7 +414,7 @@ class AvgPoolMicrokernelTester {
     }
   }
 
-  void Test(xnn_f32_avgpool_up_ukernel_function avgpool, Variant variant = Variant::Native) const {
+  void Test(xnn_f32_avgpool_minmax_unipass_ukernel_function avgpool_minmax, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto f32rng = std::bind(std::uniform_real_distribution<float>(), rng);
@@ -467,20 +467,20 @@ class AvgPoolMicrokernelTester {
       }
 
       // Prepare output parameters.
-      xnn_f32_avgpool_params params = { };
+      xnn_f32_scaleminmax_params params = { };
       switch (variant) {
         case Variant::Native:
-          params = xnn_init_f32_avgpool_params(
+          params = xnn_init_f32_scaleminmax_params(
             1.0f / float(pooling_elements()), output_min, output_max);
           break;
         case Variant::Scalar:
-          params = xnn_init_scalar_f32_avgpool_params(
+          params = xnn_init_scalar_f32_scaleminmax_params(
             1.0f / float(pooling_elements()), output_min, output_max);
           break;
       }
 
       // Call optimized micro-kernel.
-      avgpool(output_pixels(), pooling_elements(), channels(),
+      avgpool_minmax(output_pixels(), pooling_elements(), channels(),
         indirect_input.data(), input_offset() * sizeof(float), zero.data(),
         output.data(),
         step() * sizeof(void*),
@@ -510,7 +510,7 @@ class AvgPoolMicrokernelTester {
     }
   }
 
-  void Test(xnn_f32_avgpool_mp_ukernel_function avgpool, Variant variant = Variant::Native) const {
+  void Test(xnn_f32_avgpool_minmax_multipass_ukernel_function avgpool_minmax, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto f32rng = std::bind(std::uniform_real_distribution<float>(), rng);
@@ -564,20 +564,20 @@ class AvgPoolMicrokernelTester {
       }
 
       // Prepare output parameters.
-      xnn_f32_avgpool_params params = { };
+      xnn_f32_scaleminmax_params params = { };
       switch (variant) {
         case Variant::Native:
-          params = xnn_init_f32_avgpool_params(
+          params = xnn_init_f32_scaleminmax_params(
             1.0f / float(pooling_elements()), output_min, output_max);
           break;
         case Variant::Scalar:
-          params = xnn_init_scalar_f32_avgpool_params(
+          params = xnn_init_scalar_f32_scaleminmax_params(
             1.0f / float(pooling_elements()), output_min, output_max);
           break;
       }
 
       // Call optimized micro-kernel.
-      avgpool(output_pixels(), pooling_elements(), channels(),
+      avgpool_minmax(output_pixels(), pooling_elements(), channels(),
         indirect_input.data(), input_offset() * sizeof(float), zero.data(),
         buffer.data(), output.data(),
         (step() - (packed_pooling_elements() - incremental_pooling_tile())) * sizeof(void*),
@@ -607,7 +607,7 @@ class AvgPoolMicrokernelTester {
     }
   }
 
-  void Test(xnn_f32_pavgpool_up_ukernel_function pavgpool, Variant variant = Variant::Native) const {
+  void Test(xnn_f32_pavgpool_minmax_unipass_ukernel_function pavgpool_minmax, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto f32irng = std::bind(std::uniform_real_distribution<float>(), rng);
@@ -663,18 +663,18 @@ class AvgPoolMicrokernelTester {
       }
 
       // Prepare output parameters.
-      xnn_f32_output_params params = { };
+      xnn_f32_minmax_params params = { };
       switch (variant) {
         case Variant::Native:
-          params = xnn_init_f32_output_params(output_min, output_max);
+          params = xnn_init_f32_minmax_params(output_min, output_max);
           break;
         case Variant::Scalar:
-          params = xnn_init_scalar_f32_output_params(output_min, output_max);
+          params = xnn_init_scalar_f32_minmax_params(output_min, output_max);
           break;
       }
 
       // Call optimized micro-kernel.
-      pavgpool(output_pixels(), pooling_elements(), channels(),
+      pavgpool_minmax(output_pixels(), pooling_elements(), channels(),
         indirect_input.data(), input_offset() * sizeof(float), zero.data(),
         multiplier.data(), output.data(),
         step() * sizeof(void*),
@@ -704,7 +704,7 @@ class AvgPoolMicrokernelTester {
     }
   }
 
-  void Test(xnn_f32_pavgpool_mp_ukernel_function pavgpool, Variant variant = Variant::Native) const {
+  void Test(xnn_f32_pavgpool_minmax_multipass_ukernel_function pavgpool_minmax, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto f32irng = std::bind(std::uniform_real_distribution<float>(), rng);
@@ -761,18 +761,18 @@ class AvgPoolMicrokernelTester {
       }
 
       // Prepare output parameters.
-      xnn_f32_output_params params = { };
+      xnn_f32_minmax_params params = { };
       switch (variant) {
         case Variant::Native:
-          params = xnn_init_f32_output_params(output_min, output_max);
+          params = xnn_init_f32_minmax_params(output_min, output_max);
           break;
         case Variant::Scalar:
-          params = xnn_init_scalar_f32_output_params(output_min, output_max);
+          params = xnn_init_scalar_f32_minmax_params(output_min, output_max);
           break;
       }
 
       // Call optimized micro-kernel.
-      pavgpool(output_pixels(), pooling_elements(), channels(),
+      pavgpool_minmax(output_pixels(), pooling_elements(), channels(),
         indirect_input.data(), input_offset() * sizeof(float), zero.data(),
         multiplier.data(), buffer.data(), output.data(),
         (step() - (packed_pooling_elements() - incremental_pooling_tile())) * sizeof(void*),

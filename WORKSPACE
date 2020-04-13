@@ -2,30 +2,34 @@ workspace(name = "xnnpack")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
+# Bazel rule definitions
+http_archive(
+    name = "rules_cc",
+    strip_prefix = "rules_cc-master",
+    urls = ["https://github.com/bazelbuild/rules_cc/archive/master.zip"],
+)
+
 # Google Test framework, used by most unit-tests.
 http_archive(
-     name = "com_google_googletest",
-     urls = ["https://github.com/google/googletest/archive/master.zip"],
-     strip_prefix = "googletest-master",
+    name = "com_google_googletest",
+    strip_prefix = "googletest-master",
+    urls = ["https://github.com/google/googletest/archive/master.zip"],
 )
 
 # Google Benchmark library, used in micro-benchmarks.
 http_archive(
     name = "com_google_benchmark",
-    urls = [
-        "https://github.com/google/benchmark/archive/master.zip"
-    ],
     strip_prefix = "benchmark-master",
-    build_file = "@//third_party:benchmark.BUILD",
+    urls = ["https://github.com/google/benchmark/archive/master.zip"],
 )
 
 # FP16 library, used for half-precision conversions
 http_archive(
     name = "FP16",
-    strip_prefix = "FP16-ba1d31f5eed2eb4a69e4dea3870a68c7c95f998f",
-    sha256 = "9764297a339ad73b0717331a2c3e9c42a52105cd04cab62cb160e2b4598d2ea6",
+    strip_prefix = "FP16-3c54eacb74f6f5e39077300c5564156c424d77ba",
+    sha256 = "0d56bb92f649ec294dbccb13e04865e3c82933b6f6735d1d7145de45da700156",
     urls = [
-        "https://github.com/Maratyszcza/FP16/archive/ba1d31f5eed2eb4a69e4dea3870a68c7c95f998f.tar.gz",
+        "https://github.com/Maratyszcza/FP16/archive/3c54eacb74f6f5e39077300c5564156c424d77ba.zip",
     ],
     build_file = "@//third_party:FP16.BUILD",
 )
@@ -33,23 +37,17 @@ http_archive(
 # FXdiv library, used for repeated integer division by the same factor
 http_archive(
     name = "FXdiv",
-    strip_prefix = "FXdiv-f8c5354679ec2597792bc70a9e06eff50c508b9a",
-    sha256 = "7d3215bea832fe77091ec5666200b91156df6724da1e348205078346325fc45e",
-    urls = [
-        "https://github.com/Maratyszcza/FXdiv/archive/f8c5354679ec2597792bc70a9e06eff50c508b9a.tar.gz",
-    ],
-    build_file = "@//third_party:FXdiv.BUILD",
+    strip_prefix = "FXdiv-f7dd0576a1c8289ef099d4fd8b136b1c4487a873",
+    sha256 = "6e4b6e3c58e67c3bb090e286c4f235902c89b98cf3e67442a18f9167963aa286",
+    urls = ["https://github.com/Maratyszcza/FXdiv/archive/f7dd0576a1c8289ef099d4fd8b136b1c4487a873.zip"],
 )
 
 # pthreadpool library, used for parallelization
 http_archive(
     name = "pthreadpool",
-    strip_prefix = "pthreadpool-ebd50d0cfa3664d454ffdf246fcd228c3b370a11",
-    sha256 = "ca4fc774cf2339cb739bba827de8ed4ccbd450c4608e05329e974153448aaf56",
-    urls = [
-        "https://github.com/Maratyszcza/pthreadpool/archive/ebd50d0cfa3664d454ffdf246fcd228c3b370a11.tar.gz",
-    ],
-    build_file = "@//third_party:pthreadpool.BUILD",
+    strip_prefix = "pthreadpool-da486afd0f9e2b42ccb90940e2dfba6cfed38708",
+    sha256 = "8602a23e9d69cedf6054f428b3f8dbd935e1c5811df3adf38f0985ed1fed74ee",
+    urls = ["https://github.com/Maratyszcza/pthreadpool/archive/da486afd0f9e2b42ccb90940e2dfba6cfed38708.zip"],
 )
 
 # clog library, used for logging
@@ -66,13 +64,12 @@ http_archive(
 # cpuinfo library, used for detecting processor characteristics
 http_archive(
     name = "cpuinfo",
-    strip_prefix = "cpuinfo-d6c0f915ee737f961915c9d17f1679b6777af207",
-    sha256 = "146fc61c3cf63d7d88db963876929a4d373f621fb65568b895efa0857f467770",
+    strip_prefix = "cpuinfo-0cc563acb9baac39f2c1349bc42098c4a1da59e3",
+    sha256 = "80625d0b69a3d69b70c2236f30db2c542d0922ccf9bb51a61bc39c49fac91a35",
     urls = [
-        "https://github.com/pytorch/cpuinfo/archive/d6c0f915ee737f961915c9d17f1679b6777af207.tar.gz",
+        "https://github.com/pytorch/cpuinfo/archive/0cc563acb9baac39f2c1349bc42098c4a1da59e3.tar.gz",
     ],
     build_file = "@//third_party:cpuinfo.BUILD",
-    patches = ["@//third_party:cpuinfo.patch"],
 )
 
 # psimd library, used for fallback 128-bit SIMD micro-kernels
@@ -84,6 +81,16 @@ http_archive(
         "https://github.com/Maratyszcza/psimd/archive/88882f601f8179e1987b7e7cf4a8012c9080ad44.tar.gz",
     ],
     build_file = "@//third_party:psimd.BUILD",
+)
+
+# Ruy library, used to benchmark against
+http_archive(
+   name = "ruy",
+   strip_prefix = "ruy-3d62e9545bd15c5df9ccfdd8453b93d64a6dd8eb",
+   sha256 = "ca3024739684d5aba3612072511f508e88b34231ac8d19c8c3cc6598b6bb535d",
+   urls = [
+       "https://github.com/google/ruy/archive/3d62e9545bd15c5df9ccfdd8453b93d64a6dd8eb.zip",
+   ],
 )
 
 # Android NDK location and version is auto-detected from $ANDROID_NDK_HOME environment variable

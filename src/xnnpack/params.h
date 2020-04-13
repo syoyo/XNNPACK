@@ -17,27 +17,31 @@
 
 struct xnn_f16_output_params {
   uint16_t scale;
-  uint16_t max;
   uint16_t min;
+  uint16_t max;
 };
 
-union xnn_f32_output_params {
+union xnn_f32_default_params {
+  /* Empty; serves to differentiate pointer types for micro-kernels without fused activation */
+};
+
+union xnn_f32_minmax_params {
   struct {
-    float max;
     float min;
+    float max;
   } scalar;
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
-    XNN_ALIGN(16) float max[4];
     XNN_ALIGN(16) float min[4];
+    XNN_ALIGN(16) float max[4];
   } sse;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
 union xnn_f32_spchw_params {
   struct {
-    float max;
     float min;
+    float max;
   } scalar;
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   struct {
@@ -50,8 +54,8 @@ union xnn_f32_spchw_params {
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
-    XNN_ALIGN(16) float max[4];
     XNN_ALIGN(16) float min[4];
+    XNN_ALIGN(16) float max[4];
     XNN_ALIGN(16) uint32_t mask_even[4]; // used by stride 2 kernels
     XNN_ALIGN(16) uint32_t mask_odd[4];  // used by stride 2 kernels
     XNN_ALIGN(16) uint32_t mask[4]; // used by stride 1 kernels
@@ -59,45 +63,38 @@ union xnn_f32_spchw_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
-union xnn_u8_output_params {
+union xnn_u8_minmax_params {
   struct {
-    int32_t max;
     int32_t min;
+    int32_t max;
   } scalar;
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   struct {
-    uint8_t max;
     uint8_t min;
+    uint8_t max;
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
-    XNN_ALIGN(16) uint8_t max[16];
     XNN_ALIGN(16) uint8_t min[16];
+    XNN_ALIGN(16) uint8_t max[16];
   } sse2;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
-union xnn_f32_avgpool_params {
+union xnn_f32_scaleminmax_params {
   struct {
-    float multiplier;
-    float output_min;
-    float output_max;
+    float scale;
+    float min;
+    float max;
   } scalar;
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
-    XNN_ALIGN(16) float multiplier[4];
-    XNN_ALIGN(16) float output_max[4];
-    XNN_ALIGN(16) float output_min[4];
+    XNN_ALIGN(16) float scale[4];
+    XNN_ALIGN(16) float min[4];
+    XNN_ALIGN(16) float max[4];
   } sse2;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
-#if XNN_ARCH_ARM || XNN_ARCH_ARM64
-  struct {
-    XNN_ALIGN(16) float multiplier;
-    XNN_ALIGN(16) float output_max;
-    XNN_ALIGN(16) float output_min;
-  } neon;
-#endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 };
 
 union xnn_f32_gavgpool_params {
@@ -109,16 +106,16 @@ union xnn_f32_gavgpool_params {
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
     XNN_ALIGN(16) float multiplier[4];
-    XNN_ALIGN(16) float output_max[4];
     XNN_ALIGN(16) float output_min[4];
+    XNN_ALIGN(16) float output_max[4];
     XNN_ALIGN(16) uint32_t mask[4];
   } sse;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   struct {
     XNN_ALIGN(16) float multiplier;
-    XNN_ALIGN(16) float output_max;
     XNN_ALIGN(16) float output_min;
+    XNN_ALIGN(16) float output_max;
     XNN_ALIGN(16) uint32_t mask[4];
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64 */
@@ -158,8 +155,8 @@ union xnn_q8_gemm_params {
     int32_t multiplier;
     int32_t right_shift;
     int16_t output_zero_point;
-    uint8_t output_max;
     uint8_t output_min;
+    uint8_t output_max;
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
@@ -172,8 +169,8 @@ union xnn_q8_gemm_params {
     XNN_ALIGN(16) int32_t remainder_threshold[4];
     XNN_ALIGN(16) uint64_t shift[2];
     XNN_ALIGN(16) int16_t output_zero_point[8];
-    XNN_ALIGN(16) uint8_t output_max[16];
     XNN_ALIGN(16) uint8_t output_min[16];
+    XNN_ALIGN(16) uint8_t output_max[16];
   } sse2;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
@@ -187,8 +184,8 @@ union xnn_q8_add_params {
     int32_t remainder_mask;
     int32_t remainder_threshold;
     int32_t y_zero_point;
-    int32_t y_max;
     int32_t y_min;
+    int32_t y_max;
   } scalar;
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   struct {
@@ -198,8 +195,8 @@ union xnn_q8_add_params {
     int32_t a_multiplier;
     int32_t b_multiplier;
     int32_t right_shift;
-    uint8_t y_max;
     uint8_t y_min;
+    uint8_t y_max;
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
@@ -212,8 +209,8 @@ union xnn_q8_add_params {
     XNN_ALIGN(16) int32_t remainder_mask[4];
     XNN_ALIGN(16) int32_t remainder_threshold[4];
     XNN_ALIGN(16) int16_t y_zero_point[8];
-    XNN_ALIGN(16) uint8_t y_max[16];
     XNN_ALIGN(16) uint8_t y_min[16];
+    XNN_ALIGN(16) uint8_t y_max[16];
     uint32_t shift;
     uint32_t a_multiplier;
     uint32_t b_multiplier;
@@ -237,8 +234,8 @@ union xnn_q8_avgpool_params {
     int32_t multiplier;
     int64_t left_shift;
     int16_t output_zero_point;
-    uint8_t output_max;
     uint8_t output_min;
+    uint8_t output_max;
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
@@ -248,8 +245,8 @@ union xnn_q8_avgpool_params {
     XNN_ALIGN(16) uint64_t rounding[2];
     XNN_ALIGN(16) uint64_t right_shift[2];
     XNN_ALIGN(16) int16_t output_zero_point[8];
-    XNN_ALIGN(16) uint8_t output_max[16];
     XNN_ALIGN(16) uint8_t output_min[16];
+    XNN_ALIGN(16) uint8_t output_max[16];
   } sse2;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
@@ -264,22 +261,22 @@ union xnn_fp32_requantization_params {
   } scalar;
   struct {
     float scale;
-    float max;
     float min;
+    float max;
     float magic;
     int32_t magic_less_zero_point;
   } neon;
   struct {
     float scale;
     int16_t zero_point;
-    uint8_t max;
     uint8_t min;
+    uint8_t max;
   } neonv8;
   struct {
     XNN_ALIGN(16) float scale[4];
     XNN_ALIGN(16) int16_t zero_point[8];
-    XNN_ALIGN(16) uint8_t max[16];
     XNN_ALIGN(16) uint8_t min[16];
+    XNN_ALIGN(16) uint8_t max[16];
   } sse2;
   struct {
     XNN_ALIGN(16) float scale[4];
@@ -304,16 +301,16 @@ union xnn_precise_requantization_params {
     int32_t multiplier;
     int32_t right_shift;
     int16_t zero_point;
-    uint8_t max;
     uint8_t min;
+    uint8_t max;
   } neon;
   struct {
     XNN_ALIGN(16) uint32_t multiplier[4];
     XNN_ALIGN(16) uint64_t rounding[2];
     XNN_ALIGN(16) uint32_t shift[4];
     XNN_ALIGN(16) int16_t zero_point[8];
-    XNN_ALIGN(16) uint8_t max[16];
     XNN_ALIGN(16) uint8_t min[16];
+    XNN_ALIGN(16) uint8_t max[16];
   } sse2;
 };
 
@@ -332,8 +329,8 @@ union xnn_q31_requantization_params {
     int32_t multiplier;
     int32_t right_shift;
     int16_t zero_point;
-    uint8_t max;
     uint8_t min;
+    uint8_t max;
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
@@ -344,8 +341,8 @@ union xnn_q31_requantization_params {
     XNN_ALIGN(16) int32_t remainder_threshold[4];
     XNN_ALIGN(16) uint64_t shift[2];
     XNN_ALIGN(16) int16_t zero_point[8];
-    XNN_ALIGN(16) uint8_t max[16];
     XNN_ALIGN(16) uint8_t min[16];
+    XNN_ALIGN(16) uint8_t max[16];
   } sse2;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
@@ -367,7 +364,7 @@ typedef void (*xnn_ppmm_ukernel_function)(
     size_t cn_stride,
     const void* params);
 
-typedef void (*xnn_f32_ppmm_ukernel_function)(
+typedef void (*xnn_f32_ppmm_minmax_ukernel_function)(
     size_t mr,
     size_t nc,
     size_t kc,
@@ -376,7 +373,7 @@ typedef void (*xnn_f32_ppmm_ukernel_function)(
     float* c,
     size_t cm_stride,
     size_t cn_stride,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_f16_ppmm_ukernel_function)(
     size_t mr,
@@ -411,9 +408,21 @@ typedef void (*xnn_f32_gemm_ukernel_function)(
     float* c,
     size_t cm_stride,
     size_t cn_stride,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_default_params* params);
 
-typedef void (*xnn_f32_gemminc_ukernel_function)(
+typedef void (*xnn_f32_gemm_minmax_ukernel_function)(
+    size_t mr,
+    size_t nr,
+    size_t k,
+    const float* a,
+    size_t a_stride,
+    const float* w,
+    float* c,
+    size_t cm_stride,
+    size_t cn_stride,
+    const union xnn_f32_minmax_params* params);
+
+typedef void (*xnn_f32_gemminc_minmax_ukernel_function)(
     size_t mr,
     size_t nr,
     size_t k,
@@ -424,7 +433,7 @@ typedef void (*xnn_f32_gemminc_ukernel_function)(
     size_t cm_stride,
     size_t cn_stride,
     const float* acc,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_f16_gemm_ukernel_function)(
     size_t mr,
@@ -476,7 +485,21 @@ typedef void (*xnn_f32_igemm_ukernel_function)(
     size_t cn_stride,
     size_t a_offset,
     const float* zero,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_default_params* params);
+
+typedef void (*xnn_f32_igemm_minmax_ukernel_function)(
+    size_t mr,
+    size_t nr,
+    size_t kc,
+    size_t ks,
+    const float** a,
+    const float* w,
+    float* c,
+    size_t cm_stride,
+    size_t cn_stride,
+    size_t a_offset,
+    const float* zero,
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_q8_igemm_ukernel_function)(
     size_t mr,
@@ -520,7 +543,7 @@ typedef void (*xnn_f32_conv_hwc_ukernel_function)(
     size_t output_channels,
     size_t output_height_stride,
     size_t output_width_stride,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_conv_hwc2spchw_ukernel_function)(
     size_t input_height,
@@ -550,7 +573,7 @@ typedef void (*xnn_f32_conv_hwc2spchw_ukernel_function)(
     size_t output_channels,
     size_t output_height_stride,
     size_t output_channel_stride,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_spmm_ukernel_function)(
     uint32_t m,
@@ -562,7 +585,7 @@ typedef void (*xnn_spmm_ukernel_function)(
     void* c,
     const void* params);
 
-typedef void (*xnn_f16_spmm_ukernel_function)(
+typedef void (*xnn_f16_spmm_minmax_ukernel_function)(
     uint32_t m,
     uint32_t n,
     const void* a,
@@ -572,7 +595,7 @@ typedef void (*xnn_f16_spmm_ukernel_function)(
     void* c,
     const struct xnn_f16_output_params* params);
 
-typedef void (*xnn_f32_spmm_ukernel_function)(
+typedef void (*xnn_f32_spmm_minmax_ukernel_function)(
     uint32_t m,
     uint32_t n,
     const float* a,
@@ -580,7 +603,7 @@ typedef void (*xnn_f32_spmm_ukernel_function)(
     const int32_t* dmap,
     const uint32_t* nmap,
     float* c,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_packx_ukernel_function)(
     size_t m,
@@ -686,7 +709,7 @@ typedef void (*xnn_f32_dwconv_spchw_ukernel_function)(
     size_t output_height_stride,
     const union xnn_f32_spchw_params* params);
 
-typedef void (*xnn_dwconv_up_ukernel_function)(
+typedef void (*xnn_dwconv_unipass_ukernel_function)(
     size_t channels,
     size_t output_width,
     const void** input,
@@ -696,7 +719,7 @@ typedef void (*xnn_dwconv_up_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_dwconv_up_ukernel_function)(
+typedef void (*xnn_f32_dwconv_unipass_ukernel_function)(
     size_t channels,
     size_t output_width,
     const float** input,
@@ -704,9 +727,19 @@ typedef void (*xnn_f32_dwconv_up_ukernel_function)(
     float* output,
     size_t input_stride,
     size_t output_increment,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_default_params* params);
 
-typedef void (*xnn_q8_dwconv_up_ukernel_function)(
+typedef void (*xnn_f32_dwconv_minmax_unipass_ukernel_function)(
+    size_t channels,
+    size_t output_width,
+    const float** input,
+    const float* weights,
+    float* output,
+    size_t input_stride,
+    size_t output_increment,
+    const union xnn_f32_minmax_params* params);
+
+typedef void (*xnn_q8_dwconv_minmax_unipass_ukernel_function)(
     size_t channels,
     size_t output_width,
     const uint8_t** input,
@@ -716,7 +749,7 @@ typedef void (*xnn_q8_dwconv_up_ukernel_function)(
     size_t output_increment,
     const union xnn_q8_gemm_params* params);
 
-typedef void (*xnn_dwconv_mp_ukernel_function)(
+typedef void (*xnn_dwconv_multipass_ukernel_function)(
     size_t channels,
     size_t output_width,
     const void** input,
@@ -745,7 +778,7 @@ typedef void (*xnn_ibilinear_ukernel_function)(
     void* output,
     size_t output_increment);
 
-typedef void (*xnn_gavgpool_up_ukernel_function)(
+typedef void (*xnn_gavgpool_unipass_ukernel_function)(
     size_t rows,
     size_t channels,
     const void* input,
@@ -754,16 +787,16 @@ typedef void (*xnn_gavgpool_up_ukernel_function)(
     void* output,
     const void* params);
 
-typedef void (*xnn_f32_gavgpool_up_ukernel_function)(
+typedef void (*xnn_f32_gavgpool_minmax_unipass_ukernel_function)(
     size_t rows,
     size_t channels,
     const float* input,
     size_t input_stride,
     const float* zero,
     float* output,
-    const union xnn_f32_avgpool_params* params);
+    const union xnn_f32_scaleminmax_params* params);
 
-typedef void (*xnn_q8_gavgpool_up_ukernel_function)(
+typedef void (*xnn_q8_gavgpool_minmax_unipass_ukernel_function)(
     size_t rows,
     size_t channels,
     const uint8_t* input,
@@ -772,7 +805,7 @@ typedef void (*xnn_q8_gavgpool_up_ukernel_function)(
     uint8_t* output,
     const union xnn_q8_avgpool_params* params);
 
-typedef void (*xnn_gavgpool_mp_ukernel_function)(
+typedef void (*xnn_gavgpool_multipass_ukernel_function)(
     size_t rows,
     size_t channels,
     const void* input,
@@ -782,7 +815,7 @@ typedef void (*xnn_gavgpool_mp_ukernel_function)(
     void* output,
     const void* params);
 
-typedef void (*xnn_f32_gavgpool_mp_ukernel_function)(
+typedef void (*xnn_f32_gavgpool_minmax_multipass_ukernel_function)(
     size_t rows,
     size_t channels,
     const float* input,
@@ -790,9 +823,9 @@ typedef void (*xnn_f32_gavgpool_mp_ukernel_function)(
     const float* zero,
     float* buffer,
     float* output,
-    const union xnn_f32_avgpool_params* params);
+    const union xnn_f32_scaleminmax_params* params);
 
-typedef void (*xnn_q8_gavgpool_mp_ukernel_function)(
+typedef void (*xnn_q8_gavgpool_minmax_multipass_ukernel_function)(
     size_t rows,
     size_t channels,
     const uint8_t* input,
@@ -816,7 +849,7 @@ typedef void (*xnn_f32_gavgpool_spchw_ukernel_function)(
     float* output,
     const union xnn_f32_gavgpool_params* params);
 
-typedef void (*xnn_avgpool_up_ukernel_function)(
+typedef void (*xnn_avgpool_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -828,7 +861,7 @@ typedef void (*xnn_avgpool_up_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_avgpool_up_ukernel_function)(
+typedef void (*xnn_f32_avgpool_minmax_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -838,9 +871,9 @@ typedef void (*xnn_f32_avgpool_up_ukernel_function)(
     float* output,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_avgpool_params* params);
+    const union xnn_f32_scaleminmax_params* params);
 
-typedef void (*xnn_q8_avgpool_up_ukernel_function)(
+typedef void (*xnn_q8_avgpool_minmax_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -852,7 +885,7 @@ typedef void (*xnn_q8_avgpool_up_ukernel_function)(
     size_t output_increment,
     const union xnn_q8_avgpool_params* params);
 
-typedef void (*xnn_avgpool_mp_ukernel_function)(
+typedef void (*xnn_avgpool_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -865,7 +898,7 @@ typedef void (*xnn_avgpool_mp_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_avgpool_mp_ukernel_function)(
+typedef void (*xnn_f32_avgpool_minmax_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -876,9 +909,9 @@ typedef void (*xnn_f32_avgpool_mp_ukernel_function)(
     float* output,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_avgpool_params* params);
+    const union xnn_f32_scaleminmax_params* params);
 
-typedef void (*xnn_q8_avgpool_mp_ukernel_function)(
+typedef void (*xnn_q8_avgpool_minmax_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -891,7 +924,7 @@ typedef void (*xnn_q8_avgpool_mp_ukernel_function)(
     size_t output_increment,
     const union xnn_q8_avgpool_params* params);
 
-typedef void (*xnn_pavgpool_up_ukernel_function)(
+typedef void (*xnn_pavgpool_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -904,7 +937,7 @@ typedef void (*xnn_pavgpool_up_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_pavgpool_up_ukernel_function)(
+typedef void (*xnn_f32_pavgpool_minmax_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -915,9 +948,9 @@ typedef void (*xnn_f32_pavgpool_up_ukernel_function)(
     float* output,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
-typedef void (*xnn_pavgpool_mp_ukernel_function)(
+typedef void (*xnn_pavgpool_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -931,7 +964,7 @@ typedef void (*xnn_pavgpool_mp_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_pavgpool_mp_ukernel_function)(
+typedef void (*xnn_f32_pavgpool_minmax_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -943,7 +976,7 @@ typedef void (*xnn_f32_pavgpool_mp_ukernel_function)(
     float* output,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_maxpool_ukernel_function)(
     size_t output_pixels,
@@ -965,7 +998,7 @@ typedef void (*xnn_f32_maxpool_ukernel_function)(
     float* output,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_u8_maxpool_ukernel_function)(
     size_t output_pixels,
@@ -976,9 +1009,9 @@ typedef void (*xnn_u8_maxpool_ukernel_function)(
     uint8_t* output,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_u8_output_params* params);
+    const union xnn_u8_minmax_params* params);
 
-typedef void (*xnn_argmaxpool_up_ukernel_function)(
+typedef void (*xnn_argmaxpool_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -990,7 +1023,7 @@ typedef void (*xnn_argmaxpool_up_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_argmaxpool_up_ukernel_function)(
+typedef void (*xnn_f32_argmaxpool_unipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -1000,9 +1033,9 @@ typedef void (*xnn_f32_argmaxpool_up_ukernel_function)(
     uint32_t* index,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
-typedef void (*xnn_argmaxpool_mp_ukernel_function)(
+typedef void (*xnn_argmaxpool_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -1016,7 +1049,7 @@ typedef void (*xnn_argmaxpool_mp_ukernel_function)(
     size_t output_increment,
     const void* params);
 
-typedef void (*xnn_f32_argmaxpool_mp_ukernel_function)(
+typedef void (*xnn_f32_argmaxpool_multipass_ukernel_function)(
     size_t output_pixels,
     size_t kernel_elements,
     size_t channels,
@@ -1028,7 +1061,7 @@ typedef void (*xnn_f32_argmaxpool_mp_ukernel_function)(
     uint32_t* index,
     size_t input_increment,
     size_t output_increment,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_univector_ukernel_function)(
     size_t n,
@@ -1040,13 +1073,13 @@ typedef void (*xnn_f32_clamp_ukernel_function)(
     size_t n,
     const float* x,
     float* y,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_u8_clamp_ukernel_function)(
     size_t n,
     const uint8_t* x,
     uint8_t* y,
-    const union xnn_u8_output_params* params);
+    const union xnn_u8_minmax_params* params);
 
 typedef void (*xnn_f32_hswish_ukernel_function)(
     size_t n,
@@ -1082,14 +1115,7 @@ typedef void (*xnn_vadd_ukernel_function)(
     void* y,
     const void* params);
 
-typedef void (*xnn_f32_vadd_ukernel_function)(
-    size_t n,
-    const float* a,
-    const float* b,
-    float* y,
-    const union xnn_f32_output_params* params);
-
-typedef void (*xnn_q8_vadd_ukernel_function)(
+typedef void (*xnn_q8_vadd_minmax_ukernel_function)(
     size_t n,
     const uint8_t* a,
     const uint8_t* b,
@@ -1108,7 +1134,14 @@ typedef void (*xnn_f32_vbinary_ukernel_function)(
     const float* a,
     const float* b,
     float* y,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_default_params* params);
+
+typedef void (*xnn_f32_vbinary_minmax_ukernel_function)(
+    size_t n,
+    const float* a,
+    const float* b,
+    float* y,
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_vunary_ukernel_function)(
     size_t n,
@@ -1140,7 +1173,7 @@ typedef void (*xnn_f32_vmulcaddc_ukernel_function)(
     const float* w,
     float* y,
     size_t y_stride,
-    const union xnn_f32_output_params* params);
+    const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_prelu_ukernel_function)(
     size_t mr,
@@ -1200,13 +1233,67 @@ typedef void (*xnn_f32_vscaleextexp_ukernel_function)(
     float scale_mantissa,
     float scale_exponent);
 
+struct xnn_hmp_gemm_ukernel {
+  xnn_gemm_ukernel_function function[XNN_MAX_UARCH_TYPES];
+};
+
+static inline struct xnn_hmp_gemm_ukernel xnn_init_hmp_gemm_ukernel(xnn_gemm_ukernel_function function) {
+  struct xnn_hmp_gemm_ukernel ukernel = { function };
+  for (size_t i = 1; i < XNN_MAX_UARCH_TYPES; i++) {
+    ukernel.function[i] = function;
+  }
+  return ukernel;
+}
+
+static inline bool xnn_is_hmp_gemm_ukernel(struct xnn_hmp_gemm_ukernel ukernel) {
+#if XNN_MAX_UARCH_TYPES == 1
+  return false;
+#else
+  uintptr_t default_function = (uintptr_t) ukernel.function[XNN_UARCH_DEFAULT];
+  uintptr_t difference = 0;
+  for (size_t i = 1; i < XNN_MAX_UARCH_TYPES; i++) {
+    difference |= (default_function ^ (uintptr_t) ukernel.function[i]);
+  }
+  return difference != 0;
+#endif
+}
+
+struct xnn_hmp_igemm_ukernel {
+  xnn_igemm_ukernel_function function[XNN_MAX_UARCH_TYPES];
+};
+
+static inline struct xnn_hmp_igemm_ukernel xnn_init_hmp_igemm_ukernel(xnn_igemm_ukernel_function function) {
+  struct xnn_hmp_igemm_ukernel ukernel = { function };
+  for (size_t i = 1; i < XNN_MAX_UARCH_TYPES; i++) {
+    ukernel.function[i] = function;
+  }
+  return ukernel;
+}
+
+static inline bool xnn_is_hmp_igemm_ukernel(struct xnn_hmp_igemm_ukernel ukernel) {
+#if XNN_MAX_UARCH_TYPES == 1
+  return false;
+#else
+  uintptr_t default_function = (uintptr_t) ukernel.function[XNN_UARCH_DEFAULT];
+  uintptr_t difference = 0;
+  for (size_t i = 1; i < XNN_MAX_UARCH_TYPES; i++) {
+    difference |= (default_function ^ (uintptr_t) ukernel.function[i]);
+  }
+  return difference != 0;
+#endif
+}
+
+struct gemm_fused_ukernels {
+  struct xnn_hmp_gemm_ukernel gemm;
+  struct xnn_hmp_igemm_ukernel igemm;
+  // Optional GEMM and IGEMM micro-kernels with MR=1 and the same NR and KR parameters.
+  struct xnn_hmp_gemm_ukernel gemm1;
+  struct xnn_hmp_igemm_ukernel igemm1;
+};
 
 struct gemm_parameters {
-  xnn_gemm_ukernel_function gemm;
-  xnn_igemm_ukernel_function igemm;
-  // Optional GEMM and IGEMM micro-kernels with MR=1 and the same NR and KR parameters.
-  xnn_gemm_ukernel_function gemm1;
-  xnn_igemm_ukernel_function igemm1;
+  struct gemm_fused_ukernels minmax;
+  struct gemm_fused_ukernels linear;
   uint8_t mr;
   uint8_t nr;
   uint8_t log2_kr;
@@ -1262,40 +1349,43 @@ struct spchw_gavgpool_parameters {
   uint8_t channel_tile;
 };
 
+union dwconv_fused_ukernels {
+  xnn_dwconv_unipass_ukernel_function unipass;
+  xnn_dwconv_multipass_ukernel_function multipass;
+};
+
 struct dwconv_parameters {
-  union {
-    xnn_dwconv_up_ukernel_function up;
-    xnn_dwconv_mp_ukernel_function mp;
-  };
-  uint8_t cr;
-  uint8_t mr;
-  uint8_t qr;
+  union dwconv_fused_ukernels minmax;
+  union dwconv_fused_ukernels linear;
+  uint8_t channel_tile;
+  uint8_t primary_tile;
+  uint8_t incremental_tile;
 };
 
 struct gavgpool_parameters {
-  xnn_gavgpool_up_ukernel_function up;
-  xnn_gavgpool_mp_ukernel_function mp;
+  xnn_gavgpool_unipass_ukernel_function up;
+  xnn_gavgpool_multipass_ukernel_function mp;
   uint8_t mr;
 };
 
 struct avgpool_parameters {
-  xnn_avgpool_up_ukernel_function up;
-  xnn_avgpool_mp_ukernel_function mp;
+  xnn_avgpool_unipass_ukernel_function up;
+  xnn_avgpool_multipass_ukernel_function mp;
   uint8_t mr;
   uint8_t qr;
 };
 
 struct pavgpool_parameters {
-  xnn_pavgpool_up_ukernel_function up;
-  xnn_pavgpool_mp_ukernel_function mp;
+  xnn_pavgpool_unipass_ukernel_function up;
+  xnn_pavgpool_multipass_ukernel_function mp;
   uint8_t mr;
   uint8_t qr;
 };
 
 struct argmaxpool_parameters {
   union {
-    xnn_argmaxpool_up_ukernel_function up;
-    xnn_argmaxpool_mp_ukernel_function mp;
+    xnn_argmaxpool_unipass_ukernel_function up;
+    xnn_argmaxpool_multipass_ukernel_function mp;
   };
   uint8_t mr;
   uint8_t qr;

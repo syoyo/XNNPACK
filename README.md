@@ -2,7 +2,7 @@
 
 ![C/C++ CI](https://github.com/syoyo/XNNPACK/workflows/C/C++%20CI/badge.svg?branch=master)
 
-XNNPACK is a highly optimized library of floating-point neural network inference operators for ARM, WebAssembly, and x86 platforms. XNNPACK is not intended for direct use by deep learning practitioners and researchers; instead it provides low-level performance primitives for accelerating high-level machine learning frameworks, such as [MediaPipe](https://mediapipe.dev), [TensorFlow Lite](https://www.tensorflow.org/lite), and [TensorFlow.js](https://www.tensorflow.org/js).
+XNNPACK is a highly optimized library of floating-point neural network inference operators for ARM, WebAssembly, and x86 platforms. XNNPACK is not intended for direct use by deep learning practitioners and researchers; instead it provides low-level performance primitives for accelerating high-level machine learning frameworks, such as [TensorFlow Lite](https://www.tensorflow.org/lite), [TensorFlow.js](https://www.tensorflow.org/js), [PyTorch](https://pytorch.org/), and [MediaPipe](https://mediapipe.dev).
 
 ## Supported Architectures
 
@@ -48,21 +48,21 @@ The table below presents **single-threaded** performance of XNNPACK library on t
 
 | Model              | Pixel, ms | Pixel 2, ms | Pixel 3a, ms |
 | ------------------ | :-------: | :---------: | :----------: |
-| MobileNet v1 1.0X  |    81     |      89     |      88      |
-| MobileNet v2 1.0X  |    48     |      55     |      54      |
-| MobileNet v3 Large |    40     |      44     |      44      |
+| MobileNet v1 1.0X  |    82     |      86     |      88      |
+| MobileNet v2 1.0X  |    49     |      53     |      55      |
+| MobileNet v3 Large |    39     |      42     |      44      |
 | MobileNet v3 Small |    12     |      14     |      14      |
 
 The following table presents **multi-threaded** (using as many threads as there are big cores) performance of XNNPACK library on three generations of MobileNet models and three generations of Pixel phones.
 
 | Model              | Pixel, ms | Pixel 2, ms | Pixel 3a, ms |
 | ------------------ | :-------: | :---------: | :----------: |
-| MobileNet v1 1.0X  |    45     |      27     |      46      |
-| MobileNet v2 1.0X  |    28     |      18     |      28      |
-| MobileNet v3 Large |    23     |      16     |      24      |
+| MobileNet v1 1.0X  |    43     |      27     |      46      |
+| MobileNet v2 1.0X  |    26     |      18     |      28      |
+| MobileNet v3 Large |    22     |      16     |      24      |
 | MobileNet v3 Small |     7     |       6     |       8      |
 
-Benchmarked on January 9, 2020 with `end2end_bench --benchmark_min_time=5` on an Android/ARM64 build (`bazel build -c opt --config android_arm64 :end2end_bench`) and neural network models with randomized weights and inputs.
+Benchmarked on March 27, 2020 with `end2end_bench --benchmark_min_time=5` on an Android/ARM64 build with Android NDK r21 (`bazel build -c opt --config android_arm64 :end2end_bench`) and neural network models with randomized weights and inputs.
 
 ### Raspberry Pi
 
@@ -90,9 +90,9 @@ Benchmarked on February 12, 2020 with `end2end-bench --benchmark_min_time=5` on 
 
 ### Machine Learning Frameworks
 
-- [TensorFlow.js WebAssembly backend](https://github.com/tensorflow/tfjs/tree/master/tfjs-backend-wasm).
-- TensorFlow Lite through the [XNNPACK delegate](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/delegates/xnnpack).
+- [TensorFlow.js WebAssembly backend](https://blog.tensorflow.org/2020/03/introducing-webassembly-backend-for-tensorflow-js.html).
 - [MediaPipe for Web](https://developers.googleblog.com/2020/01/mediapipe-on-web.html).
+- TensorFlow Lite through the [XNNPACK delegate](https://github.com/tensorflow/tensorflow/tree/master/tensorflow/lite/delegates/xnnpack).
 - [PyTorch](https://github.com/pytorch/pytorch/tree/master/aten/src/ATen/native/xnnpack).
 
 ## Acknowledgements

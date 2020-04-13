@@ -91,6 +91,16 @@
   #define XNN_PLATFORM_WEB 0
 #endif
 
+#ifndef XNN_MAX_UARCH_TYPES
+  #if (XNN_ARCH_ARM || XNN_ARCH_ARM64) && !XNN_PLATFORM_IOS
+    #define XNN_MAX_UARCH_TYPES 3
+  #else
+    #define XNN_MAX_UARCH_TYPES 1
+  #endif
+#endif
+
+#define XNN_UARCH_DEFAULT 0
+
 #if defined(__GNUC__)
   #if defined(__clang__) || (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ >= 5)
     #define XNN_UNREACHABLE do { __builtin_unreachable(); } while (0)
@@ -103,7 +113,13 @@
   #define XNN_UNREACHABLE do { } while (0)
 #endif
 
-#define XNN_ALIGN(alignment) __attribute__((__aligned__(alignment)))
+#if defined(__GNUC__)
+  #define XNN_ALIGN(alignment) __attribute__((__aligned__(alignment)))
+#elif defined(_MSC_VER)
+  #define XNN_ALIGN(alignment) __declspec(align(alignment))
+#else
+  #error "Platform-specific implementation of XNN_ALIGN required"
+#endif
 
 #define XNN_COUNT_OF(array) (sizeof(array) / sizeof(0[array]))
 
@@ -128,6 +144,8 @@
 
 #if defined(__GNUC__)
   #define XNN_INLINE inline __attribute__((__always_inline__))
+#elif defined(_MSC_VER)
+  #define XNN_INLINE __forceinline
 #else
   #define XNN_INLINE inline
 #endif

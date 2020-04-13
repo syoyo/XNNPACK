@@ -10,7 +10,7 @@ $ABC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 #include <xnnpack/spmm.h>
 
 
-void xnn_f32_spmm_ukernel_${MR}x${NR}__scalar${"_unroll" + str(UNROLL) if UNROLL > 1 else ""}(
+void xnn_f32_spmm_minmax_ukernel_${MR}x${NR}__scalar${"_unroll" + str(UNROLL) if UNROLL > 1 else ""}(
     uint32_t m,
     uint32_t n,
     const float*restrict a,
@@ -18,7 +18,7 @@ void xnn_f32_spmm_ukernel_${MR}x${NR}__scalar${"_unroll" + str(UNROLL) if UNROLL
     const int32_t*restrict widx_dmap,
     const uint32_t*restrict nidx_nnzmap,
     float*restrict c,
-    const union xnn_f32_output_params params[restrict static 1])
+    const union xnn_f32_minmax_params params[restrict static 1])
 {
   assert(m != 0);
 
