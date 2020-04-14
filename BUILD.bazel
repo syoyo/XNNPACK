@@ -896,6 +896,7 @@ AARCH64_NEONFMA_UKERNELS = [
 ]
 
 AARCH64_NEONFP16ARITH_UKERNELS = [
+    "src/f16-gemm/gen/1x8-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/4x8-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/6x8-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/8x8-neonfp16arith-ld64.c",
@@ -1917,10 +1918,7 @@ xnnpack_cc_library(
     name = "operator_run",
     srcs = ["src/operator-run.c"],
     hdrs = INTERNAL_HDRS + LOGGING_HDRS,
-    copts = xnnpack_std_copts() + LOGGING_COPTS + [
-        # Wrappers for multi-pass microkernels use VLAs for temporary buffers.
-        "-Wno-vla",
-    ] + select({
+    copts = xnnpack_std_copts() + LOGGING_COPTS + select({
         ":xnn_enable_hmp_explicit_false": ["-DXNN_MAX_UARCH_TYPES=1"],
         "//conditions:default": [],
     }),

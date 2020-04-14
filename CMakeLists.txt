@@ -8,8 +8,6 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5 FATAL_ERROR)
 
-INCLUDE(GNUInstallDirs)
-
 # ---[ Project and semantic versioning.
 PROJECT(XNNPACK C CXX ASM)
 
@@ -21,6 +19,8 @@ OPTION(XNNPACK_BUILD_TESTS "Build XNNPACK unit tests" ON)
 OPTION(XNNPACK_BUILD_BENCHMARKS "Build XNNPACK benchmarks" ON)
 
 # ---[ CMake options
+INCLUDE(GNUInstallDirs)
+
 IF(XNNPACK_BUILD_TESTS)
   ENABLE_TESTING()
 ENDIF()
@@ -884,6 +884,7 @@ SET(XNNPACK_AARCH64_NEONFMA_MICROKERNEL_SRCS
   src/math/sigmoid-neonfma-rr2-p5-div.c)
 
 SET(XNNPACK_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS
+  src/f16-gemm/gen/1x8-neonfp16arith-ld64.c
   src/f16-gemm/gen/4x8-neonfp16arith-ld64.c
   src/f16-gemm/gen/6x8-neonfp16arith-ld64.c
   src/f16-gemm/gen/8x8-neonfp16arith-ld64.c
@@ -2098,6 +2099,10 @@ IF(XNNPACK_BUILD_TESTS)
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
   TARGET_INCLUDE_DIRECTORIES(f32-igemm-minmax-test PRIVATE src test)
+  IF(MINGW)
+    # Work-around for "too many sections" error
+    TARGET_COMPILE_OPTIONS(f32-igemm-minmax-test PRIVATE "$<$<NOT:$<OR:$<CONFIG:Release>,$<CONFIG:MinSizeRel>>>:-Wa,-mbig-obj>")
+  ENDIF()
   TARGET_LINK_LIBRARIES(f32-igemm-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-igemm-minmax-test f32-igemm-minmax-test)
 
@@ -2309,7 +2314,7 @@ IF(XNNPACK_BUILD_TESTS)
   ADD_TEST(f32-vscaleexpminusmax-test f32-vscaleexpminusmax-test)
 
   ADD_EXECUTABLE(f32-vscaleextexp-test test/f32-vscaleextexp.cc)
-  SET_TARGET_PROPERTIES(f32-vscaleexpminusmax-test PROPERTIES
+  SET_TARGET_PROPERTIES(f32-vscaleextexp-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
