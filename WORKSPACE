@@ -45,9 +45,9 @@ http_archive(
 # pthreadpool library, used for parallelization
 http_archive(
     name = "pthreadpool",
-    strip_prefix = "pthreadpool-da486afd0f9e2b42ccb90940e2dfba6cfed38708",
-    sha256 = "8602a23e9d69cedf6054f428b3f8dbd935e1c5811df3adf38f0985ed1fed74ee",
-    urls = ["https://github.com/Maratyszcza/pthreadpool/archive/da486afd0f9e2b42ccb90940e2dfba6cfed38708.zip"],
+    strip_prefix = "pthreadpool-a61ed1ab70389c62f6f699ca1a30a2421d3ea594",
+    sha256 = "27c039e73846d0bdfe393833e91afafe45e61ba792cc60e1c62808090554ce4d",
+    urls = ["https://github.com/Maratyszcza/pthreadpool/archive/a61ed1ab70389c62f6f699ca1a30a2421d3ea594.zip"],
 )
 
 # clog library, used for logging
@@ -86,10 +86,10 @@ http_archive(
 # Ruy library, used to benchmark against
 http_archive(
    name = "ruy",
-   strip_prefix = "ruy-3d62e9545bd15c5df9ccfdd8453b93d64a6dd8eb",
-   sha256 = "ca3024739684d5aba3612072511f508e88b34231ac8d19c8c3cc6598b6bb535d",
+   strip_prefix = "ruy-d4dccd67e0d50d4bf381462e92b1004f9aa07faa",
+   sha256 = "b9e627a7aa7941d54d292e41311a16e99d7b421aec889bf324e223d894661694",
    urls = [
-       "https://github.com/google/ruy/archive/3d62e9545bd15c5df9ccfdd8453b93d64a6dd8eb.zip",
+       "https://github.com/google/ruy/archive/d4dccd67e0d50d4bf381462e92b1004f9aa07faa.zip",
    ],
 )
 

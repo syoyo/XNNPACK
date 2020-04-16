@@ -558,11 +558,6 @@ static enum xnn_status setup_convolution2d_nchw(
       uint32_t* output_channel_nonzeros = (uint32_t*) (input_increments + num_nonzero_blocks);
       int32_t* input_channel_diffs = (int32_t*) (output_channel_nonzeros + num_output_channel_blocks);
 
-      // const uint32_t* output_channel_nonzeros = convolution_op->packed_weights;
-      // const int32_t* input_channel_diffs = (const int32_t*) (output_channel_nonzeros + num_output_channel_blocks);
-      // int32_t* input_increments = (int32_t*) (input_channel_diffs + num_nonzero_blocks);
-      // const void* packed_weights = (const void*) (input_increments + num_nonzero_blocks);
-
       const size_t input_size = input_height * input_width;
       for (size_t i = 0; i < num_nonzero_blocks; i++) {
         const int32_t diff = input_channel_diffs[i];
@@ -655,7 +650,7 @@ static enum xnn_status setup_convolution2d_nchw(
     }
     case xnn_ukernel_type_dwconv:
     {
-      xnn_update_f32_spchw_params((union xnn_f32_spchw_params*) spchw_params, input_width);
+      xnn_update_f32_spchw_params((union xnn_f32_spchw_params*) spchw_params, (uint32_t) input_width);
       convolution_op->context.dwconv2d = (struct dwconv2d_context) {
         .output_height = output_height,
         .input_width = input_width,

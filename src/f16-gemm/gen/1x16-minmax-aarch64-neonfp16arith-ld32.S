@@ -19,7 +19,7 @@
 #     uint8_t*restrict c,       x6
 #     size_t cm_stride,         (x7) - unused
 #     size_t cn_stride,         [sp] -> x14
-#     const union xnn_f16_minmax_params params[restrict static 1])  [sp + 8] -> x8
+#     const union xnn_f16_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])  [sp + 8] -> x8
 
 # d8-d15 need to be preserved if used.
 # x19-30 need to be preserved if used.
@@ -37,7 +37,7 @@ BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_1x16__aarch64_neonfp16arith_ld32
         # Load cn_stride, params pointer
         LDP x14, x8, [sp]
 
-        # Load clamping_params values
+        # Load params values
         LD3R {v4.8h, v5.8h, v6.8h}, [x8]
 0:
         # Load initial bias from w into accumulators

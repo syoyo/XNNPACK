@@ -22,7 +22,8 @@ struct xnn_f16_output_params {
 };
 
 union xnn_f32_default_params {
-  /* Empty; serves to differentiate pointer types for micro-kernels without fused activation */
+  // Empty; serves to differentiate pointer types for micro-kernels without fused activation.
+  char _; // Dummy member variable to comply with the C standard
 };
 
 union xnn_f32_minmax_params {
@@ -1505,4 +1506,8 @@ struct xnn_parameters {
   } x32;
 };
 
+#ifdef __cplusplus
+extern "C" XNN_INTERNAL struct xnn_parameters xnn_params;
+#else
 extern XNN_INTERNAL struct xnn_parameters xnn_params;
+#endif

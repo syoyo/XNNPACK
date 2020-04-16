@@ -27,7 +27,7 @@ enum xnn_status xnn_create_runtime(
 
 // Product of all shape dimensions, except for the last (channel) one
 static size_t product_non_channel_dims(
-  const struct xnn_shape shape[restrict static 1])
+  const struct xnn_shape shape[restrict XNN_MIN_ELEMENTS(1)])
 {
   size_t batch_size = 1;
   for (size_t i = 0; i + 1 < shape->num_dims; i++) {
@@ -311,7 +311,7 @@ enum xnn_status xnn_create_runtime_v2(
   runtime->num_blobs = subgraph->num_values;
 
   size_t buffer_size = 0;
-  for (size_t i = 0; i < subgraph->num_values; i++) {
+  for (uint32_t i = 0; i < subgraph->num_values; i++) {
     const struct xnn_value* value = &subgraph->values[i];
     struct xnn_blob* blob = &runtime->blobs[i];
     if (value->datatype != xnn_datatype_invalid && value->type == xnn_value_type_dense_tensor) {
