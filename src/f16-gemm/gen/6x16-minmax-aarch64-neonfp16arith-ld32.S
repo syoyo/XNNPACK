@@ -54,13 +54,16 @@
 # C   v26 v27
 # C   v28 v29
 # C   v30 v31
-# Clamp v6 v7
+# Clamp v6, (v4), (v5)
 # unused A   v8 v9 v10 v11
 # unused B   v12 v13 v14 v15
 
-# Clamp v6, (v4), (v5)
 
 BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_6x16__aarch64_neonfp16arith_ld32
+
+        # Load cn_stride, params pointer
+        LDP x14, x8, [sp]
+
         # Clamp A and C pointers
         CMP x0, 2                // if mr < 2
         ADD x9, x3, x4           // a1 = a0 + a_stride
@@ -82,12 +85,9 @@ BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_6x16__aarch64_neonfp16arith_ld32
 
         ADD x12, x11, x4         // a4 = a3 + a_stride
         ADD x13, x18, x7         // c4 = c3 + cm_stride
-                                 // if mr <= 5
+                                 // if mr <= 4
         CSEL x12, x11, x12, LS   //   a4 = a3
         CSEL x13, x18, x13, LS   //   c4 = c3
-
-        # Load params pointer
-        LDR x8, [sp, 8]
 
         CMP x0, 6                // if mr < 6
         ADD x4, x12, x4          // a5 = a4 + a_stride
@@ -99,32 +99,19 @@ BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_6x16__aarch64_neonfp16arith_ld32
         LD1R {v6.8h}, [x8]
         ADD x8, x8, 2
 
-        # Load cn_stride
-        LDR x14, [sp]
-
 0:
         # Load initial bias from w into accumulators
         LDP q20, q21, [x5], 32
         MOV v22.16b, v20.16b
-        PRFM PLDL1KEEP, [x5, 0]  // Prefetch B
         MOV v23.16b, v21.16b
-        PRFM PLDL1KEEP, [x5, 64]
         MOV v24.16b, v20.16b
-        PRFM PLDL1KEEP, [x5, 128]
         MOV v25.16b, v21.16b
-        PRFM PLDL1KEEP, [x5, 192]
         MOV v26.16b, v20.16b
-        PRFM PLDL1KEEP,  [x3]    // Prefetch A
         MOV v27.16b, v21.16b
-        PRFM PLDL1KEEP,  [x9]
         MOV v28.16b, v20.16b
-        PRFM PLDL1KEEP, [x10]
         MOV v29.16b, v21.16b
-        PRFM PLDL1KEEP, [x11]
         MOV v30.16b, v20.16b
-        PRFM PLDL1KEEP, [x12]
         MOV v31.16b, v21.16b
-        PRFM PLDL1KEEP,  [x4]
 
          # Is there at least 2 halffloats (4 bytes)?
         SUBS x0, x2, 4  // k = kc - 4

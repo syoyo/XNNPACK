@@ -890,10 +890,14 @@ SET(XNNPACK_AARCH64_NEONFMA_MICROKERNEL_SRCS
   src/math/sigmoid-neonfma-rr2-p5-div.c)
 
 SET(XNNPACK_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS
-  src/f16-gemm/gen/1x8-neonfp16arith-ld64.c
-  src/f16-gemm/gen/4x8-neonfp16arith-ld64.c
-  src/f16-gemm/gen/6x8-neonfp16arith-ld64.c
-  src/f16-gemm/gen/8x8-neonfp16arith-ld64.c
+  src/f16-gemm/gen/1x8-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen/4x8-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen/6x8-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen/8x8-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen-inc/1x8inc-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen-inc/4x8inc-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen-inc/6x8inc-minmax-neonfp16arith-ld64.c
+  src/f16-gemm/gen-inc/8x8inc-minmax-neonfp16arith-ld64.c
   src/f16-spmm/gen/8x1-minmax-neonfp16arith.c
   src/f16-spmm/gen/8x1-minmax-neonfp16arith-unroll2.c
   src/f16-spmm/gen/16x1-minmax-neonfp16arith.c
@@ -1454,9 +1458,11 @@ SET(XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS
   src/f16-gemm/gen/1x8-minmax-aarch64-neonfp16arith-ld64.S
   src/f16-gemm/gen/4x8-minmax-aarch64-neonfp16arith-ld64.S
   src/f16-gemm/gen/6x8-minmax-aarch64-neonfp16arith-ld64.S
+  src/f16-gemm/gen/8x8-minmax-aarch64-neonfp16arith-ld64.S
   src/f16-gemm/gen-inc/1x8inc-minmax-aarch64-neonfp16arith-ld64.S
   src/f16-gemm/gen-inc/4x8inc-minmax-aarch64-neonfp16arith-ld64.S
   src/f16-gemm/gen-inc/6x8inc-minmax-aarch64-neonfp16arith-ld64.S
+  src/f16-gemm/gen-inc/8x8inc-minmax-aarch64-neonfp16arith-ld64.S
   src/f32-dwconv/up4x9-minmax-aarch64-neonfma-cortex-a55.S
   src/f32-dwconv/up4x9-minmax-aarch64-neonfma.S
   src/f32-gemm/gen/1x8-minmax-aarch64-neonfma-ld64.S
