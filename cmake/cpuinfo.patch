@@ -136,10 +136,25 @@ index 0e58dba..66f2ec9 100755
                  "linux/smallfile.c",
                  "linux/multiline.c",
 diff --git include/cpuinfo.h include/cpuinfo.h
-index e4d2d0c..60b8533 100644
+index 903d1cf..e89a4c1 100644
 --- include/cpuinfo.h
 +++ include/cpuinfo.h
-@@ -520,7 +520,7 @@ struct cpuinfo_processor {
+@@ -499,11 +499,11 @@ enum cpuinfo_uarch {
+ 	/** Applied Micro X-Gene. */
+ 	cpuinfo_uarch_xgene = 0x00B00100,
+ 
+-	/** Huawei hisilicon Kunpeng Series CPU. */
+-	cpuinfo_uarch_taishanv110 = 0x00C00100,
+-
+ 	/* Hygon Dhyana (a modification of AMD Zen for Chinese market). */
+ 	cpuinfo_uarch_dhyana = 0x01000100,
++
++	/** HiSilicon TaiShan v110 (Huawei Kunpeng 920 series processors). */
++	cpuinfo_uarch_taishan_v110 = 0x00C00100,
+ };
+ 
+ struct cpuinfo_processor {
+@@ -523,7 +523,7 @@ struct cpuinfo_processor {
  	 */
  	int linux_id;
  #endif
@@ -148,7 +163,7 @@ index e4d2d0c..60b8533 100644
  	/** Windows-specific ID for the group containing the logical processor. */
  	uint16_t windows_group_id;
  	/**
-@@ -1796,13 +1796,22 @@ const struct cpuinfo_core* CPUINFO_ABI cpuinfo_get_current_core(void);
+@@ -1799,13 +1799,22 @@ const struct cpuinfo_core* CPUINFO_ABI cpuinfo_get_current_core(void);
  
  /**
   * Identify the microarchitecture index of the core that executes the current thread.
@@ -210,6 +225,68 @@ index 38cea86..832b085 100644
 +		return 0;
 +	#endif
 +}
+diff --git src/arm/cache.c src/arm/cache.c
+index 70f11fd..1a8bf91 100644
+--- src/arm/cache.c
++++ src/arm/cache.c
+@@ -1448,23 +1448,24 @@ void cpuinfo_arm_decode_cache(
+ 				.line_size = 64 /* assumption */
+ 			};
+ 			break;
+-		case cpuinfo_uarch_taishanv110:
++		case cpuinfo_uarch_taishan_v110:
+ 			/*
+-			 *  Kunpeng920 series CPU designed by Huawei hisilicon for server, 
+-			 *  L1 and L2 cache is private to each core, L3 is shared with all cores.
+-			 *  +--------------------+-------+-----------+-----------+-----------+----------+------------+
+-			 *  | Processor model    | Cores | L1D cache | L1I cache | L2 cache  | L3 cache | Reference  |
+-			 *  +--------------------+-------+-----------+-----------+-----------+----------+------------+
+-			 *  | Kunpeng920-3226    |  32   |    64K    |     64K   |    512K   |    32M   |     [1]    |
+-			 *  +--------------------+-------+-----------+-----------+-----------+----------+------------+
+-			 *  | Kunpeng920-4826    |  48   |    64K    |     64K   |    512K   |    48M   |     [2]    |
+-			 *  +--------------------+-------+-----------+-----------+-----------+----------+------------+
+-			 *  | Kunpeng920-6426    |  64   |    64K    |     64K   |    512K   |    64M   |     [3]    |
+-			 *  +--------------------+-------+-----------+-----------+-----------+----------+------------+
+-			 *
+-			 * [1] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-3226
+-			 * [2] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-4826
+-			 * [3] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-6426
++			 * It features private 64 KiB L1 instruction and data caches as well as 512 KiB of private L2. [1]
++			 *
++			 *  +------------------+-------+-----------+-----------+-----------+----------+-----------+
++			 *  | Processor model  | Cores | L1D cache | L1I cache | L2 cache  | L3 cache | Reference |
++			 *  +------------------+-------+-----------+-----------+-----------+----------+-----------+
++			 *  | Kunpeng 920-3226 |  32   |    64K    |    64K    |    512K   |    32M   |     [2]   |
++			 *  +------------------+-------+-----------+-----------+-----------+----------+-----------+
++			 *  | Kunpeng 920-4826 |  48   |    64K    |    64K    |    512K   |    48M   |     [3]   |
++			 *  +------------------+-------+-----------+-----------+-----------+----------+-----------+
++			 *  | Kunpeng 920-6426 |  64   |    64K    |    64K    |    512K   |    64M   |     [4]   |
++			 *  +------------------+-------+-----------+-----------+-----------+----------+-----------+
++			 *
++			 * [1] https://en.wikichip.org/wiki/hisilicon/microarchitectures/taishan_v110
++			 * [2] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-3226
++			 * [3] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-4826
++			 * [4] https://en.wikichip.org/wiki/hisilicon/kunpeng/920-6426
+ 			 */
+ 			*l1i = (struct cpuinfo_cache) {
+ 				.size = 64 * 1024,
+@@ -1482,11 +1483,11 @@ void cpuinfo_arm_decode_cache(
+ 				.line_size = 128 /* assumption */,
+ 				.flags = CPUINFO_CACHE_INCLUSIVE /* assumption */,
+ 			};
+-		        *l3 = (struct cpuinfo_cache) {
+-			        .size = cluster_cores * 1024 * 1024,
+-			        .associativity = 16 /* assumption */,
+-			        .line_size = 128 /* assumption */,
+-		        };
++			*l3 = (struct cpuinfo_cache) {
++				.size = cluster_cores * 1024 * 1024,
++				.associativity = 16 /* assumption */,
++				.line_size = 128 /* assumption */,
++			};
+ 			break;
+ #endif
+ 		case cpuinfo_uarch_cortex_a12:
 diff --git src/arm/linux/aarch32-isa.c src/arm/linux/aarch32-isa.c
 index 92095e1..6aedda3 100644
 --- src/arm/linux/aarch32-isa.c
@@ -313,6 +390,24 @@ index ba42a3e..9beb832 100644
  		 * 6.3.2. Main TLB
  		 *   Misses from the instruction and data micro TLBs are handled by a unified main TLB.
  		 *   The main TLB is 128-entry two-way set-associative.
+diff --git src/arm/uarch.c src/arm/uarch.c
+index e5e3cbc..63b1a55 100644
+--- src/arm/uarch.c
++++ src/arm/uarch.c
+@@ -155,9 +155,11 @@ void cpuinfo_arm_decode_vendor_uarch(
+ 		case 'H':
+ 			*vendor = cpuinfo_vendor_huawei;
+ 			switch (midr_get_part(midr)) {
+-				case 0xD01: /* Kunpeng920 ARM-base CPU*/
+-					*uarch = cpuinfo_uarch_taishanv110;
++#if CPUINFO_ARCH_ARM64 && !defined(__ANDROID__)
++				case 0xD01: /* Kunpeng 920 series */
++					*uarch = cpuinfo_uarch_taishan_v110;
+ 					break;
++#endif
+ 				case 0xD40: /* Kirin 980 Big/Medium cores -> Cortex-A76 */
+ 					*vendor = cpuinfo_vendor_arm;
+ 					*uarch = cpuinfo_uarch_cortex_a76;
 diff --git src/cpuinfo/internal-api.h src/cpuinfo/internal-api.h
 index c6eed0b..9c23d7c 100644
 --- src/cpuinfo/internal-api.h
@@ -855,6 +950,30 @@ index 2c7e3cd..cf549d5 100644
  
  				/* Update APIC ID with core and SMT parts */
  				processors[processor_id].apic_id |=
+diff --git tools/cpu-info.c tools/cpu-info.c
+index 7963c00..4453d88 100644
+--- tools/cpu-info.c
++++ tools/cpu-info.c
+@@ -14,6 +14,8 @@ static const char* vendor_to_string(enum cpuinfo_vendor vendor) {
+ 			return "Intel";
+ 		case cpuinfo_vendor_amd:
+ 			return "AMD";
++		case cpuinfo_vendor_huawei:
++			return "Huawei";
+ 		case cpuinfo_vendor_hygon:
+ 			return "Hygon";
+ 		case cpuinfo_vendor_arm:
+@@ -243,6 +245,10 @@ static const char* uarch_to_string(enum cpuinfo_uarch uarch) {
+ 			return "Brahma B53";
+ 		case cpuinfo_uarch_xgene:
+ 			return "X-Gene";
++		case cpuinfo_uarch_dhyana:
++			return "Dhyana";
++		case cpuinfo_uarch_taishan_v110:
++			return "TaiShan v110";
+ 		default:
+ 			return NULL;
+ 	}
 diff --git tools/gpu-dump.c tools/gpu-dump.c
 index d7cfa9e..6d17374 100644
 --- tools/gpu-dump.c
