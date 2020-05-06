@@ -28,7 +28,7 @@
 
 
 static void GEMMBenchmark(benchmark::State& state,
-  xnn_f16_gemm_ukernel_function hgemm,
+  xnn_f16_gemm_minmax_ukernel_function gemm,
   size_t mr, size_t nr, size_t kr, size_t sr)
 {
   if (!cpuinfo_initialize()) {
@@ -67,8 +67,12 @@ static void GEMMBenchmark(benchmark::State& state,
   std::vector<uint16_t> c(c_elements * num_buffers);
   std::fill(c.begin(), c.end(), UINT16_C(0x7E00) /* NaN */);
 
-  xnn_f16_scaleminmax_params params{
-    0x3C00 /* 1.0 */, 0x7C00 /* inf */, 0xFC00 /* -inf */};
+  // Prepare minmax parameters.
+  xnn_f16_scaleminmax_params params;
+  params = xnn_init_f16_scaleminmax_params(
+    UINT16_C(0x3C00),  /* 1.0 */
+    UINT16_C(0x7C00),  /* inf */
+    UINT16_C(0xFC00)); /* -inf */
 
   size_t buffer_index = 0;
   for (auto _ : state) {
@@ -85,7 +89,7 @@ static void GEMMBenchmark(benchmark::State& state,
       const uint32_t mb = min(mc - m, mr);
       for (uint32_t n = 0; n < nc; n += nr) {
         const uint32_t nb = min(nc - n, nr);
-        hgemm(
+        gemm(
           mb, nb, kc * sizeof(uint16_t),
           a.data() + m * kc, kc * sizeof(uint16_t),
           w.data() + (nc_stride * buffer_index + n) * (kc_stride + 1),

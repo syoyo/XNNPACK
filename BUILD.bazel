@@ -921,6 +921,10 @@ AARCH64_NEONFP16ARITH_UKERNELS = [
     "src/f16-gemm/gen-inc/4x8inc-minmax-neonfp16arith-ld64.c",
     "src/f16-gemm/gen-inc/6x8inc-minmax-neonfp16arith-ld64.c",
     "src/f16-gemm/gen-inc/8x8inc-minmax-neonfp16arith-ld64.c",
+    "src/f16-igemm/gen/1x8-minmax-neonfp16arith-ld64.c",
+    "src/f16-igemm/gen/4x8-minmax-neonfp16arith-ld64.c",
+    "src/f16-igemm/gen/6x8-minmax-neonfp16arith-ld64.c",
+    "src/f16-igemm/gen/8x8-minmax-neonfp16arith-ld64.c",
     "src/f16-spmm/gen/8x1-minmax-neonfp16arith.c",
     "src/f16-spmm/gen/8x1-minmax-neonfp16arith-unroll2.c",
     "src/f16-spmm/gen/16x1-minmax-neonfp16arith.c",
@@ -2100,7 +2104,6 @@ xnnpack_cc_library(
     name = "bench_utils",
     srcs = ["bench/utils.cc"],
     hdrs = ["bench/utils.h"],
-    gcc_copts = ["-Wno-unused-result"],
     deps = [
         "@com_google_benchmark//:benchmark",
         "@cpuinfo",
@@ -2117,8 +2120,18 @@ xnnpack_benchmark(
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
     copts = xnnpack_optional_ruy_copts() + xnnpack_optional_gemmlowp_copts(),
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS + xnnpack_optional_ruy_deps() + xnnpack_optional_gemmlowp_deps(),
+)
+
+xnnpack_benchmark(
+    name = "f16_igemm_bench",
+    srcs = [
+        "bench/f16-igemm.cc",
+        "bench/conv.h",
+        "bench/google/conv.h",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_BENCHMARK_HDRS,
+    deps = MICROKERNEL_BENCHMARK_DEPS + [":indirection"],
 )
 
 xnnpack_benchmark(
@@ -2128,7 +2141,6 @@ xnnpack_benchmark(
         "bench/gemm.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
@@ -2139,7 +2151,6 @@ xnnpack_benchmark(
         "bench/gemm.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
@@ -2160,7 +2171,6 @@ xnnpack_benchmark(
         "bench/dconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
@@ -2171,7 +2181,6 @@ xnnpack_benchmark(
         "bench/dconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
@@ -2203,7 +2212,6 @@ xnnpack_benchmark(
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
     copts = xnnpack_optional_ruy_copts(),
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS + xnnpack_optional_ruy_deps(),
 )
 
@@ -2249,7 +2257,6 @@ xnnpack_benchmark(
         "bench/f32-sigmoid.cc",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
@@ -2260,7 +2267,6 @@ xnnpack_benchmark(
         "bench/gemm.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
@@ -2270,7 +2276,6 @@ xnnpack_benchmark(
         "bench/f32-softmax.cc",
     ] + MICROKERNEL_BENCHMARK_HDRS,
     copts = xnnpack_optional_dnnl_copts(),
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS + xnnpack_optional_dnnl_deps(),
 )
 
@@ -2442,7 +2447,6 @@ xnnpack_benchmark(
         "bench/f32-dwconv-e2e.cc",
         "bench/end2end.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS + [
         ":XNNPACK",
         ":mobilenet_v1",
@@ -2458,7 +2462,6 @@ xnnpack_benchmark(
         "bench/f32-gemm-e2e.cc",
         "bench/end2end.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    gcc_copts = ["-Wno-unused-function"],
     deps = MICROKERNEL_BENCHMARK_DEPS + [
         ":XNNPACK",
         ":mobilenet_v1",
@@ -2601,6 +2604,16 @@ xnnpack_unit_test(
     # Work-around for "too many sections" error
     mingw_copts = ["-Wa,-mbig-obj"],
     msys_copts = ["-Wa,-mbig-obj"],
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_igemm_minmax_test",
+    srcs = [
+        "test/f16-igemm-minmax.cc",
+        "test/gemm-microkernel-tester.h",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
 
