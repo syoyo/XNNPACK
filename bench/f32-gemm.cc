@@ -76,7 +76,7 @@ static void GEMMBenchmark(benchmark::State& state,
   std::vector<float> c(c_elements * num_buffers);
   std::fill(c.begin(), c.end(), std::nanf(""));
 
-  xnn_f32_minmax_params minmax_params =
+  xnn_f32_minmax_params params =
     xnn_init_f32_minmax_params(-std::numeric_limits<float>::infinity(), +std::numeric_limits<float>::infinity());
 
   size_t buffer_index = 0;
@@ -97,7 +97,7 @@ static void GEMMBenchmark(benchmark::State& state,
         a.data() + m * kc, kc * sizeof(float),
         w.data() + buffer_index * nc_stride * (kc_stride + 1),
         c.data() + (buffer_index * mc + m) * nc, nc * sizeof(float), nr * sizeof(float),
-        &minmax_params);
+        &params);
     }
   }
 
@@ -151,7 +151,7 @@ static void PPMM1PBenchmark(benchmark::State& state,
   std::vector<float> c(c_elements * num_buffers);
   std::fill(c.begin(), c.end(), std::nanf(""));
 
-  xnn_f32_minmax_params minmax_params =
+  xnn_f32_minmax_params params =
     xnn_init_f32_minmax_params(-std::numeric_limits<float>::infinity(), +std::numeric_limits<float>::infinity());
 
   size_t buffer_index = 0;
@@ -173,7 +173,7 @@ static void PPMM1PBenchmark(benchmark::State& state,
         reinterpret_cast<const float*>(t.data()),
         w.data() + nc_stride * buffer_index * (kc + 1),
         c.data() + (mc * buffer_index + m) * nc, nc * sizeof(float), nr * sizeof(float),
-        &minmax_params);
+        &params);
     }
   }
 
@@ -228,7 +228,7 @@ static void PPMM2PBenchmark(benchmark::State& state,
   std::vector<float> c(c_elements * num_buffers);
   std::fill(c.begin(), c.end(), std::nanf(""));
 
-  xnn_f32_minmax_params minmax_params =
+  xnn_f32_minmax_params params =
     xnn_init_f32_minmax_params(-std::numeric_limits<float>::infinity(), +std::numeric_limits<float>::infinity());
 
   size_t buffer_index = 0;
@@ -253,7 +253,7 @@ static void PPMM2PBenchmark(benchmark::State& state,
         reinterpret_cast<const float*>(t.data() + m * kc),
         w.data() + nc_stride * buffer_index * (kc + 1),
         c.data() + (mc * buffer_index + m) * nc, nc * sizeof(float), nr * sizeof(float),
-        &minmax_params);
+        &params);
     }
   }
 
@@ -288,17 +288,17 @@ static void RuyBenchmark(benchmark::State& state, uint32_t threads)
 
   // Note: context must be static to avoid the cost of re-creating it for each benchmark.
   static ruy::Context context;
-  context.max_num_threads = threads;
+  context.set_max_num_threads(threads);
 
   ruy::Matrix<float> ruy_a;
-  ruy::MakeSimpleLayout(nc, kc, ruy::Order::kRowMajor, &ruy_a.layout);
+  ruy::MakeSimpleLayout(nc, kc, ruy::Order::kRowMajor, ruy_a.mutable_layout());
   ruy::Matrix<float> ruy_b;
-  ruy::MakeSimpleLayout(kc, mc, ruy::Order::kColMajor, &ruy_b.layout);
-  ruy_b.data = a.data();
+  ruy::MakeSimpleLayout(kc, mc, ruy::Order::kColMajor, ruy_b.mutable_layout());
+  ruy_b.set_data(a.data());
   ruy::Matrix<float> ruy_c;
-  ruy::MakeSimpleLayout(nc, mc, ruy::Order::kColMajor, &ruy_c.layout);
+  ruy::MakeSimpleLayout(nc, mc, ruy::Order::kColMajor, ruy_c.mutable_layout());
 
-  ruy::BasicSpec<float, float> spec;
+  ruy::MulParams<float, float> mul_params;
 
   // ruy::Context uses deferred initialization, which affects percieved GEMM performance. Initialization happens during
   // the first GEMM calls, and per Benoit Jacob it takes up to ~250 milliseconds for performance to stabilize.
@@ -308,11 +308,11 @@ static void RuyBenchmark(benchmark::State& state, uint32_t threads)
   std::call_once(warmup, [&](){
     auto start = std::chrono::steady_clock::now();
     do {
-      ruy_a.data = k.data();
-      ruy_c.data = c.data();
-      spec.bias = b.data();
+      ruy_a.set_data(k.data());
+      ruy_c.set_data(c.data());
+      mul_params.set_bias(b.data());
 
-      ruy::Mul<ruy::kAllPaths>(ruy_a, ruy_b, spec, &context, &ruy_c);
+      ruy::Mul(ruy_a, ruy_b, mul_params, &context, &ruy_c);
     } while (std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() < 0.5);
   });
 
@@ -328,11 +328,11 @@ static void RuyBenchmark(benchmark::State& state, uint32_t threads)
     buffer_index = (buffer_index + 1) % num_buffers;
     state.ResumeTiming();
 
-    ruy_a.data = k.data() + buffer_index * nc * kc;
-    ruy_c.data = c.data() + buffer_index * mc * nc;
-    spec.bias = b.data() + buffer_index * nc;
+    ruy_a.set_data(k.data() + buffer_index * nc * kc);
+    ruy_c.set_data(c.data() + buffer_index * mc * nc);
+    mul_params.set_bias(b.data() + buffer_index * nc);
 
-    ruy::Mul<ruy::kAllPaths>(ruy_a, ruy_b, spec, &context, &ruy_c);
+    ruy::Mul(ruy_a, ruy_b, mul_params, &context, &ruy_c);
   }
 
   state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
@@ -740,7 +740,7 @@ static void ruy_st(benchmark::State& state, const char* net)
   BENCHMARK_GEMM(f32_gemm_8x16__avx512f_broadcast)
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 
-#if !XNN_ARCH_WASM && !XNN_ARCH_ASMJS
+#if !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
   static void f32_gemm_4x8__psimd_loadsplat(benchmark::State& state, const char* net) {
     GEMMBenchmark(state, xnn_f32_gemm_minmax_ukernel_4x8__psimd_loadsplat, 4, 8, 1, 1);
   }
@@ -781,7 +781,7 @@ static void ruy_st(benchmark::State& state, const char* net)
   BENCHMARK_GEMM(f32_gemm_6x8s4__psimd)
   BENCHMARK_GEMM(f32_ppmm_4x8_unipass__psimd)
   BENCHMARK_GEMM(f32_ppmm_4x8_twopass__psimd)
-#endif  // !XNN_ARCH_WASM && !XNN_ARCH_ASMJS
+#endif  // !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
 
 static void f32_gemm_1x4__scalar(benchmark::State& state, const char* net) {
   GEMMBenchmark(state, xnn_f32_gemm_minmax_ukernel_1x4__scalar, 1, 4, 1, 1);

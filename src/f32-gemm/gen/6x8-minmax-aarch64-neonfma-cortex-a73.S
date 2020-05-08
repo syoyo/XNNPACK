@@ -19,7 +19,7 @@
 #     uint8_t*restrict c,       x6
 #     size_t cm_stride,         x7
 #     size_t cn_stride,         [sp] -> x14
-#     const union xnn_f32_minmax_params params[restrict static 1])  [sp + 8] -> x8
+#     const union xnn_f32_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])  [sp + 8] -> x8
 
 # d8-d15 need to be preserved if used.
 # x19-30 need to be preserved if used.
@@ -59,6 +59,9 @@
 
 BEGIN_FUNCTION xnn_f32_gemm_minmax_ukernel_6x8__aarch64_neonfma_cortex_a73
 
+        # Load cn_stride, params pointer
+        LDP x14, x8, [sp]
+
         # Clamp A and C pointers / Save d8-d15 on stack
         STP  d8,  d9, [sp, -64]!
         CMP x0, 2                // if mr < 2
@@ -84,21 +87,15 @@ BEGIN_FUNCTION xnn_f32_gemm_minmax_ukernel_6x8__aarch64_neonfma_cortex_a73
         STP d14, d15, [sp, 48]
         ADD x12, x11, x4         // a4 = a3 + a_stride
         ADD x13, x18, x7         // c4 = c3 + cm_stride
-                                 // if mr <= 5
+                                 // if mr <= 4
         CSEL x12, x11, x12, LS   //   a4 = a3
         CSEL x13, x18, x13, LS   //   c4 = c3
-
-        # Load params pointer
-        LDR x8, [sp, 72]
 
         CMP x0, 6                // if mr < 6
         ADD x4, x12, x4          // a5 = a4 + a_stride
         ADD x7, x13, x7          // c5 = c4 + cm_stride
         CSEL x4, x12, x4, LO     //   a5 = a4
         CSEL x7, x13, x7, LO     //   c5 = c4
-
-        # Load cn_stride
-        LDR x14, [sp, 64]
 
         .p2align 3
 0:

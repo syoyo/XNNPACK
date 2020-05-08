@@ -12,8 +12,8 @@ PROJECT(pthreadpool-download NONE)
 
 INCLUDE(ExternalProject)
 ExternalProject_Add(pthreadpool
-  URL https://github.com/Maratyszcza/pthreadpool/archive/da486afd0f9e2b42ccb90940e2dfba6cfed38708.zip
-  URL_HASH SHA256=8602a23e9d69cedf6054f428b3f8dbd935e1c5811df3adf38f0985ed1fed74ee
+  URL https://github.com/Maratyszcza/pthreadpool/archive/6525d8bb736b323eb4df9e4f3afdd3a8458d1a20.zip
+  URL_HASH SHA256=af8c518b6ec65dca216143ddf5ef9d2e6b133123f9a47a24841ef447c5d91bd1
   SOURCE_DIR "${CMAKE_BINARY_DIR}/pthreadpool-source"
   BINARY_DIR "${CMAKE_BINARY_DIR}/pthreadpool"
   CONFIGURE_COMMAND ""

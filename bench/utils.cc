@@ -11,7 +11,7 @@
 #ifdef __linux__
   #include <sched.h>
 #endif
-#ifdef __ANDROID__
+#if defined(__ANDROID__) || defined(_WIN32) || defined(__CYGWIN__)
   #include <malloc.h>
 #endif
 #if defined(__SSE__) || defined(__x86_64__)
@@ -34,11 +34,11 @@ static void InitWipeBuffer() {
   if (cpuinfo_initialize()) {
     wipe_buffer_size = benchmark::utils::GetMaxCacheSize();
   }
-#if defined(__ANDROID__)
+#if defined(_WIN32)
+  wipe_buffer = _aligned_malloc(wipe_buffer_size, 128);
+#elif defined(__ANDROID__) || defined(__CYGWIN__)
   // memalign is obsolete, but it is the only option on Android until API level 17.
   wipe_buffer = memalign(128, wipe_buffer_size);
-#elif defined(_WIN32)
-  wipe_buffer = _aligned_malloc(wipe_buffer_size, 128);
 #else
   (void) posix_memalign((void**) &wipe_buffer, 128, wipe_buffer_size);
 #endif
@@ -76,11 +76,21 @@ void DisableDenormals() {
   _mm_setcsr(_mm_getcsr() | 0x8040);
 #elif defined(__arm__) && defined(__ARM_FP) && (__ARM_FP != 0)
   uint32_t fpscr;
-  __asm__ __volatile__(
-      "VMRS %[fpscr], fpscr\n"
-      "ORR %[fpscr], #0x1000000\n"
-      "VMSR fpscr, %[fpscr]\n"
-    : [fpscr] "=r" (fpscr));
+  #if defined(__thumb__) && !defined(__thumb2__)
+    __asm__ __volatile__(
+        "VMRS %[fpscr], fpscr\n"
+        "ORRS %[fpscr], %[bitmask]\n"
+        "VMSR fpscr, %[fpscr]\n"
+        : [fpscr] "=l" (fpscr)
+        : [bitmask] "l" (0x1000000)
+        : "cc");
+  #else
+    __asm__ __volatile__(
+        "VMRS %[fpscr], fpscr\n"
+        "ORR %[fpscr], #0x1000000\n"
+        "VMSR fpscr, %[fpscr]\n"
+        : [fpscr] "=r" (fpscr));
+  #endif
 #elif defined(__aarch64__)
   uint64_t fpcr;
   __asm__ __volatile__(

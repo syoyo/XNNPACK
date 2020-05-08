@@ -11,6 +11,7 @@
 #include <chrono>
 #include <cmath>
 #include <functional>
+#include <limits>
 #include <mutex>
 #include <random>
 #include <vector>
@@ -53,7 +54,7 @@ static void GEMMBenchmark(benchmark::State& state,
   std::random_device random_device;
   auto rng = std::mt19937(random_device());
   auto s32rng = std::bind(std::uniform_int_distribution<int32_t>(-10000, 10000), rng);
-  auto u8rng = std::bind(std::uniform_int_distribution<uint8_t>(), rng);
+  auto u8rng = std::bind(std::uniform_int_distribution<uint32_t>(0, std::numeric_limits<uint8_t>::max()), rng);
 
   std::vector<uint8_t> a(mc * kc);
   std::generate(a.begin(), a.end(), std::ref(u8rng));
@@ -155,7 +156,7 @@ static void GemmlowpBenchmark(benchmark::State& state, uint32_t threads)
   std::random_device random_device;
   auto rng = std::mt19937(random_device());
   auto s32rng = std::bind(std::uniform_int_distribution<int32_t>(-10000, 10000), rng);
-  auto u8rng = std::bind(std::uniform_int_distribution<uint8_t>(), rng);
+  auto u8rng = std::bind(std::uniform_int_distribution<uint32_t>(0, std::numeric_limits<uint8_t>::max()), rng);
 
   std::vector<uint8_t> a(mc * kc);
   std::generate(a.begin(), a.end(), std::ref(u8rng));
@@ -214,7 +215,7 @@ static void RuyBenchmark(benchmark::State& state, size_t threads)
   std::random_device random_device;
   auto rng = std::mt19937(random_device());
   auto s32rng = std::bind(std::uniform_int_distribution<int32_t>(-10000, 10000), rng);
-  auto u8rng = std::bind(std::uniform_int_distribution<uint8_t>(), rng);
+  auto u8rng = std::bind(std::uniform_int_distribution<uint32_t>(0, std::numeric_limits<uint8_t>::max()), rng);
 
   const size_t num_buffers = 1 +
     benchmark::utils::DivideRoundUp<size_t>(benchmark::utils::GetMaxCacheSize(),
@@ -231,21 +232,21 @@ static void RuyBenchmark(benchmark::State& state, size_t threads)
 
   // Note: context must be static to avoid the cost of re-creating it for each benchmark.
   static ruy::Context context;
-  context.max_num_threads = threads;
+  context.set_max_num_threads(threads);
 
   ruy::Matrix<uint8_t> ruy_a;
-  ruy::MakeSimpleLayout(nc, kc, ruy::Order::kRowMajor, &ruy_a.layout);
-  ruy_a.zero_point = 127;
+  ruy::MakeSimpleLayout(nc, kc, ruy::Order::kRowMajor, ruy_a.mutable_layout());
+  ruy_a.set_zero_point(127);
   ruy::Matrix<uint8_t> ruy_b;
-  ruy::MakeSimpleLayout(kc, mc, ruy::Order::kColMajor, &ruy_b.layout);
-  ruy_b.data = a.data();
-  ruy_b.zero_point = 127;
+  ruy::MakeSimpleLayout(kc, mc, ruy::Order::kColMajor, ruy_b.mutable_layout());
+  ruy_b.set_data(a.data());
+  ruy_b.set_zero_point(127);
   ruy::Matrix<uint8_t> ruy_c;
-  ruy::MakeSimpleLayout(nc, mc, ruy::Order::kColMajor, &ruy_c.layout);
-  ruy_c.zero_point = 127;
+  ruy::MakeSimpleLayout(nc, mc, ruy::Order::kColMajor, ruy_c.mutable_layout());
+  ruy_c.set_zero_point(127);
 
-  ruy::BasicSpec<int32_t, uint8_t> spec;
-  spec.multiplier_fixedpoint = 0x40000000;
+  ruy::MulParams<int32_t, uint8_t> mul_params;
+  mul_params.set_multiplier_fixedpoint(0x40000000);
 
   // ruy::Context uses deferred initialization, which affects percieved GEMM performance. Initialization happens during
   // the first GEMM calls, and per Benoit Jacob it takes up to ~250 milliseconds for performance to stabilize.
@@ -255,11 +256,11 @@ static void RuyBenchmark(benchmark::State& state, size_t threads)
   std::call_once(warmup, [&](){
     auto start = std::chrono::steady_clock::now();
     do {
-      ruy_a.data = k.data();
-      ruy_c.data = c.data();
-      spec.bias = b.data();
+      ruy_a.set_data(k.data());
+      ruy_c.set_data(c.data());
+      mul_params.set_bias(b.data());
 
-      ruy::Mul<ruy::kAllPaths>(ruy_a, ruy_b, spec, &context, &ruy_c);
+      ruy::Mul(ruy_a, ruy_b, mul_params, &context, &ruy_c);
     } while (std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() < 0.5);
   });
 
@@ -275,11 +276,11 @@ static void RuyBenchmark(benchmark::State& state, size_t threads)
     buffer_index = (buffer_index + 1) % num_buffers;
     state.ResumeTiming();
 
-    ruy_a.data = k.data() + buffer_index * nc * kc;
-    ruy_c.data = c.data() + buffer_index * mc * nc;
-    spec.bias = b.data() + buffer_index * nc;
+    ruy_a.set_data(k.data() + buffer_index * nc * kc);
+    ruy_c.set_data(c.data() + buffer_index * mc * nc);
+    mul_params.set_bias(b.data() + buffer_index * nc);
 
-    ruy::Mul<ruy::kAllPaths>(ruy_a, ruy_b, spec, &context, &ruy_c);
+    ruy::Mul(ruy_a, ruy_b, mul_params, &context, &ruy_c);
   }
 
   state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();

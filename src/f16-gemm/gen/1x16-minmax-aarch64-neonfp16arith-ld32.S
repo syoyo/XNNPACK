@@ -19,7 +19,7 @@
 #     uint8_t*restrict c,       x6
 #     size_t cm_stride,         (x7) - unused
 #     size_t cn_stride,         [sp] -> x14
-#     const union xnn_f16_minmax_params params[restrict static 1])  [sp + 8] -> x8
+#     const union xnn_f16_scaleminmax_params params[restrict XNN_MIN_ELEMENTS(1)])  [sp + 8] -> x8
 
 # d8-d15 need to be preserved if used.
 # x19-30 need to be preserved if used.
@@ -37,7 +37,7 @@ BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_1x16__aarch64_neonfp16arith_ld32
         # Load cn_stride, params pointer
         LDP x14, x8, [sp]
 
-        # Load clamping_params values
+        # Load params values
         LD3R {v4.8h, v5.8h, v6.8h}, [x8]
 0:
         # Load initial bias from w into accumulators
@@ -53,12 +53,14 @@ BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_1x16__aarch64_neonfp16arith_ld32
 
         # Main loop - 2 halffloats of A (4 bytes)
 1:
-        LDR s0, [x3], 4
-        LDP q20, q21, [x5], 32
-        LDP q22, q23, [x5], 32
+        LDR  s0, [x3], 4
+        LDR q20, [x5], 16
+        LDR q21, [x5], 16
+        LDR q22, [x5], 16
+        LDR q23, [x5], 16
+        SUBS x0, x0, 4
         FMLA v16.8h, v20.8h, v0.h[0]
         FMLA v17.8h, v21.8h, v0.h[0]
-        SUBS x0, x0, 4
         FMLA v18.8h, v22.8h, v0.h[1]
         FMLA v19.8h, v23.8h, v0.h[1]
         B.HS 1b
@@ -94,7 +96,8 @@ BEGIN_FUNCTION xnn_f16_gemm_minmax_ukernel_1x16__aarch64_neonfp16arith_ld32
 
 8:
         # Remainder- 1 halffloat of A (2 bytes)
-        LDP q20, q21, [x5], 32
+        LDR q20, [x5], 16
+        LDR q21, [x5], 16
         LDR h0, [x3], 2
         FMLA v16.8h, v20.8h, v0.h[0]
         FMLA v17.8h, v21.8h, v0.h[0]

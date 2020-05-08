@@ -91,6 +91,35 @@
   #define XNN_PLATFORM_WEB 0
 #endif
 
+// Define compile identification macros
+
+#if defined(__clang__)
+  #define XNN_COMPILER_CLANG 1
+#elif defined(__INTEL_COMPILER)
+  #define XNN_COMPILER_ICC 1
+#elif defined(_MSC_VER)
+  #define XNN_COMPILER_MSVC 1
+#elif defined(__GNUC__)
+  #define XNN_COMPILER_GCC 1
+#endif
+
+#ifndef XNN_COMPILER_CLANG
+  #define XNN_COMPILER_CLANG 0
+#endif
+
+#ifndef XNN_COMPILER_GCC
+  #define XNN_COMPILER_GCC 0
+#endif
+
+#ifndef XNN_COMPILER_MSVC
+  #define XNN_COMPILER_MSVC 0
+#endif
+
+#ifndef XNN_COMPILER_ICC
+  #define XNN_COMPILER_ICC 0
+#endif
+
+
 #ifndef XNN_MAX_UARCH_TYPES
   #if (XNN_ARCH_ARM || XNN_ARCH_ARM64) && !XNN_PLATFORM_IOS
     #define XNN_MAX_UARCH_TYPES 3
@@ -123,6 +152,12 @@
 
 #define XNN_COUNT_OF(array) (sizeof(array) / sizeof(0[array]))
 
+#if defined(__cplusplus) || XNN_COMPILER_MSVC
+  #define XNN_MIN_ELEMENTS(count) count
+#else
+  #define XNN_MIN_ELEMENTS(count) static count
+#endif
+
 #if defined(__GNUC__)
   #define XNN_LIKELY(condition) (__builtin_expect(!!(condition), 1))
   #define XNN_UNLIKELY(condition) (__builtin_expect(!!(condition), 0))
@@ -140,6 +175,24 @@
   #endif
 #else
   #define XNN_UNPREDICTABLE(condition) (!!(condition))
+#endif
+
+#if defined(__has_feature)
+  #if __has_feature(thread_sanitizer)
+    #define XNN_DISABLE_TSAN __attribute__((__no_sanitize__("thread")))
+  #else
+    #define XNN_DISABLE_TSAN
+  #endif
+#else
+    #define XNN_DISABLE_TSAN
+#endif
+
+#if defined(__GNUC__)
+  #define XNN_INTRINSIC inline __attribute__((__always_inline__, __artificial__))
+#elif defined(_MSC_VER)
+  #define XNN_INTRINSIC __forceinline
+#else
+  #define XNN_INTRINSIC inline
 #endif
 
 #if defined(__GNUC__)

@@ -6,6 +6,7 @@
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
 
+#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -65,14 +66,16 @@ struct xnn_parameters xnn_params = {
   .initialized = false
 };
 
+static void init(void) {
 #if XNN_ARCH_ASMJS || XNN_ARCH_WASM || XNN_ARCH_WASMSIMD
-  extern uint32_t xnn_stub_wasm_f32_sub(uint32_t a, uint32_t b);
-#endif
-#if XNN_ARCH_WASM || XNN_ARCH_WASMSIMD
-  extern uint32_t xnn_stub_wasm_f32_min(uint32_t a, uint32_t b);
+  // Unlike most other architectures, on x86/x86-64 when floating-point instructions
+  // have no NaN arguments, but produce NaN output, the output NaN has sign bit set.
+  // We use it to distinguish x86/x86-64 from other architectures, by doing subtraction
+  // of two infinities (must produce NaN per IEEE 754 standard).
+  static const volatile float inf = INFINITY;
+  const bool is_wasm_x86 = signbit(inf - inf);
 #endif
 
-static void init(void) {
 #if XNN_ARCH_ARM
   if (!cpuinfo_has_arm_neon()) {
     xnn_log_error("XNNPACK initialization failed: NEON is not supported");
@@ -236,7 +239,7 @@ static void init(void) {
     xnn_params.f32.gemm2.mr = 4;
     xnn_params.f32.gemm2.nr = 2;
 
-    xnn_params.f32.dwconv[0].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x4__psimd;
+    xnn_params.f32.dwconv[0].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x4__neon;
     xnn_params.f32.dwconv[0].channel_tile = 4,
     xnn_params.f32.dwconv[0].primary_tile = 4,
 
@@ -244,7 +247,7 @@ static void init(void) {
     xnn_params.f32.dwconv[1].channel_tile = 4;
     xnn_params.f32.dwconv[1].primary_tile = 9;
 
-    xnn_params.f32.dwconv[2].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x25__psimd;
+    xnn_params.f32.dwconv[2].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x25__neon_acc2;
     xnn_params.f32.dwconv[2].channel_tile = 4;
     xnn_params.f32.dwconv[2].primary_tile = 25;
 
@@ -347,7 +350,7 @@ static void init(void) {
       .ukernel = xnn_x32_pad_x2__neon,
       .mr = 2,
     };
-    xnn_params.x32.unpool = (xnn_unpool_ukernel_function) xnn_x32_unpool_ukernel__psimd;
+    xnn_params.x32.unpool = (xnn_unpool_ukernel_function) xnn_x32_unpool_ukernel__neon;
     xnn_params.x32.zip = (struct zip_parameters) {
       .x2 = (xnn_zipc_ukernel_function) xnn_x32_zip_x2_ukernel__neon,
       .x3 = (xnn_zipc_ukernel_function) xnn_x32_zip_x3_ukernel__neon,
@@ -562,8 +565,8 @@ static void init(void) {
     xnn_params.f32.gemm2.mr = 4;
     xnn_params.f32.gemm2.nr = 2;
 
-    xnn_params.f32.dwconv[0].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x4__psimd;
-    xnn_params.f32.dwconv[0].channel_tile = 4;
+    xnn_params.f32.dwconv[0].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up8x4__neonfma;
+    xnn_params.f32.dwconv[0].channel_tile = 8;
     xnn_params.f32.dwconv[0].primary_tile = 4;
 
     #if XNN_PLATFORM_IOS
@@ -594,7 +597,7 @@ static void init(void) {
       }
     #endif  // XNN_PLATFORM_IOS
 
-    xnn_params.f32.dwconv[2].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x25__psimd;
+    xnn_params.f32.dwconv[2].minmax.unipass = (xnn_dwconv_unipass_ukernel_function) xnn_f32_dwconv_minmax_ukernel_up4x25__neonfma_acc2;
     xnn_params.f32.dwconv[2].channel_tile = 4;
     xnn_params.f32.dwconv[2].primary_tile = 25;
 
@@ -749,7 +752,7 @@ static void init(void) {
       .ukernel = xnn_x32_pad_x2__neon,
       .mr = 2,
     };
-    xnn_params.x32.unpool = (xnn_unpool_ukernel_function) xnn_x32_unpool_ukernel__psimd;
+    xnn_params.x32.unpool = (xnn_unpool_ukernel_function) xnn_x32_unpool_ukernel__neon;
     xnn_params.x32.zip = (struct zip_parameters) {
       .x2 = (xnn_zipc_ukernel_function) xnn_x32_zip_x2_ukernel__neon,
       .x3 = (xnn_zipc_ukernel_function) xnn_x32_zip_x3_ukernel__neon,
@@ -1143,7 +1146,7 @@ static void init(void) {
       .ukernel = xnn_x32_pad_x2__sse2,
       .mr = 2,
     };
-    xnn_params.x32.unpool = (xnn_unpool_ukernel_function) xnn_x32_unpool_ukernel__psimd;
+    xnn_params.x32.unpool = (xnn_unpool_ukernel_function) xnn_x32_unpool_ukernel__sse2;
     xnn_params.x32.zip = (struct zip_parameters) {
       .x2 = (xnn_zipc_ukernel_function) xnn_x32_zip_x2_ukernel__sse2,
       .x3 = (xnn_zipc_ukernel_function) xnn_x32_zip_x3_ukernel__sse2,
@@ -1153,13 +1156,6 @@ static void init(void) {
   #endif  // XNN_NO_X32_OPERATORS
 
 #elif XNN_ARCH_WASMSIMD
-  // Unlike most other architectures, on x86/x86-64 when floating-point instructions
-  // have no NaN arguments, but produce NaN output, the output NaN has sign bit set.
-  // We use it to distinguish x86/x86-64 from other architectures, by doing subtraction
-  // of two infinities (must produce NaN per IEEE 754 standard).
-  static volatile uint32_t minus_inf = UINT32_C(0xFF800000);
-  const bool is_wasm_x86 = (int32_t) xnn_stub_wasm_f32_sub(minus_inf, minus_inf) < 0;
-
   /**************************** Q8 micro-kernels ****************************/
   #ifndef XNN_NO_Q8_OPERATORS
     xnn_params.q8.gemm.minmax.gemm = xnn_init_hmp_gemm_ukernel((xnn_gemm_ukernel_function) xnn_q8_gemm_minmax_ukernel_2x2__scalar);
@@ -1353,13 +1349,6 @@ static void init(void) {
   #endif  // XNN_NO_X32_OPERATORS
 
 #elif XNN_ARCH_WASM || XNN_ARCH_ASMJS
-  // Unlike most other architectures, on x86/x86-64 when floating-point instructions
-  // have no NaN arguments, but produce NaN output, the output NaN has sign bit set.
-  // We use it to distinguish x86/x86-64 from other architectures, by doing subtraction
-  // of two infinities (must produce NaN per IEEE 754 standard).
-  static volatile uint32_t minus_inf = UINT32_C(0xFF800000);
-  const bool is_wasm_x86 = (int32_t) xnn_stub_wasm_f32_sub(minus_inf, minus_inf) < 0;
-
   /**************************** Q8 micro-kernels ****************************/
   #ifndef XNN_NO_Q8_OPERATORS
     xnn_params.q8.gemm.minmax.gemm = xnn_init_hmp_gemm_ukernel((xnn_gemm_ukernel_function) xnn_q8_gemm_minmax_ukernel_2x2__scalar);

@@ -122,7 +122,7 @@ static void DWConvBenchmark(benchmark::State& state,
   std::vector<float> c(c_elements * num_buffers);
   std::fill(c.begin(), c.end(), std::nanf(""));
 
-  xnn_f32_minmax_params minmax_params =
+  xnn_f32_minmax_params params =
     xnn_init_f32_minmax_params(-std::numeric_limits<float>::infinity(), +std::numeric_limits<float>::infinity());
 
   size_t buffer_index = 0;
@@ -138,7 +138,7 @@ static void DWConvBenchmark(benchmark::State& state,
         w.data() + buffer_index * w_elements,
         c.data() + buffer_index * c_elements + y * output_width * channels,
         kernel_height * step_width * sizeof(void*), 0,
-        &minmax_params);
+        &params);
     }
   }
 
@@ -207,7 +207,7 @@ static void DWConvBenchmark(benchmark::State& state,
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 
 
-#if !XNN_ARCH_WASM && !XNN_ARCH_ASMJS
+#if !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
   static void f32_dwconv_4x4__psimd(benchmark::State& state, const char* net) {
     DWConvBenchmark(state, xnn_f32_dwconv_minmax_ukernel_up4x4__psimd, 4, 4);
   }
@@ -223,7 +223,7 @@ static void DWConvBenchmark(benchmark::State& state,
   BENCHMARK_DWCONV(f32_dwconv_4x4__psimd)
   BENCHMARK_DWCONV(f32_dwconv_4x9__psimd)
   BENCHMARK_DWCONV(f32_dwconv_4x25__psimd)
-#endif  // !XNN_ARCH_WASM && !XNN_ARCH_ASMJS
+#endif  // !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
 
 
 static void f32_dwconv_1x4__scalar(benchmark::State& state, const char* net) {

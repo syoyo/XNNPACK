@@ -12,6 +12,7 @@
 #include <xmmintrin.h>
 
 #include <xnnpack/common.h>
+#include <xnnpack/intrinsics-polyfill.h>
 #include <xnnpack/vbinary.h>
 
 
@@ -20,7 +21,7 @@ void xnn_f32_vadd_minmax_ukernel__sse_x4(
     const float* a,
     const float* b,
     float* y,
-    const union xnn_f32_minmax_params params[restrict static 1])
+    const union xnn_f32_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
@@ -58,8 +59,8 @@ void xnn_f32_vadd_minmax_ukernel__sse_x4(
     y += 4;
   }
   if XNN_UNLIKELY(n != 0) {
-    const __m128 va0123 = _mm_loadu_ps(a);
-    const __m128 vb0123 = _mm_loadu_ps(b);
+    const __m128 va0123 = _mm_loadu_ps_notsan(a);
+    const __m128 vb0123 = _mm_loadu_ps_notsan(b);
 
     __m128 vy0123 = _mm_add_ps(va0123, vb0123);
     vy0123 = _mm_max_ps(vy0123, vy_min);

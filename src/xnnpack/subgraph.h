@@ -11,10 +11,10 @@
 #include <xnnpack.h>
 
 #define XNN_MAX_INPUTS 3
-#define XNN_MAX_OUTPUTS 1
+#define XNN_MAX_OUTPUTS 2
 
 #define XNN_MAX_RUNTIME_INPUTS 2
-#define XNN_MAX_RUNTIME_OUTPUTS 1
+#define XNN_MAX_RUNTIME_OUTPUTS 2
 
 struct xnn_shape {
   size_t num_dims;
@@ -58,16 +58,20 @@ struct xnn_blob {
 enum xnn_node_type {
   xnn_node_type_invalid = 0,
   xnn_node_type_add2,
+  xnn_node_type_argmax_pooling_2d,
   xnn_node_type_average_pooling_2d,
   xnn_node_type_clamp,
   xnn_node_type_convolution_2d,
+  xnn_node_type_deconvolution_2d,
   xnn_node_type_depthwise_convolution_2d,
+  xnn_node_type_fully_connected,
   xnn_node_type_hardswish,
   xnn_node_type_multiply2,
   xnn_node_type_max_pooling_2d,
   xnn_node_type_prelu,
   xnn_node_type_sigmoid,
   xnn_node_type_softmax,
+  xnn_node_type_unpooling_2d,
 };
 
 struct xnn_node {
@@ -90,6 +94,23 @@ struct xnn_node {
       size_t group_input_channels;
       size_t group_output_channels;
     } convolution_2d;
+    struct {
+      uint32_t padding_top;
+      uint32_t padding_right;
+      uint32_t padding_bottom;
+      uint32_t padding_left;
+      uint32_t adjustment_height;
+      uint32_t adjustment_width;
+      uint32_t kernel_height;
+      uint32_t kernel_width;
+      uint32_t upsampling_height;
+      uint32_t upsampling_width;
+      uint32_t dilation_height;
+      uint32_t dilation_width;
+      uint32_t groups;
+      size_t group_input_channels;
+      size_t group_output_channels;
+    } deconvolution_2d;
     struct {
       uint32_t input_padding_top;
       uint32_t input_padding_right;
@@ -122,22 +143,10 @@ struct xnn_node {
     float output_max;
   } activation;
   /// Value IDs for node inputs.
-  union {
-    uint32_t raw[XNN_MAX_INPUTS];
-    struct {
-      uint32_t input;
-      uint32_t filter;
-      uint32_t bias;
-    } convolution_2d;
-  } inputs;
+  uint32_t inputs[XNN_MAX_INPUTS];
   uint32_t num_inputs;
   /// Value IDs for node outputs.
-  union {
-    struct {
-      uint32_t output;
-    } convolution_2d;
-    uint32_t raw[XNN_MAX_OUTPUTS];
-  } outputs;
+  uint32_t outputs[XNN_MAX_OUTPUTS];
   uint32_t num_outputs;
   uint32_t flags;
 };
@@ -149,6 +158,8 @@ struct xnn_operator_data {
   size_t input_width;
   struct xnn_shape shape1;
   struct xnn_shape shape2;
+  uint32_t adjustment_height;
+  uint32_t adjustment_width;
   uint32_t inputs[XNN_MAX_RUNTIME_INPUTS];
   uint32_t outputs[XNN_MAX_RUNTIME_OUTPUTS];
 };

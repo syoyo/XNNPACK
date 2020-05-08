@@ -39,6 +39,10 @@ extern "C" {
 /// Match "SAME" padding in TensorFlow. Exact padding values are computed dynamically depending on input size.
 #define XNN_FLAG_TENSORFLOW_SAME_PADDING 0x00000004
 
+/// Implicitly flatten and reshape input of a Fully Connected operator into a 2D
+/// tensor.
+#define XNN_FLAG_TENSORFLOW_RESHAPE_2D 0x00000004
+
 /// Match behaviour of TensorFlow 1.x.
 #define XNN_FLAG_TENSORFLOW_LEGACY_MODE 0x00000004
 
@@ -248,6 +252,61 @@ enum xnn_status xnn_define_convolution_2d(
   uint32_t output_id,
   uint32_t flags);
 
+/// Define a 2D Deconvolution (Transposed Convolution) Node and add it to a Subgraph.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param padding_top - implicit padding above 2D output data.
+/// @param padding_right - implicit padding to the right of 2D output data.
+/// @param padding_bottom - implicit padding below 2D output data.
+/// @param padding_left - implicit padding to the left of 2D output data.
+/// @param adjustment_height - additional elements in the bottom of the 2D output data.
+/// @param adjustment_width - additional elements to the right of the 2D output data.
+/// @param kernel_height - kernel (filter) height.
+/// @param kernel_width - kernel (filter) width.
+/// @param upsampling_height - height of upsampling region for deconvolution input (deconvolution height stride).
+/// @param upsampling_width - width of upsampling region for deconvolution input (deconvolution width stride).
+/// @param dilation_height - dilation of kernel elements along the height dimension.
+/// @param dilation_width - dilation of kernel elements along the width dimension.
+/// @param groups - number of convolution groups.
+/// @param group_input_channels - number of input channels per group.
+/// @param group_output_channels - number of output channels per group.
+/// @param output_min - lower bound for clipping output values.
+/// @param output_max - upper bound for clipping output values.
+/// @param input_id - Value ID for the input tensor. The input tensor must be a 4D tensor defined in the @a subgraph
+///                   with [N, IH, IW, groups * group_input_channels] dimensions
+/// @param filter_id - Value ID for the filter tensor. The filter tensor must ge a 4D tensor defined in the @a subgraph
+///                    with [groups * group_output_channels, kernel_height, kernel_width, group_input_channels]
+///                    dimensions.
+/// @param bias_id - Value ID for the bias tensor. The bias tensor must be a 1D tensor defined in the @a subgraph with
+///                  [groups * group_output_channels] dimensions.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a 4D tensor defined in the @a subgraph
+///                    with [N, OH, OW, groups * group_output_channels] dimensions.
+/// @param flags - binary features of the 2D Deconvolution Node. No supported flags are currently defined.
+enum xnn_status xnn_define_deconvolution_2d(
+  xnn_subgraph_t subgraph,
+  uint32_t padding_top,
+  uint32_t padding_right,
+  uint32_t padding_bottom,
+  uint32_t padding_left,
+  uint32_t adjustment_height,
+  uint32_t adjustment_width,
+  uint32_t kernel_height,
+  uint32_t kernel_width,
+  uint32_t upsampling_height,
+  uint32_t upsampling_width,
+  uint32_t dilation_height,
+  uint32_t dilation_width,
+  uint32_t groups,
+  size_t group_input_channels,
+  size_t group_output_channels,
+  float output_min,
+  float output_max,
+  uint32_t input_id,
+  uint32_t filter_id,
+  uint32_t bias_id,
+  uint32_t output_id,
+  uint32_t flags);
+
 /// Define a 2D Depthwise Convolution Node and add it to a Subgraph.
 ///
 /// @param subgraph - a Subgraph object that will own the created Node.
@@ -342,6 +401,56 @@ enum xnn_status xnn_define_average_pooling_2d(
   uint32_t output_id,
   uint32_t flags);
 
+/// Define a Fully Connected Node and add it to a Subgraph.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param output_min - lower bound for clipping output values.
+/// @param output_max - upper bound for clipping output values.
+/// @param input_id - Value ID for the input tensor. The input tensor must be an
+/// N-dimensional tensor defined in the @a
+///                   subgraph.
+///                   If XNN_FLAG_TENSORFLOW_RESHAPE_2D is not specified, the
+///                   input tensor must be at least 1D and its last dimension
+///                   must match the last dimension of the filter tensor. In
+///                   particular, if input is a 2D tensor, it must have
+///                   [batch_size, input_channels] dimensions. If
+///                   XNN_FLAG_TENSORFLOW_RESHAPE_2D is specified, the number of
+///                   elements in the input tensor must be divisible by the
+///                   input_channels. The tensor will be first flattened into a
+///                   1D tensor of [num_input_elements] dimensions, then
+///                   reshaped into a 2D tensor of [num_input_elements /
+///                   input_channels, input_channels] dimensions where
+///                   num_input_elements is the total number of elements in the
+///                   input tensor.
+/// @param filter_id - Value ID for the filter tensor. The filter tensor must ge
+/// a 2D tensor defined in the @a subgraph
+///                    with [output_channels, input_channels] dimensions.
+/// @param bias_id - Value ID for the bias tensor. The bias tensor must be a 1D
+/// tensor defined in the @a subgraph with
+///                  [output_channels] dimensions.
+/// @param output_id - Value ID for the output tensor. The output tensor must be
+/// defined in the @a subgraph.
+///                    If XNN_FLAG_TENSORFLOW_RESHAPE_2D is not specified, the
+///                    output tensor must have the same dimensionality as the
+///                    input tensor, all its dimensions but the last one must
+///                    match the corresponding dimensions of the input tensor,
+///                    and the last dimensions of the output tensor must match
+///                    the first dimension of the filter tensor. In particular,
+///                    if input is a 2D tensor, output must be a 2D tensor of
+///                    [batch_size, output_channels] dimensions. If
+///                    XNN_FLAG_TENSORFLOW_RESHAPE_2D is specified, output must
+///                    be a 2D tensor of [num_input_elements / input_channels,
+///                    output_channels] dimensions where num_input_elements is
+///                    the total number of elements in the input tensor.
+/// @param flags - binary features of the Fully Connected Node. The only
+/// currently supported value is
+///                XNN_FLAG_TENSORFLOW_RESHAPE_2D.
+enum xnn_status xnn_define_fully_connected(xnn_subgraph_t subgraph,
+                                           float output_min, float output_max,
+                                           uint32_t input_id,
+                                           uint32_t filter_id, uint32_t bias_id,
+                                           uint32_t output_id, uint32_t flags);
+
 /// Define a 2D Max Pooling Node and add it to a Subgraph.
 ///
 /// @param subgraph - a Subgraph object that will own the created Node.
@@ -384,6 +493,66 @@ enum xnn_status xnn_define_max_pooling_2d(
   float output_min,
   float output_max,
   uint32_t input_id,
+  uint32_t output_id,
+  uint32_t flags);
+
+/// Define a 2D ArgMax Pooling Node and add it to a Subgraph.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param input_padding_top - implicit zero-padding above 2D input data.
+/// @param input_padding_right - implicit zero-padding to the right of 2D input data.
+/// @param input_padding_bottom - implicit zero-padding below 2D input data.
+/// @param input_padding_left - implicit zero-padding to the left of 2D input data.
+/// @param pooling_height - pooling (kernel) height. Vertical stride between pooling regions match this value.
+/// @param pooling_width - pooling (kernel) width. Horizontal stride between pooling regions match this value.
+/// @param input_id - Value ID for the input tensor. The input tensor must be a 4D tensor defined in the @a subgraph
+///                   with [N, IH, IW, channels] dimensions
+/// @param output_value_id - Value ID for the output tensor with the maximum values in the pools. The output tensor must
+///                          be a 4D tensor defined in the @a subgraph with [N, OH, OW, channels] dimensions.
+/// @param output_index_id - Value ID for the output tensor with the indexes of the maximum values in the pools. The
+///                          output tensor must be a 4D tensor defined in the @a subgraph with [N, OH, OW, channels]
+///                          dimensions.
+/// @param flags - binary features of the 2D ArgMax Pooling Node. No supported flags are currently defined.
+enum xnn_status xnn_define_argmax_pooling_2d(
+  xnn_subgraph_t subgraph,
+  uint32_t input_padding_top,
+  uint32_t input_padding_right,
+  uint32_t input_padding_bottom,
+  uint32_t input_padding_left,
+  uint32_t pooling_height,
+  uint32_t pooling_width,
+  uint32_t input_id,
+  uint32_t output_value_id,
+  uint32_t output_index_id,
+  uint32_t flags);
+
+/// Define a 2D UnPooling Node and add it to a Subgraph.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param padding_top - implicit padding above 2D output data.
+/// @param padding_right - implicit padding to the right of 2D output data.
+/// @param padding_bottom - implicit padding below 2D output data.
+/// @param padding_left - implicit padding to the left of 2D output data.
+/// @param pooling_height - height of the pooling window.
+/// @param pooling_width - width of the pooling window.
+/// @param input_value_id - Value ID for the input tensor with the max-pooling values to invert. The input value tensor
+///                         must be a 4D tensor defined in the @a subgraph with [N, IH, IW, channels] dimensions.
+/// @param input_index_id - Value ID for the input tensor with the indices of the per-pool maximum values produced by
+///                         a 2D UnPooling Node. The input tensor must be a 4D tensor defined in the @a subgraph with
+///                         [N, IH, IW, channels] dimensions.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a 4D tensor defined in the @a subgraph
+///                    with [N, OH, OW, channels] dimensions.
+/// @param flags - binary features of the 2D UnPooling Node. No supported flags are currently defined.
+enum xnn_status xnn_define_unpooling_2d(
+  xnn_subgraph_t subgraph,
+  uint32_t padding_top,
+  uint32_t padding_right,
+  uint32_t padding_bottom,
+  uint32_t padding_left,
+  uint32_t pooling_height,
+  uint32_t pooling_width,
+  uint32_t input_value_id,
+  uint32_t input_index_id,
   uint32_t output_id,
   uint32_t flags);
 

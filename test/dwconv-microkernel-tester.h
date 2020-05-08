@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <functional>
+#include <limits>
 #include <random>
 #include <vector>
 
@@ -153,7 +154,7 @@ class DWConvMicrokernelTester {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
     auto s32rng = std::bind(std::uniform_int_distribution<int32_t>(-10000, 10000), rng);
-    auto u8rng = std::bind(std::uniform_int_distribution<uint8_t>(), rng);
+    auto u8rng = std::bind(std::uniform_int_distribution<uint32_t>(0, std::numeric_limits<uint8_t>::max()), rng);
 
     std::vector<const uint8_t*> indirection((width() - 1) * step() + kr());
     std::vector<uint8_t> input(XNN_EXTRA_BYTES / sizeof(uint8_t) + indirection.size() * channels());
@@ -363,13 +364,13 @@ class DWConvMicrokernelTester {
       const float output_max = accumulated_max - accumulated_range / 255.0f * float(255 - qmax());
 
       // Prepare output parameters.
-      xnn_f32_minmax_params minmax_params = { };
+      xnn_f32_minmax_params params = { };
       switch (variant) {
         case Variant::Native:
-          minmax_params = xnn_init_f32_minmax_params(output_min, output_max);
+          params = xnn_init_f32_minmax_params(output_min, output_max);
           break;
         case Variant::Scalar:
-          minmax_params = xnn_init_scalar_f32_minmax_params(output_min, output_max);
+          params = xnn_init_scalar_f32_minmax_params(output_min, output_max);
           break;
       }
 
@@ -384,7 +385,7 @@ class DWConvMicrokernelTester {
         indirection.data(), packed_weights.data(), output.data(),
         step() * sizeof(void*),
         (output_stride() - channels()) * sizeof(float),
-        &minmax_params);
+        &params);
 
       // Verify results.
       for (size_t x = 0; x < width(); x++) {

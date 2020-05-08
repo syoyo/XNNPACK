@@ -76,3 +76,20 @@ inline static float math_min_f32(float a, float b) {
 inline static float math_max_f32(float a, float b) {
   return XNN_UNPREDICTABLE(b < a) ? a : b;
 }
+
+inline static float math_nonsign_mask_f32() {
+  #if defined(__INTEL_COMPILER)
+    // Suprisingly, Intel compiler ignores __builtin_nanf payload
+    return _castu32_f32(0x7FFFFFFF);
+  #elif defined(__GNUC__)
+    return __builtin_nanf("0x7FFFFF");
+  #else
+    union {
+      uint32_t as_word;
+      float as_float;
+    } f;
+    f.as_word = 0x7FFFFFFF;
+    return f.as_float;
+  #endif
+}
+
