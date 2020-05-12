@@ -32,9 +32,14 @@ ELSE()
   ADD_DEFINITIONS(-DXNN_ENABLE_ASSEMBLY=0)
 ENDIF()
 
-IF(MSVC)
+IF(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
   # Disable "unary minus operator applied to unsigned type, result still unsigned" warning
   ADD_COMPILE_OPTIONS("/wd4146")
+ENDIF()
+
+IF(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  # Disable "note: parameter passing for argument of type ... changed/will change in ..."
+  ADD_COMPILE_OPTIONS("-Wno-psabi")
 ENDIF()
 
 # ---[ Build flags
@@ -1508,7 +1513,6 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/math/extexp-avx512f-p5.c)
 
 SET(XNNPACK_AARCH32_ASM_MICROKERNEL_SRCS
-  src/q8-dwconv/up8x9-minmax-aarch32-neon.S
   src/f32-gemm/4x8-minmax-aarch32-neon-cortex-a53.S
   src/f32-gemm/4x8-minmax-aarch32-neon-cortex-a55.S
   src/f32-gemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S
@@ -2849,6 +2853,14 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_EXTENSIONS YES)
   TARGET_INCLUDE_DIRECTORIES(f32-extexp-eval PRIVATE src)
   TARGET_LINK_LIBRARIES(f32-extexp-eval PRIVATE XNNPACK benchmark fp16)
+
+  ADD_EXECUTABLE(f32-roundne-eval eval/f32-roundne.cc)
+  SET_TARGET_PROPERTIES(f32-roundne-eval PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(f32-roundne-eval PRIVATE src)
+  TARGET_LINK_LIBRARIES(f32-roundne-eval PRIVATE XNNPACK fp16 gtest gtest_main)
 
   ADD_EXECUTABLE(f32-sigmoid-eval eval/f32-sigmoid.cc)
   SET_TARGET_PROPERTIES(f32-sigmoid-eval PROPERTIES

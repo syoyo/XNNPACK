@@ -202,15 +202,14 @@ DECLARE_F32_DWCONV_MINMAX_UNIPASS_UKERNEL_FUNCTION(xnn_f32_dwconv_minmax_ukernel
     const union xnn_q8_gemm_params* params);
 
 DECLARE_Q8_DWCONV_MINMAX_UNIPASS_UKERNEL_FUNCTION(xnn_q8_dwconv_minmax_ukernel_up1x9__scalar)
-DECLARE_Q8_DWCONV_MINMAX_UNIPASS_UKERNEL_FUNCTION(xnn_q8_dwconv_minmax_ukernel_up8x9__aarch32_neon)
 DECLARE_Q8_DWCONV_MINMAX_UNIPASS_UKERNEL_FUNCTION(xnn_q8_dwconv_minmax_ukernel_up8x9__neon)
 DECLARE_Q8_DWCONV_MINMAX_UNIPASS_UKERNEL_FUNCTION(xnn_q8_dwconv_minmax_ukernel_up8x9__sse2)
 
 
 #define DECLARE_F32_DWCONV_SPCHW_UKERNEL_FUNCTION(fn_name) \
   XNN_INTERNAL void fn_name(                               \
-    size_t m,                                              \
-    size_t n,                                              \
+    size_t input_height,                                   \
+    size_t input_width,                                    \
     const float* input,                                    \
     const float* weights,                                  \
     const float* zero,                                     \
