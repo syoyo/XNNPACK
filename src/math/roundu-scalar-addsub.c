@@ -4,14 +4,14 @@
 // LICENSE file in the root directory of this source tree.
 
 #include <assert.h>
-#include <stddef.h>
 #include <math.h>
+#include <stddef.h>
 
 #include <xnnpack/common.h>
 #include <xnnpack/math-stubs.h>
 
 
-void xnn_math_f32_roundne__scalar(
+void xnn_math_f32_roundu__scalar_addsub(
     size_t n,
     const float* input,
     float* output)
@@ -23,6 +23,8 @@ void xnn_math_f32_roundne__scalar(
   // 0 <= x < 2**24, but all numbers in 2**23 <= x < 2**24 range are integers, so we can further restrict it to
   // 0 <= x < 2**23. Then the upper bound of the validity interval is conveniently the same as the magic number.
   const float vmagic_number = 0x1.000000p+23f;
+  // Unit constant to increment results rounded "wrong way" (i.e. down) in the round-to-nearest-even operation.
+  const float vone = 1.0f;
 
   for (; n != 0; n -= sizeof(float)) {
     const float vx = *input++;
@@ -33,15 +35,22 @@ void xnn_math_f32_roundne__scalar(
     // Addition-subtraction trick with the magic number to cause rounding to integer for abs(x).
     // Note: the result is valid only for 0 <= abs(x) < 2**23.
     // Note: addition-subtraction implicitly converts SNaN inputs to QNaNs.
-    const float vrndabsx = (vabsx + vmagic_number) - vmagic_number;
+    const float vprerndabsx = (vabsx + vmagic_number) - vmagic_number;
 
     // Select between the abs(x) rounded using addition-subtraction trick and the abs(x) value.
     // For abs(x) < 2**23, the result is abs(x) rounded via addition-subtraction trick.
-    // For abs(x) >= 2**23, the result is x itself (already an integer).
+    // For abs(x) >= 2**23, the result is abs(x) itself (already an integer).
     // For NaN inputs, the result is abs(x) converted to QNaN as a side-effect of addition-subtraction.
-    const float vabsy = XNN_UNPREDICTABLE(vabsx >= vmagic_number) ? vabsx : vrndabsx;
+    const float vrndabsx = XNN_UNPREDICTABLE(vabsx >= vmagic_number) ? vabsx : vprerndabsx;
     // Restore the sign of the rounded value.
-    const float vy = copysignf(vabsy, vx);
+    const float vrndx = copysignf(vrndabsx, vx);
+
+    // Adjust x rounded to nearest-even to get x rounded up.
+    const float vprey = XNN_UNPREDICTABLE(vrndx < vx) ? vrndx + vone : vrndx;
+    // Restore the sign of the adjusted value.
+    // This second restoration of the sign is important to produce negative zero for -1.0 < x < -0.5 inputs, where
+    // otherwise we would get -1.0 (rounded x) + 1.0 (adjustment) = +0.0.
+    const float vy = copysignf(vprey, vrndx);
 
     *output++ = vy;
   }

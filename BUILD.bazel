@@ -235,7 +235,13 @@ SCALAR_UKERNELS = [
     "src/math/expminus-scalar-lut2048-p1.c",
     "src/math/expminus-scalar-lut64-p2.c",
     "src/math/expminus-scalar-p5.c",
-    "src/math/roundne-scalar.c",
+    "src/math/roundne-scalar-addsub.c",
+    "src/math/roundd-scalar-addsub.c",
+    "src/math/roundd-scalar-cvt.c",
+    "src/math/roundu-scalar-addsub.c",
+    "src/math/roundu-scalar-cvt.c",
+    "src/math/roundz-scalar-addsub.c",
+    "src/math/roundz-scalar-cvt.c",
     "src/math/sigmoid-scalar-lut2048-p1-div.c",
     "src/math/sigmoid-scalar-lut64-p2-div.c",
     "src/math/sigmoid-scalar-p5-div.c",
@@ -497,7 +503,10 @@ PSIMD_ACCMATH_UKERNELS = [
     "src/f32-sigmoid/gen/psimd-p5-div-x16.c",
     "src/f32-sigmoid/gen/psimd-p5-div-x20.c",
     "src/f32-sigmoid/gen/psimd-p5-div-x24.c",
-    "src/math/roundne-psimd.c",
+    "src/math/roundne-psimd-addsub.c",
+    "src/math/roundd-psimd-addsub.c",
+    "src/math/roundu-psimd-addsub.c",
+    "src/math/roundz-psimd-addsub.c",
     "src/math/sigmoid-psimd-p5-div.c",
 ]
 
@@ -672,7 +681,13 @@ NEON_UKERNELS = [
     "src/x8-zip/x3-neon.c",
     "src/x8-zip/x4-neon.c",
     "src/x8-zip/xm-neon.c",
-    "src/math/roundne-neon.c",
+    "src/math/roundne-neon-addsub.c",
+    "src/math/roundd-neon-addsub.c",
+    "src/math/roundd-neon-cvt.c",
+    "src/math/roundu-neon-addsub.c",
+    "src/math/roundu-neon-cvt.c",
+    "src/math/roundz-neon-addsub.c",
+    "src/math/roundz-neon-cvt.c",
     "src/math/sigmoid-neon-frac-p9-p10-nr1recps.c",
     "src/math/sigmoid-neon-rr1-lut2048-p1-nr2recps.c",
     "src/math/sigmoid-neon-rr1-lut64-p2-nr2recps.c",
@@ -917,9 +932,18 @@ AARCH64_NEONFMA_UKERNELS = [
 
 NEONV8_UKERNELS = [
     "src/math/roundne-neonv8.c",
+    "src/math/roundd-neonv8.c",
+    "src/math/roundu-neonv8.c",
+    "src/math/roundz-neonv8.c",
 ]
 
 AARCH64_NEONFP16ARITH_UKERNELS = [
+    "src/f16-clamp/gen/neonfp16arith-x16.c",
+    "src/f16-clamp/gen/neonfp16arith-x8.c",
+    "src/f16-hswish/gen/neonfp16arith-x16.c",
+    "src/f16-hswish/gen/neonfp16arith-x8.c",
+    "src/f16-prelu/gen/neonfp16arith-2x16.c",
+    "src/f16-prelu/gen/neonfp16arith-2x8.c",
     "src/f16-vbinary/gen/vaddc-minmax-neonfp16arith-x16.c",
     "src/f16-vbinary/gen/vaddc-minmax-neonfp16arith-x8.c",
     "src/f16-vbinary/gen/vadd-minmax-neonfp16arith-x16.c",
@@ -1066,7 +1090,10 @@ SSE_UKERNELS = [
     "src/f32-vmulcaddc/gen/c4-minmax-sse-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-sse-2x.c",
     "src/x32-packx/x4-sse.c",
-    "src/math/roundne-sse.c",
+    "src/math/roundne-sse-addsub.c",
+    "src/math/roundd-sse-addsub.c",
+    "src/math/roundu-sse-addsub.c",
+    "src/math/roundz-sse-addsub.c",
 ]
 
 SSE2_UKERNELS = [
@@ -1117,7 +1144,10 @@ SSE2_UKERNELS = [
     "src/x8-zip/xm-sse2.c",
     "src/math/exp-sse2-p5.c",
     "src/math/expminus-sse2-p5.c",
-    "src/math/roundne-sse2.c",
+    "src/math/roundne-sse2-cvt.c",
+    "src/math/roundd-sse2-cvt.c",
+    "src/math/roundu-sse2-cvt.c",
+    "src/math/roundz-sse2-cvt.c",
     "src/math/sigmoid-sse2-p5-div.c",
     "src/requantization/precise-sse2.c",
     "src/requantization/fp32-sse2.c",
@@ -1141,6 +1171,9 @@ SSE41_UKERNELS = [
     "src/f32-sigmoid/gen/sse41-p5-div-x20.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x24.c",
     "src/math/roundne-sse41.c",
+    "src/math/roundd-sse41.c",
+    "src/math/roundu-sse41.c",
+    "src/math/roundz-sse41.c",
     "src/requantization/precise-sse4.c",
     "src/requantization/q31-sse4.c",
     "src/requantization/gemmlowp-sse4.c",
@@ -2597,6 +2630,39 @@ xnnpack_unit_test(
     deps = MICROKERNEL_TEST_DEPS,
 )
 
+xnnpack_unit_test(
+    name = "f32_roundd_eval",
+    srcs = [
+        "eval/f32-roundd.cc",
+        "src/xnnpack/AlignedAllocator.h",
+        "src/xnnpack/math-stubs.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    automatic = False,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_roundu_eval",
+    srcs = [
+        "eval/f32-roundu.cc",
+        "src/xnnpack/AlignedAllocator.h",
+        "src/xnnpack/math-stubs.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    automatic = False,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_roundz_eval",
+    srcs = [
+        "eval/f32-roundz.cc",
+        "src/xnnpack/AlignedAllocator.h",
+        "src/xnnpack/math-stubs.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    automatic = False,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
 xnnpack_benchmark(
     name = "f32_sigmoid_eval",
     srcs = [
@@ -2654,6 +2720,15 @@ xnnpack_unit_test(
         "test/f32-ibilinear.cc",
         "test/ibilinear-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_clamp_test",
+    srcs = [
+        "test/f16-clamp.cc",
+        "test/clamp-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
@@ -2801,6 +2876,15 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f16_hswish_test",
+    srcs = [
+        "test/f16-hswish.cc",
+        "test/hswish-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_hswish_test",
     srcs = [
         "test/f32-hswish.cc",
@@ -2835,6 +2919,16 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_prelu_test",
+    srcs = [
+        "test/f16-prelu.cc",
+        "test/prelu-microkernel-tester.h",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
 
