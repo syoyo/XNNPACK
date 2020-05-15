@@ -356,12 +356,17 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/math/expminus-scalar-lut64-p2.c
   src/math/expminus-scalar-p5.c
   src/math/roundne-scalar-addsub.c
+  src/math/roundne-scalar-nearbyint.c
+  src/math/roundne-scalar-rint.c
   src/math/roundd-scalar-addsub.c
   src/math/roundd-scalar-cvt.c
+  src/math/roundd-scalar-floor.c
   src/math/roundu-scalar-addsub.c
+  src/math/roundu-scalar-ceil.c
   src/math/roundu-scalar-cvt.c
   src/math/roundz-scalar-addsub.c
   src/math/roundz-scalar-cvt.c
+  src/math/roundz-scalar-trunc.c
   src/math/sigmoid-scalar-lut2048-p1-div.c
   src/math/sigmoid-scalar-lut64-p2-div.c
   src/math/sigmoid-scalar-p5-div.c
@@ -3209,4 +3214,13 @@ IF(XNNPACK_BUILD_BENCHMARKS)
   TARGET_INCLUDE_DIRECTORIES(requantization-bench PRIVATE src)
   TARGET_INCLUDE_DIRECTORIES(requantization-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   TARGET_LINK_LIBRARIES(requantization-bench PRIVATE XNNPACK cpuinfo fp16 benchmark bench-utils)
+
+  ADD_EXECUTABLE(rounding-bench bench/rounding.cc)
+  SET_TARGET_PROPERTIES(rounding-bench PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(rounding-bench PRIVATE src)
+  TARGET_INCLUDE_DIRECTORIES(rounding-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  TARGET_LINK_LIBRARIES(rounding-bench PRIVATE XNNPACK cpuinfo fp16 benchmark bench-utils)
 ENDIF()
