@@ -89,11 +89,11 @@ SCALAR_UKERNELS = [
     "src/f32-clamp/gen/scalar-x4.c",
     "src/f32-conv-hwc/3x3s2p0p1c3x4-scalar-1x1.c",
     "src/f32-conv-hwc/3x3s2p1c3x4-scalar-1x1.c",
-    "src/f32-conv-hwc2spchw/3x3s2p1c3x4-scalar-1x1.c",
-    "src/f32-dwconv-spchw/3x3p1-scalar.c",
-    "src/f32-dwconv-spchw/3x3s2p1-scalar.c",
-    "src/f32-dwconv-spchw/5x5p2-scalar.c",
-    "src/f32-dwconv-spchw/5x5s2p2-scalar.c",
+    "src/f32-conv-hwc2chw/3x3s2p1c3x4-scalar-1x1.c",
+    "src/f32-dwconv-chw/3x3p1-scalar.c",
+    "src/f32-dwconv-chw/3x3s2p1-scalar.c",
+    "src/f32-dwconv-chw/5x5p2-scalar.c",
+    "src/f32-dwconv-chw/5x5s2p2-scalar.c",
     "src/f32-dwconv/gen/up1x4-scalar-acc2.c",
     "src/f32-dwconv/gen/up1x4-scalar.c",
     "src/f32-dwconv/gen/up1x9-scalar-acc2.c",
@@ -118,7 +118,7 @@ SCALAR_UKERNELS = [
     "src/f32-dwconv/gen/up2x9-minmax-scalar.c",
     "src/f32-dwconv/gen/up2x25-minmax-scalar-acc2.c",
     "src/f32-dwconv/gen/up2x25-minmax-scalar.c",
-    "src/f32-gavgpool-spchw/scalar-x1.c",
+    "src/f32-gavgpool-cw/scalar-x1.c",
     "src/f32-gavgpool/7p7x-minmax-scalar-c1.c",
     "src/f32-gavgpool/7x-minmax-scalar-c1.c",
     "src/f32-gemm/gen-inc/1x4inc-minmax-scalar.c",
@@ -235,7 +235,18 @@ SCALAR_UKERNELS = [
     "src/math/expminus-scalar-lut2048-p1.c",
     "src/math/expminus-scalar-lut64-p2.c",
     "src/math/expminus-scalar-p5.c",
-    "src/math/roundne-scalar.c",
+    "src/math/roundne-scalar-addsub.c",
+    "src/math/roundne-scalar-nearbyint.c",
+    "src/math/roundne-scalar-rint.c",
+    "src/math/roundd-scalar-addsub.c",
+    "src/math/roundd-scalar-cvt.c",
+    "src/math/roundd-scalar-floor.c",
+    "src/math/roundu-scalar-addsub.c",
+    "src/math/roundu-scalar-ceil.c",
+    "src/math/roundu-scalar-cvt.c",
+    "src/math/roundz-scalar-addsub.c",
+    "src/math/roundz-scalar-cvt.c",
+    "src/math/roundz-scalar-trunc.c",
     "src/math/sigmoid-scalar-lut2048-p1-div.c",
     "src/math/sigmoid-scalar-lut64-p2-div.c",
     "src/math/sigmoid-scalar-p5-div.c",
@@ -251,6 +262,8 @@ SCALAR_UKERNELS = [
     "src/u8-lut32norm/scalar.c",
     "src/u8-maxpool/9p8x-minmax-scalar-c1.c",
     "src/u8-rmax/scalar.c",
+    "src/x32-fill/scalar-float.c",
+    "src/x32-fill/scalar-int.c",
     "src/x32-packx/x2-scalar.c",
     "src/x32-packx/x3-scalar.c",
     "src/x32-packx/x4-scalar.c",
@@ -467,6 +480,7 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-vbinary/gen/vsubc-minmax-psimd-x8.c",
     "src/f32-vmulcaddc/gen/c4-minmax-psimd-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-psimd-2x.c",
+    "src/x32-fill/psimd.c",
     "src/x32-packx/x4-psimd.c",
     "src/x32-pad/x2-psimd.c",
     "src/x32-unpool/psimd.c",
@@ -497,7 +511,10 @@ PSIMD_ACCMATH_UKERNELS = [
     "src/f32-sigmoid/gen/psimd-p5-div-x16.c",
     "src/f32-sigmoid/gen/psimd-p5-div-x20.c",
     "src/f32-sigmoid/gen/psimd-p5-div-x24.c",
-    "src/math/roundne-psimd.c",
+    "src/math/roundne-psimd-addsub.c",
+    "src/math/roundd-psimd-addsub.c",
+    "src/math/roundu-psimd-addsub.c",
+    "src/math/roundz-psimd-addsub.c",
     "src/math/sigmoid-psimd-p5-div.c",
 ]
 
@@ -507,6 +524,14 @@ NEON_UKERNELS = [
     "src/f32-avgpool/9x-minmax-neon-c4.c",
     "src/f32-clamp/gen/neon-x4.c",
     "src/f32-clamp/gen/neon-x8.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neon-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neon-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neon-2x2.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neon-2x2.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x4-neon-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x8-neon-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x4-neon-2x2.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x8-neon-2x2.c",
     "src/f32-dwconv/gen/up4x4-minmax-neon.c",
     "src/f32-dwconv/gen/up4x4-minmax-neon-acc2.c",
     "src/f32-dwconv/gen/up8x4-minmax-neon.c",
@@ -519,7 +544,7 @@ NEON_UKERNELS = [
     "src/f32-dwconv/gen/up4x25-minmax-neon-acc2.c",
     "src/f32-dwconv/gen/up8x25-minmax-neon.c",
     "src/f32-dwconv/gen/up8x25-minmax-neon-acc2.c",
-    "src/f32-gavgpool-spchw/neon-x4.c",
+    "src/f32-gavgpool-cw/neon-x4.c",
     "src/f32-gavgpool/7p7x-minmax-neon-c4.c",
     "src/f32-gavgpool/7x-minmax-neon-c4.c",
     "src/f32-gemm/gen/1x8-minmax-neon-lane-ld64.c",
@@ -661,6 +686,7 @@ NEON_UKERNELS = [
     "src/u8-clamp/neon-x64.c",
     "src/u8-maxpool/9p8x-minmax-neon-c16.c",
     "src/u8-rmax/neon.c",
+    "src/x32-fill/neon.c",
     "src/x32-packx/x4-neon-st4.c",
     "src/x32-pad/x2-neon.c",
     "src/x32-unpool/neon.c",
@@ -672,7 +698,13 @@ NEON_UKERNELS = [
     "src/x8-zip/x3-neon.c",
     "src/x8-zip/x4-neon.c",
     "src/x8-zip/xm-neon.c",
-    "src/math/roundne-neon.c",
+    "src/math/roundne-neon-addsub.c",
+    "src/math/roundd-neon-addsub.c",
+    "src/math/roundd-neon-cvt.c",
+    "src/math/roundu-neon-addsub.c",
+    "src/math/roundu-neon-cvt.c",
+    "src/math/roundz-neon-addsub.c",
+    "src/math/roundz-neon-cvt.c",
     "src/math/sigmoid-neon-frac-p9-p10-nr1recps.c",
     "src/math/sigmoid-neon-rr1-lut2048-p1-nr2recps.c",
     "src/math/sigmoid-neon-rr1-lut64-p2-nr2recps.c",
@@ -864,13 +896,19 @@ AARCH64_NEONFMA_UKERNELS = [
     "src/f32-igemm/gen/4x8-minmax-neonfma-lane-ld64.c",
     "src/f32-igemm/gen/6x8-minmax-neonfma-lane-ld64.c",
     "src/f32-igemm/gen/6x8-minmax-neonfma-lane-ld128.c",
-    "src/f32-conv-hwc/3x3s2p1c3x4-neonfma-2x2.c",
-    "src/f32-conv-hwc/3x3s2p1c3x8-neonfma-2x2.c",
-    "src/f32-conv-hwc2spchw/3x3s2p1c3x4-neonfma-2x2.c",
-    "src/f32-dwconv-spchw/3x3p1-neonfma.c",
-    "src/f32-dwconv-spchw/5x5p2-neonfma.c",
-    "src/f32-dwconv-spchw/3x3s2p1-neonfma.c",
-    "src/f32-dwconv-spchw/5x5s2p2-neonfma.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neonfma-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neonfma-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neonfma-2x2.c",
+    "src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neonfma-2x2.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x4-neonfma-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x8-neonfma-2x1.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x4-neonfma-2x2.c",
+    "src/f32-conv-hwc/gen/3x3s2p1c3x8-neonfma-2x2.c",
+    "src/f32-conv-hwc2chw/3x3s2p1c3x4-neonfma-2x2.c",
+    "src/f32-dwconv-chw/3x3p1-neonfma.c",
+    "src/f32-dwconv-chw/5x5p2-neonfma.c",
+    "src/f32-dwconv-chw/3x3s2p1-neonfma.c",
+    "src/f32-dwconv-chw/5x5s2p2-neonfma.c",
     "src/f32-sigmoid/gen/neonfma-rr1-p5-div-x4.c",
     "src/f32-sigmoid/gen/neonfma-rr1-p5-div-x8.c",
     "src/f32-sigmoid/gen/neonfma-rr1-p5-div-x12.c",
@@ -917,9 +955,46 @@ AARCH64_NEONFMA_UKERNELS = [
 
 NEONV8_UKERNELS = [
     "src/math/roundne-neonv8.c",
+    "src/math/roundd-neonv8.c",
+    "src/math/roundu-neonv8.c",
+    "src/math/roundz-neonv8.c",
 ]
 
 AARCH64_NEONFP16ARITH_UKERNELS = [
+    "src/f16-clamp/gen/neonfp16arith-x16.c",
+    "src/f16-clamp/gen/neonfp16arith-x8.c",
+    "src/f16-hswish/gen/neonfp16arith-x16.c",
+    "src/f16-hswish/gen/neonfp16arith-x8.c",
+    "src/f16-prelu/gen/neonfp16arith-2x16.c",
+    "src/f16-prelu/gen/neonfp16arith-2x8.c",
+    "src/f16-vbinary/gen/vaddc-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vaddc-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vadd-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vadd-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vdivc-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vdivc-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vdiv-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vdiv-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vmaxc-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vmaxc-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vminc-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vminc-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vmin-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vmin-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vmulc-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vmulc-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vmul-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vmul-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vrdivc-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vrdivc-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vrsubc-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vrsubc-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vsubc-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vsubc-minmax-neonfp16arith-x8.c",
+    "src/f16-vbinary/gen/vsub-minmax-neonfp16arith-x16.c",
+    "src/f16-vbinary/gen/vsub-minmax-neonfp16arith-x8.c",
     "src/f16-gemm/gen/1x8-minmax-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/4x8-minmax-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/6x8-minmax-neonfp16arith-ld64.c",
@@ -959,8 +1034,8 @@ SSE_UKERNELS = [
     "src/f32-avgpool/9x-minmax-sse-c4.c",
     "src/f32-clamp/gen/sse-x4.c",
     "src/f32-clamp/gen/sse-x8.c",
-    "src/f32-dwconv-spchw/3x3p1-sse.c",
-    "src/f32-dwconv-spchw/3x3s2p1-sse.c",
+    "src/f32-dwconv-chw/3x3p1-sse.c",
+    "src/f32-dwconv-chw/3x3s2p1-sse.c",
     "src/f32-dwconv/gen/up4x25-minmax-sse-acc2.c",
     "src/f32-dwconv/gen/up4x25-minmax-sse.c",
     "src/f32-dwconv/gen/up4x4-minmax-sse-acc2.c",
@@ -973,7 +1048,7 @@ SSE_UKERNELS = [
     "src/f32-dwconv/gen/up8x4-minmax-sse.c",
     "src/f32-dwconv/gen/up8x9-minmax-sse-acc2.c",
     "src/f32-dwconv/gen/up8x9-minmax-sse.c",
-    "src/f32-gavgpool-spchw/sse-x4.c",
+    "src/f32-gavgpool-cw/sse-x4.c",
     "src/f32-gavgpool/7p7x-minmax-sse-c4.c",
     "src/f32-gavgpool/7x-minmax-sse-c4.c",
     "src/f32-gemm/gen/1x8-minmax-sse-dup.c",
@@ -1037,8 +1112,12 @@ SSE_UKERNELS = [
     "src/f32-vbinary/gen/vsubc-minmax-sse-x8.c",
     "src/f32-vmulcaddc/gen/c4-minmax-sse-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-sse-2x.c",
+    "src/x32-fill/sse.c",
     "src/x32-packx/x4-sse.c",
-    "src/math/roundne-sse.c",
+    "src/math/roundne-sse-addsub.c",
+    "src/math/roundd-sse-addsub.c",
+    "src/math/roundu-sse-addsub.c",
+    "src/math/roundz-sse-addsub.c",
 ]
 
 SSE2_UKERNELS = [
@@ -1089,7 +1168,10 @@ SSE2_UKERNELS = [
     "src/x8-zip/xm-sse2.c",
     "src/math/exp-sse2-p5.c",
     "src/math/expminus-sse2-p5.c",
-    "src/math/roundne-sse2.c",
+    "src/math/roundne-sse2-cvt.c",
+    "src/math/roundd-sse2-cvt.c",
+    "src/math/roundu-sse2-cvt.c",
+    "src/math/roundz-sse2-cvt.c",
     "src/math/sigmoid-sse2-p5-div.c",
     "src/requantization/precise-sse2.c",
     "src/requantization/fp32-sse2.c",
@@ -1113,6 +1195,9 @@ SSE41_UKERNELS = [
     "src/f32-sigmoid/gen/sse41-p5-div-x20.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x24.c",
     "src/math/roundne-sse41.c",
+    "src/math/roundd-sse41.c",
+    "src/math/roundu-sse41.c",
+    "src/math/roundz-sse41.c",
     "src/requantization/precise-sse4.c",
     "src/requantization/q31-sse4.c",
     "src/requantization/gemmlowp-sse4.c",
@@ -1494,7 +1579,8 @@ AVX512F_UKERNELS = [
 ]
 
 AARCH32_ASM_UKERNELS = [
-    "src/q8-dwconv/up8x9-minmax-aarch32-neon.S",
+    "src/f32-gemm/4x4-aarch32-vfp-ld64.S",
+    "src/f32-gemm/4x4-minmax-aarch32-vfp-ld64.S",
     "src/f32-gemm/4x8-minmax-aarch32-neon-cortex-a53.S",
     "src/f32-gemm/4x8-minmax-aarch32-neon-cortex-a55.S",
     "src/f32-gemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S",
@@ -1597,6 +1683,7 @@ INTERNAL_MICROKERNEL_HDRS = [
     "src/xnnpack/dwconv.h",
     "src/xnnpack/gavgpool.h",
     "src/xnnpack/gemm.h",
+    "src/xnnpack/fill.h",
     "src/xnnpack/hswish.h",
     "src/xnnpack/ibilinear.h",
     "src/xnnpack/igemm.h",
@@ -1635,6 +1722,7 @@ INTERNAL_HDRS = INTERNAL_MICROKERNEL_HDRS + [
     "src/xnnpack/im2col.h",
     "src/xnnpack/indirection.h",
     "src/xnnpack/math-stubs.h",
+    "src/xnnpack/memory-planner.h",
     "src/xnnpack/operator.h",
     "src/xnnpack/pack.h",
     "src/xnnpack/params-init.h",
@@ -2033,6 +2121,22 @@ xnnpack_cc_library(
     ],
 )
 
+xnnpack_cc_library(
+    name = "memory_planner",
+    srcs = ["src/memory-planner.c"],
+    hdrs = INTERNAL_HDRS,
+    defines = select({
+        ":xnn_enable_memopt_explicit_true": ["XNN_ENABLE_MEMOPT=1"],
+        ":xnn_enable_memopt_explicit_false": ["XNN_ENABLE_MEMOPT=0"],
+        "//conditions:default": ["XNN_ENABLE_MEMOPT=1"],
+    }),
+    gcc_copts = xnnpack_gcc_std_copts(),
+    msvc_copts = xnnpack_msvc_std_copts(),
+    deps = [
+        "@pthreadpool",
+    ],
+)
+
 cc_library(
     name = "enable_assembly",
     defines = select({
@@ -2095,6 +2199,7 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":memory_planner",
         ":ukernels",
         ":operator_run",
         ":operators",
@@ -2220,9 +2325,9 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
-    name = "f32_conv_hwc2spchw_bench",
+    name = "f32_conv_hwc2chw_bench",
     srcs = [
-        "bench/f32-conv-hwc2spchw.cc",
+        "bench/f32-conv-hwc2chw.cc",
         "bench/dconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
@@ -2240,9 +2345,9 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
-    name = "f32_dwconv_spchw_bench",
+    name = "f32_dwconv_chw_bench",
     srcs = [
-        "bench/f32-dwconv-spchw.cc",
+        "bench/f32-dwconv-chw.cc",
         "bench/dwconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
@@ -2357,6 +2462,16 @@ xnnpack_benchmark(
     srcs = [
         "bench/requantization.cc",
         "src/xnnpack/requantization-stubs.h",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_BENCHMARK_HDRS,
+    deps = MICROKERNEL_BENCHMARK_DEPS,
+)
+
+xnnpack_benchmark(
+    name = "rounding_bench",
+    srcs = [
+        "bench/rounding.cc",
+        "src/xnnpack/math-stubs.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
     deps = MICROKERNEL_BENCHMARK_DEPS,
@@ -2566,9 +2681,40 @@ xnnpack_unit_test(
         "src/xnnpack/AlignedAllocator.h",
         "src/xnnpack/math-stubs.h",
     ] + MICROKERNEL_TEST_HDRS,
-    tags = [
-        "notap",
-    ],
+    automatic = False,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_roundd_eval",
+    srcs = [
+        "eval/f32-roundd.cc",
+        "src/xnnpack/AlignedAllocator.h",
+        "src/xnnpack/math-stubs.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    automatic = False,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_roundu_eval",
+    srcs = [
+        "eval/f32-roundu.cc",
+        "src/xnnpack/AlignedAllocator.h",
+        "src/xnnpack/math-stubs.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    automatic = False,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_roundz_eval",
+    srcs = [
+        "eval/f32-roundz.cc",
+        "src/xnnpack/AlignedAllocator.h",
+        "src/xnnpack/math-stubs.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    automatic = False,
     deps = MICROKERNEL_TEST_DEPS,
 )
 
@@ -2634,6 +2780,15 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f16_clamp_test",
+    srcs = [
+        "test/f16-clamp.cc",
+        "test/clamp-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_clamp_test",
     srcs = [
         "test/f32-clamp.cc",
@@ -2686,10 +2841,10 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "f32_conv_hwc2spchw_test",
+    name = "f32_conv_hwc2chw_test",
     srcs = [
-        "test/f32-conv-hwc2spchw.cc",
-        "test/conv-hwc2spchw-microkernel-tester.h",
+        "test/f32-conv-hwc2chw.cc",
+        "test/conv-hwc2chw-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
@@ -2716,10 +2871,10 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "f32_dwconv_spchw_test",
+    name = "f32_dwconv_chw_test",
     srcs = [
-        "test/f32-dwconv-spchw.cc",
-        "test/dwconv-spchw-microkernel-tester.h",
+        "test/f32-dwconv-chw.cc",
+        "test/dwconv-chw-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
@@ -2736,10 +2891,10 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "f32_gavgpool_spchw_test",
+    name = "f32_gavgpool_cw_test",
     srcs = [
-        "test/f32-gavgpool-spchw.cc",
-        "test/gavgpool-spchw-microkernel-tester.h",
+        "test/f32-gavgpool-cw.cc",
+        "test/gavgpool-cw-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
@@ -2772,6 +2927,15 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_hswish_test",
+    srcs = [
+        "test/f16-hswish.cc",
+        "test/hswish-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
 
@@ -2810,6 +2974,16 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_prelu_test",
+    srcs = [
+        "test/f16-prelu.cc",
+        "test/prelu-microkernel-tester.h",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
 
@@ -2874,6 +3048,132 @@ xnnpack_unit_test(
         "test/f32-spmm-minmax.cc",
         "test/spmm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vadd_minmax_test",
+    srcs = [
+        "test/f16-vadd-minmax.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vaddc_minmax_test",
+    srcs = [
+        "test/f16-vaddc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vdiv_minmax_test",
+    srcs = [
+        "test/f16-vdiv-minmax.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vdivc_minmax_test",
+    srcs = [
+        "test/f16-vdivc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vrdivc_minmax_test",
+    srcs = [
+        "test/f16-vrdivc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vmax_test",
+    srcs = [
+        "test/f16-vmax.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vmaxc_test",
+    srcs = [
+        "test/f16-vmaxc.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vmin_test",
+    srcs = [
+        "test/f16-vmin.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vminc_test",
+    srcs = [
+        "test/f16-vminc.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vmul_minmax_test",
+    srcs = [
+        "test/f16-vmul-minmax.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vmulc_minmax_test",
+    srcs = [
+        "test/f16-vmulc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vsub_minmax_test",
+    srcs = [
+        "test/f16-vsub-minmax.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vsubc_minmax_test",
+    srcs = [
+        "test/f16-vsubc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vrsubc_minmax_test",
+    srcs = [
+        "test/f16-vrsubc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
@@ -3132,6 +3432,15 @@ xnnpack_unit_test(
     srcs = [
         "test/u8-rmax.cc",
         "test/rmax-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "x32_fill_test",
+    srcs = [
+        "test/x32-fill.cc",
+        "test/fill-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
@@ -3451,6 +3760,19 @@ xnnpack_unit_test(
     deps = OPERATOR_TEST_DEPS,
 )
 
+############################### Misc unit tests ###############################
+
+xnnpack_unit_test(
+    name = "memory_planner_test",
+    srcs = [
+        "test/memory-planner-test.cc",
+    ],
+    deps = [
+        ":XNNPACK",
+        ":memory_planner",
+    ],
+)
+
 ############################# Build configurations #############################
 
 # Enables usage of assembly kernels.
@@ -3469,6 +3791,18 @@ config_setting(
 config_setting(
     name = "xnn_enable_hmp_explicit_false",
     define_values = {"xnn_enable_hmp": "false"},
+)
+
+# Enable usage of optimized memory allocation
+config_setting(
+    name = "xnn_enable_memopt_explicit_true",
+    define_values = {"xnnpack_enable_memopt": "true"},
+)
+
+# Disable usage of optimized memory allocation
+config_setting(
+    name = "xnn_enable_memopt_explicit_false",
+    define_values = {"xnnpack_enable_memopt": "false"},
 )
 
 # Builds with -c dbg

@@ -15,8 +15,19 @@
 #include <xnnpack.h>
 #include <xnnpack/common.h>
 
+struct xnn_f16_default_params {
+  // Empty; serves to differentiate pointer types for micro-kernels without fused activation.
+  char _; // Dummy member variable to comply with the C standard
+};
+
+// scaleminmax is used for gemm/igemm ukernels.
 struct xnn_f16_scaleminmax_params {
   uint16_t scale;
+  uint16_t min;
+  uint16_t max;
+};
+
+struct xnn_f16_minmax_params {
   uint16_t min;
   uint16_t max;
 };
@@ -39,7 +50,7 @@ union xnn_f32_minmax_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
-union xnn_f32_spchw_params {
+union xnn_f32_chw_params {
   struct {
     float min;
     float max;
@@ -120,6 +131,12 @@ union xnn_f32_gavgpool_params {
     XNN_ALIGN(16) uint32_t mask[4];
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64 */
+};
+
+struct xnn_f16_hswish_params {
+  uint16_t sixth;
+  uint16_t half;
+  uint16_t one;
 };
 
 union xnn_f32_hswish_params {
@@ -560,7 +577,7 @@ typedef void (*xnn_f32_conv_hwc_ukernel_function)(
     size_t output_width_stride,
     const union xnn_f32_minmax_params* params);
 
-typedef void (*xnn_conv_hwc2spchw_ukernel_function)(
+typedef void (*xnn_conv_hwc2chw_ukernel_function)(
     size_t input_height,
     size_t input_width,
     size_t output_y_start,
@@ -575,7 +592,7 @@ typedef void (*xnn_conv_hwc2spchw_ukernel_function)(
     size_t output_channel_stride,
     const void* params);
 
-typedef void (*xnn_f32_conv_hwc2spchw_ukernel_function)(
+typedef void (*xnn_f32_conv_hwc2chw_ukernel_function)(
     size_t input_height,
     size_t input_width,
     size_t output_y_start,
@@ -633,6 +650,20 @@ typedef void (*xnn_x32_packx_ukernel_function)(
     const uint32_t* x,
     size_t x_stride,
     uint32_t* y);
+
+typedef void (*xnn_fill_ukernel_function)(
+    size_t rows,
+    size_t channels,
+    void* output,
+    size_t output_stride,
+    const void* fill_value);
+
+typedef void (*xnn_x32_fill_ukernel_function)(
+    size_t rows,
+    size_t channels,
+    uint32_t* output,
+    size_t output_stride,
+    const uint32_t* fill_value);
 
 typedef void (*xnn_pad_ukernel_function)(
     size_t m,
@@ -700,8 +731,8 @@ typedef void (*xnn_x8_lut_ukernel_function)(
     const uint8_t* t,
     uint8_t* y);
 
-typedef void (*xnn_dwconv_spchw_ukernel_function)(
-    size_t output_height,
+typedef void (*xnn_dwconv_chw_ukernel_function)(
+    size_t input_height,
     size_t input_width,
     const void* input,
     const void* weights,
@@ -714,8 +745,8 @@ typedef void (*xnn_dwconv_spchw_ukernel_function)(
     size_t output_height_stride,
     const void* params);
 
-typedef void (*xnn_f32_dwconv_spchw_ukernel_function)(
-    size_t output_height,
+typedef void (*xnn_f32_dwconv_chw_ukernel_function)(
+    size_t input_height,
     size_t input_width,
     const float* input,
     const float* weights,
@@ -726,7 +757,7 @@ typedef void (*xnn_f32_dwconv_spchw_ukernel_function)(
     size_t output_tuple_stride,
     size_t input_height_stride,
     size_t output_height_stride,
-    const union xnn_f32_spchw_params* params);
+    const union xnn_f32_chw_params* params);
 
 typedef void (*xnn_dwconv_unipass_ukernel_function)(
     size_t channels,
@@ -736,6 +767,8 @@ typedef void (*xnn_dwconv_unipass_ukernel_function)(
     void* output,
     size_t input_stride,
     size_t output_increment,
+    size_t input_offset,
+    const void* zero,
     const void* params);
 
 typedef void (*xnn_f32_dwconv_unipass_ukernel_function)(
@@ -746,6 +779,8 @@ typedef void (*xnn_f32_dwconv_unipass_ukernel_function)(
     float* output,
     size_t input_stride,
     size_t output_increment,
+    size_t input_offset,
+    const float* zero,
     const union xnn_f32_default_params* params);
 
 typedef void (*xnn_f32_dwconv_minmax_unipass_ukernel_function)(
@@ -756,6 +791,8 @@ typedef void (*xnn_f32_dwconv_minmax_unipass_ukernel_function)(
     float* output,
     size_t input_stride,
     size_t output_increment,
+    size_t input_offset,
+    const float* zero,
     const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_q8_dwconv_minmax_unipass_ukernel_function)(
@@ -766,6 +803,8 @@ typedef void (*xnn_q8_dwconv_minmax_unipass_ukernel_function)(
     uint8_t* output,
     size_t input_stride,
     size_t output_increment,
+    size_t input_offset,
+    const uint8_t* zero,
     const union xnn_q8_gemm_params* params);
 
 typedef void (*xnn_dwconv_multipass_ukernel_function)(
@@ -777,6 +816,8 @@ typedef void (*xnn_dwconv_multipass_ukernel_function)(
     void* output,
     size_t input_stride,
     size_t output_increment,
+    size_t input_offset,
+    const void* zero,
     const void* params);
 
 typedef void (*xnn_f32_ibilinear_ukernel_function)(
@@ -854,14 +895,14 @@ typedef void (*xnn_q8_gavgpool_minmax_multipass_ukernel_function)(
     uint8_t* output,
     const union xnn_q8_avgpool_params* params);
 
-typedef void (*xnn_gavgpool_spchw_ukernel_function)(
+typedef void (*xnn_gavgpool_cw_ukernel_function)(
     size_t elements,
     size_t channels,
     const float* input,
     float* output,
     const void* params);
 
-typedef void (*xnn_f32_gavgpool_spchw_ukernel_function)(
+typedef void (*xnn_f32_gavgpool_cw_ukernel_function)(
     size_t elements,
     size_t channels,
     const float* input,
@@ -1088,6 +1129,12 @@ typedef void (*xnn_univector_ukernel_function)(
     void* y,
     const void* params);
 
+typedef void (*xnn_f16_clamp_ukernel_function)(
+    size_t n,
+    const void* x,
+    void* y,
+    const struct xnn_f16_minmax_params* params);
+
 typedef void (*xnn_f32_clamp_ukernel_function)(
     size_t n,
     const float* x,
@@ -1099,6 +1146,12 @@ typedef void (*xnn_u8_clamp_ukernel_function)(
     const uint8_t* x,
     uint8_t* y,
     const union xnn_u8_minmax_params* params);
+
+typedef void (*xnn_f16_hswish_ukernel_function)(
+    size_t n,
+    const void* x,
+    void* y,
+    const struct xnn_f16_hswish_params* params);
 
 typedef void (*xnn_f32_hswish_ukernel_function)(
     size_t n,
@@ -1148,6 +1201,20 @@ typedef void (*xnn_vbinary_ukernel_function)(
     void* y,
     const void* params);
 
+typedef void (*xnn_f16_vbinary_ukernel_function)(
+    size_t n,
+    const void* a,
+    const void* b,
+    void* y,
+    const struct xnn_f16_default_params* params);
+
+typedef void (*xnn_f16_vbinary_minmax_ukernel_function)(
+    size_t n,
+    const void* a,
+    const void* b,
+    void* y,
+    const struct xnn_f16_minmax_params* params);
+
 typedef void (*xnn_f32_vbinary_ukernel_function)(
     size_t n,
     const float* a,
@@ -1195,6 +1262,15 @@ typedef void (*xnn_f32_vmulcaddc_ukernel_function)(
     const union xnn_f32_minmax_params* params);
 
 typedef void (*xnn_prelu_ukernel_function)(
+    size_t mr,
+    size_t n,
+    const void* x,
+    size_t x_stride,
+    const void* w,
+    void* y,
+    size_t y_stride);
+
+typedef void (*xnn_f16_prelu_ukernel_function)(
     size_t mr,
     size_t n,
     const void* x,
@@ -1338,8 +1414,8 @@ struct spmm_parameters {
   uint8_t nr;
 };
 
-struct hwc2spchw_dconv_parameters {
-  xnn_conv_hwc2spchw_ukernel_function ukernel_with_symm_padding;
+struct conv_hwc2chw_parameters {
+  xnn_conv_hwc2chw_ukernel_function ukernel_with_symm_padding;
   // Number of output channels in a tile.
   // This parameter must be passed as is to weight packing function.
   uint8_t output_channel_tile;
@@ -1350,8 +1426,8 @@ struct hwc2spchw_dconv_parameters {
   uint8_t output_width_tile;
 };
 
-struct spchw_dwconv_parameters {
-  xnn_dwconv_spchw_ukernel_function ukernel;
+struct dwconv_chw_parameters {
+  xnn_dwconv_chw_ukernel_function ukernel;
   // Number of input width pixels in a tile.
   uint8_t input_width_tile;
   // Number of output width pixels in a tile.
@@ -1361,8 +1437,8 @@ struct spchw_dwconv_parameters {
   uint8_t output_height_tile;
 };
 
-struct spchw_gavgpool_parameters {
-  xnn_gavgpool_spchw_ukernel_function ukernel;
+struct gavgpool_cw_parameters {
+  xnn_gavgpool_cw_ukernel_function ukernel;
   // Number of channels in a tile.
   // For best efficiency, micro-kernel must process a multiple of this number of channels in each call.
   uint8_t channel_tile;
@@ -1504,18 +1580,18 @@ struct xnn_parameters {
     struct spmm_parameters spmm2;
     // Sparse Matrix-Dense Matrix Multiplication (NR=4 block).
     struct spmm_parameters spmm4;
-    // Direct 3x3 stride-2 Convolution with 3 input channels and HWC->SpCHW layout conversion.
-    struct hwc2spchw_dconv_parameters hwc2spchw_dconv3x3c3s2;
-    // Direct 3x3 stride-1 Convolution with padding 1 on left and right in SpCHW layout.
-    struct spchw_dwconv_parameters spchw_dwconv3x3;
-    // Direct 3x3 stride-2 Convolution with padding 1 on left and right in SpCHW layout.
-    struct spchw_dwconv_parameters spchw_dwconv3x3s2;
-    // Direct 5x5 stride-1 Convolution with padding 2 on left and right in SpCHW layout.
-    struct spchw_dwconv_parameters spchw_dwconv5x5;
-    // Direct 5x5 stride-2 Convolution with padding 2 on left and right in SpCHW layout.
-    struct spchw_dwconv_parameters spchw_dwconv5x5s2;
-    // Global Average Pooling in SpCHW layout.
-    struct spchw_gavgpool_parameters spchw_gavgpool;
+    // Direct 3x3 stride-2 Convolution with 3 input channels and HWC->CHW layout conversion.
+    struct conv_hwc2chw_parameters conv_hwc2chw_3x3c3s2;
+    // Direct 3x3 stride-1 Convolution with padding 1 on left and right in CHW layout.
+    struct dwconv_chw_parameters dwconv_chw_3x3;
+    // Direct 3x3 stride-2 Convolution with padding 1 on left and right in CHW layout.
+    struct dwconv_chw_parameters dwconv_chw_3x3s2;
+    // Direct 5x5 stride-1 Convolution with padding 2 on left and right in CHW layout.
+    struct dwconv_chw_parameters dwconv_chw_5x5;
+    // Direct 5x5 stride-2 Convolution with padding 2 on left and right in CHW layout.
+    struct dwconv_chw_parameters dwconv_chw_5x5s2;
+    // Global Average Pooling in CW layout.
+    struct gavgpool_cw_parameters gavgpool_cw;
   } f32;
   struct {
     struct pad_parameters pad;

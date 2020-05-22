@@ -1,7 +1,15 @@
-// Copyright 2019 Google LLC
+// Copyright (c) Facebook, Inc. and its affiliates.
+// All rights reserved.
+//
+// Copyright 2020 Google LLC
 //
 // This source code is licensed under the BSD-style license found in the
 // LICENSE file in the root directory of this source tree.
+//
+// Auto-generated file. Do not edit!
+//   Specification: test/f32-gavgpool-minmax.yaml
+//   Generator: tools/generate-gavgpool-test.py
+
 
 #include <gtest/gtest.h>
 
@@ -36,7 +44,7 @@
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(4)
-      .input_stride(11)
+      .input_stride(7)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__neon_c4);
   }
 
@@ -60,7 +68,7 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7X__NEON_C4, channels_div_4_fulltile) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       GAvgPoolMicrokernelTester()
         .rows(7)
         .channels(channels)
@@ -70,7 +78,7 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7X__NEON_C4, channels_div_4_subtile) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 1; rows < 7; rows++) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -167,7 +175,10 @@
         .Test(xnn_f32_gavgpool_minmax_ukernel_7x__neon_c4);
     }
   }
+#endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 
+
+#if XNN_ARCH_ARM || XNN_ARCH_ARM64
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_eq_4_2pass_fulltile) {
     TEST_REQUIRES_ARM_NEON;
     GAvgPoolMicrokernelTester()
@@ -181,7 +192,7 @@
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(4)
-      .input_stride(11)
+      .input_stride(7)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
   }
 
@@ -205,9 +216,9 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_eq_4_2pass_subtile) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(4)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
     }
@@ -215,11 +226,11 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_eq_4_2pass_subtile_with_input_stride) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(4)
-        .input_stride(11)
+        .input_stride(7)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
     }
   }
@@ -240,13 +251,14 @@
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(4)
+        .input_stride(7)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_div_4_2pass_fulltile) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       GAvgPoolMicrokernelTester()
         .rows(14)
         .channels(channels)
@@ -256,10 +268,10 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_div_4_2pass_subtile) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t channels = 4; channels < 64; channels += 12) {
-      for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
       }
@@ -268,7 +280,7 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_div_4_multipass_fulltile) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -280,12 +292,12 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_div_4_multipass_fulltile_with_input_stride) {
     TEST_REQUIRES_ARM_NEON;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-          .input_stride(131)
+          .input_stride(67)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
       }
     }
@@ -326,9 +338,9 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_lt_4_2pass_subtile) {
     TEST_REQUIRES_ARM_NEON;
     for (size_t channels = 1; channels < 4; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
       }
@@ -354,7 +366,7 @@
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-          .input_stride(23)
+          .input_stride(7)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
       }
     }
@@ -395,9 +407,9 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_gt_4_2pass_subtile) {
     TEST_REQUIRES_ARM_NEON;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__neon_c4);
       }
@@ -407,7 +419,7 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_gt_4_multipass_fulltile) {
     TEST_REQUIRES_ARM_NEON;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
@@ -419,7 +431,7 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__NEON_C4, channels_gt_4_multipass_fulltile_with_input_stride) {
     TEST_REQUIRES_ARM_NEON;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
@@ -432,16 +444,16 @@
 
 
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_eq_4_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_eq_4_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(4)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_eq_4_subtile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_eq_4_subtile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t rows = 1; rows < 7; rows++) {
       GAvgPoolMicrokernelTester()
         .rows(rows)
@@ -450,17 +462,17 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_eq_4_fulltile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_eq_4_fulltile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(4)
-      .input_stride(11)
+      .input_stride(7)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_eq_4_fulltile_with_qmax) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_eq_4_fulltile_with_qmax) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(4)
@@ -468,8 +480,8 @@
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_eq_4_fulltile_with_qmin) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_eq_4_fulltile_with_qmin) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(4)
@@ -477,9 +489,9 @@
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_div_4_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_div_4_fulltile) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 8; channels < 32; channels += 4) {
       GAvgPoolMicrokernelTester()
         .rows(7)
         .channels(channels)
@@ -487,9 +499,9 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_div_4_subtile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_div_4_subtile) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 1; rows < 7; rows++) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -499,8 +511,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_lt_4_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_lt_4_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
@@ -509,8 +521,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_lt_4_subtile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_lt_4_subtile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       for (size_t rows = 1; rows < 7; rows++) {
         GAvgPoolMicrokernelTester()
@@ -521,8 +533,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_lt_4_fulltile_with_qmax) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_lt_4_fulltile_with_qmax) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
@@ -532,8 +544,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_lt_4_fulltile_with_qmin) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_lt_4_fulltile_with_qmin) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
@@ -543,8 +555,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_gt_4_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_gt_4_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
@@ -553,8 +565,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_gt_4_subtile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_gt_4_subtile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       for (size_t rows = 1; rows < 7; rows++) {
         GAvgPoolMicrokernelTester()
@@ -565,8 +577,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_gt_4_fulltile_with_qmax) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_gt_4_fulltile_with_qmax) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
@@ -576,8 +588,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7X__SSE2_C4, channels_gt_4_fulltile_with_qmin) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7X__SSE_C4, channels_gt_4_fulltile_with_qmin) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
@@ -586,26 +598,29 @@
         .Test(xnn_f32_gavgpool_minmax_ukernel_7x__sse_c4);
     }
   }
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_2pass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_2pass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(4)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_2pass_fulltile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_2pass_fulltile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(4)
-      .input_stride(11)
+      .input_stride(7)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_2pass_fulltile_with_qmax) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_2pass_fulltile_with_qmax) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(4)
@@ -613,8 +628,8 @@
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_2pass_fulltile_with_qmin) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_2pass_fulltile_with_qmin) {
+    TEST_REQUIRES_X86_SSE;
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(4)
@@ -622,29 +637,29 @@
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_2pass_subtile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t rows = 1; rows < 7; rows++) {
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_2pass_subtile) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(4)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_2pass_subtile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t rows = 1; rows < 7; rows++) {
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_2pass_subtile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(4)
-        .input_stride(11)
+        .input_stride(7)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_multipass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_multipass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t rows = 14; rows <= 35; rows += 7) {
       GAvgPoolMicrokernelTester()
         .rows(rows)
@@ -653,19 +668,20 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_eq_4_multipass_fulltile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_eq_4_multipass_fulltile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t rows = 14; rows <= 35; rows += 7) {
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(4)
+        .input_stride(7)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_div_4_2pass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_div_4_2pass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 8; channels < 32; channels += 4) {
       GAvgPoolMicrokernelTester()
         .rows(14)
         .channels(channels)
@@ -673,21 +689,21 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_div_4_2pass_subtile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 4; channels < 64; channels += 12) {
-      for (size_t rows = 1; rows < 7; rows++) {
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_div_4_2pass_subtile) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 8; channels < 32; channels += 4) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
       }
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_div_4_multipass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_div_4_multipass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -697,21 +713,21 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_div_4_multipass_fulltile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_div_4_multipass_fulltile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-          .input_stride(131)
+          .input_stride(67)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
       }
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_lt_4_2pass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_lt_4_2pass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
@@ -720,8 +736,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_lt_4_2pass_fulltile_with_qmax) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_lt_4_2pass_fulltile_with_qmax) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
@@ -731,8 +747,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_lt_4_2pass_fulltile_with_qmin) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_lt_4_2pass_fulltile_with_qmin) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
@@ -742,20 +758,20 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_lt_4_2pass_subtile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_lt_4_2pass_subtile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
       }
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_lt_4_multipass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_lt_4_multipass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
@@ -766,21 +782,21 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_lt_4_multipass_fulltile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_lt_4_multipass_fulltile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 1; channels < 4; channels++) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-          .input_stride(23)
+          .input_stride(7)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
       }
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_gt_4_2pass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_gt_4_2pass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
@@ -789,8 +805,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_gt_4_2pass_fulltile_with_qmax) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_gt_4_2pass_fulltile_with_qmax) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
@@ -800,8 +816,8 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_gt_4_2pass_fulltile_with_qmin) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_gt_4_2pass_fulltile_with_qmin) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
@@ -811,22 +827,10 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_gt_4_2pass_subtile) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_gt_4_2pass_subtile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
-        GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
-          .channels(channels)
-          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
-      }
-    }
-  }
-
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_gt_4_multipass_fulltile) {
-    TEST_REQUIRES_X86_SSE2;
-    for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
@@ -835,10 +839,22 @@
     }
   }
 
-  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE2_C4, channels_gt_4_multipass_fulltile_with_input_stride) {
-    TEST_REQUIRES_X86_SSE2;
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_gt_4_multipass_fulltile) {
+    TEST_REQUIRES_X86_SSE;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
+        GAvgPoolMicrokernelTester()
+          .rows(rows)
+          .channels(channels)
+          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__sse_c4);
+      }
+    }
+  }
+
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__SSE_C4, channels_gt_4_multipass_fulltile_with_input_stride) {
+    TEST_REQUIRES_X86_SSE;
+    for (size_t channels = 5; channels < 8; channels++) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
@@ -874,7 +890,7 @@
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(4)
-      .input_stride(11)
+      .input_stride(7)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 
@@ -898,7 +914,7 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7X__PSIMD_C4, channels_div_4_fulltile) {
     TEST_REQUIRES_PSIMD;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       GAvgPoolMicrokernelTester()
         .rows(7)
         .channels(channels)
@@ -908,7 +924,7 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7X__PSIMD_C4, channels_div_4_subtile) {
     TEST_REQUIRES_PSIMD;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 1; rows < 7; rows++) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -1005,7 +1021,10 @@
         .Test(xnn_f32_gavgpool_minmax_ukernel_7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
+#endif  // !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
 
+
+#if !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_eq_4_2pass_fulltile) {
     TEST_REQUIRES_PSIMD;
     GAvgPoolMicrokernelTester()
@@ -1019,7 +1038,7 @@
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(4)
-      .input_stride(11)
+      .input_stride(7)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 
@@ -1043,9 +1062,9 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_eq_4_2pass_subtile) {
     TEST_REQUIRES_PSIMD;
-    for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(4)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
@@ -1053,11 +1072,11 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_eq_4_2pass_subtile_with_input_stride) {
     TEST_REQUIRES_PSIMD;
-    for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(4)
-        .input_stride(11)
+        .input_stride(7)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
@@ -1078,13 +1097,14 @@
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(4)
+        .input_stride(7)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_div_4_2pass_fulltile) {
     TEST_REQUIRES_PSIMD;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       GAvgPoolMicrokernelTester()
         .rows(14)
         .channels(channels)
@@ -1094,10 +1114,10 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_div_4_2pass_subtile) {
     TEST_REQUIRES_PSIMD;
-    for (size_t channels = 4; channels < 64; channels += 12) {
-      for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
@@ -1106,7 +1126,7 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_div_4_multipass_fulltile) {
     TEST_REQUIRES_PSIMD;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -1118,12 +1138,12 @@
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_div_4_multipass_fulltile_with_input_stride) {
     TEST_REQUIRES_PSIMD;
-    for (size_t channels = 4; channels < 64; channels += 12) {
+    for (size_t channels = 8; channels < 32; channels += 4) {
       for (size_t rows = 14; rows <= 35; rows += 7) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-          .input_stride(131)
+          .input_stride(67)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
     }
@@ -1164,9 +1184,9 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_lt_4_2pass_subtile) {
     TEST_REQUIRES_PSIMD;
     for (size_t channels = 1; channels < 4; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
@@ -1192,7 +1212,7 @@
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-          .input_stride(23)
+          .input_stride(7)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
     }
@@ -1233,9 +1253,9 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_gt_4_2pass_subtile) {
     TEST_REQUIRES_PSIMD;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__psimd_c4, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
@@ -1245,7 +1265,7 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_gt_4_multipass_fulltile) {
     TEST_REQUIRES_PSIMD;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
@@ -1257,7 +1277,7 @@
   TEST(F32_GAVGPOOL_MINMAX_7P7X__PSIMD_C4, channels_gt_4_multipass_fulltile_with_input_stride) {
     TEST_REQUIRES_PSIMD;
     for (size_t channels = 5; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
@@ -1290,7 +1310,7 @@
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(1)
-      .input_stride(11)
+      .input_stride(3)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 
@@ -1311,7 +1331,7 @@
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7X__WASM_C1, channels_gt_1_fulltile) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
         .channels(channels)
@@ -1320,7 +1340,7 @@
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7X__WASM_C1, channels_gt_1_subtile) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       for (size_t rows = 1; rows < 7; rows++) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
@@ -1331,7 +1351,7 @@
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7X__WASM_C1, channels_gt_1_fulltile_with_qmax) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
         .channels(channels)
@@ -1341,7 +1361,7 @@
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7X__WASM_C1, channels_gt_1_fulltile_with_qmin) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(7)
         .channels(channels)
@@ -1349,7 +1369,10 @@
         .Test(xnn_f32_gavgpool_minmax_ukernel_7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
+#endif  // XNN_ARCH_WASM
 
+
+#if XNN_ARCH_WASM
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_eq_1_2pass_fulltile) {
     GAvgPoolMicrokernelTester()
       .rows(14)
@@ -1361,7 +1384,7 @@
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(1)
-      .input_stride(11)
+      .input_stride(3)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 
@@ -1382,20 +1405,20 @@
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_eq_1_2pass_subtile) {
-    for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(1)
-          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_eq_1_2pass_subtile_with_input_stride) {
-    for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(1)
-          .input_stride(11)
+        .input_stride(3)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
@@ -1405,7 +1428,7 @@
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(1)
-          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 
@@ -1414,68 +1437,112 @@
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(1)
+        .input_stride(3)
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+    }
+  }
+
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_div_1_2pass_fulltile) {
+    for (size_t channels = 2; channels < 8; channels += 1) {
+      GAvgPoolMicrokernelTester()
+        .rows(14)
+        .channels(channels)
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+    }
+  }
+
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_div_1_2pass_subtile) {
+    for (size_t channels = 2; channels < 8; channels += 1) {
+      for (size_t rows = 8; rows < 14; rows++) {
+        GAvgPoolMicrokernelTester()
+          .rows(rows)
+          .channels(channels)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+      }
+    }
+  }
+
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_div_1_multipass_fulltile) {
+    for (size_t channels = 2; channels < 8; channels += 1) {
+      for (size_t rows = 14; rows <= 35; rows += 7) {
+        GAvgPoolMicrokernelTester()
+          .rows(rows)
+          .channels(channels)
+          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+      }
+    }
+  }
+
+  TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_div_1_multipass_fulltile_with_input_stride) {
+    for (size_t channels = 2; channels < 8; channels += 1) {
+      for (size_t rows = 14; rows <= 35; rows += 7) {
+        GAvgPoolMicrokernelTester()
+          .rows(rows)
+          .channels(channels)
+          .input_stride(19)
+          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+      }
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_gt_1_2pass_fulltile) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
         .channels(channels)
-          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_gt_1_2pass_fulltile_with_qmax) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
         .channels(channels)
-          .qmax(128)
+        .qmax(128)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_gt_1_2pass_fulltile_with_qmin) {
-    for (size_t channels = 2; channels < 8; channels++) {
+    for (size_t channels = 2; channels < 10; channels++) {
       GAvgPoolMicrokernelTester()
         .rows(14)
         .channels(channels)
-          .qmin(128)
+        .qmin(128)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_gt_1_2pass_subtile) {
-    for (size_t channels = 2; channels < 8; channels++) {
-      for (size_t rows = 1; rows < 7; rows++) {
+    for (size_t channels = 2; channels < 10; channels++) {
+      for (size_t rows = 8; rows < 14; rows++) {
         GAvgPoolMicrokernelTester()
-          .rows(7 + rows)
+          .rows(rows)
           .channels(channels)
-              .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_gt_1_multipass_fulltile) {
-    for (size_t channels = 2; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+    for (size_t channels = 2; channels < 10; channels++) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-              .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+          .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
     }
   }
 
   TEST(F32_GAVGPOOL_MINMAX_7P7X__WASM_C1, channels_gt_1_multipass_fulltile_with_input_stride) {
-    for (size_t channels = 2; channels < 8; channels++) {
-      for (size_t rows = 14; rows <= 35; rows += 7) {
+    for (size_t channels = 2; channels < 10; channels++) {
+      for (size_t rows = 14; rows < 35; rows += 14) {
         GAvgPoolMicrokernelTester()
           .rows(rows)
           .channels(channels)
-              .input_stride(23)
+          .input_stride(17)
           .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__wasm_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
       }
     }
@@ -1503,7 +1570,7 @@ TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_eq_1_fulltile_with_input_stride
   GAvgPoolMicrokernelTester()
     .rows(7)
     .channels(1)
-    .input_stride(11)
+    .input_stride(3)
     .Test(xnn_f32_gavgpool_minmax_ukernel_7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
 }
 
@@ -1524,7 +1591,7 @@ TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_eq_1_fulltile_with_qmin) {
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_fulltile) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(channels)
@@ -1533,7 +1600,7 @@ TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_fulltile) {
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_subtile) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     for (size_t rows = 1; rows < 7; rows++) {
       GAvgPoolMicrokernelTester()
         .rows(rows)
@@ -1544,7 +1611,7 @@ TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_subtile) {
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_fulltile_with_qmax) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(channels)
@@ -1554,7 +1621,7 @@ TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_fulltile_with_qmax) {
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7X__SCALAR_C1, channels_gt_1_fulltile_with_qmin) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     GAvgPoolMicrokernelTester()
       .rows(7)
       .channels(channels)
@@ -1574,7 +1641,7 @@ TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_eq_1_2pass_fulltile_with_inpu
   GAvgPoolMicrokernelTester()
     .rows(14)
     .channels(1)
-    .input_stride(11)
+    .input_stride(3)
     .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
 }
 
@@ -1595,20 +1662,20 @@ TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_eq_1_2pass_fulltile_with_qmin
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_eq_1_2pass_subtile) {
-  for (size_t rows = 1; rows < 7; rows++) {
+  for (size_t rows = 8; rows < 14; rows++) {
     GAvgPoolMicrokernelTester()
-      .rows(7 + rows)
+      .rows(rows)
       .channels(1)
-        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+      .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_eq_1_2pass_subtile_with_input_stride) {
-  for (size_t rows = 1; rows < 7; rows++) {
+  for (size_t rows = 8; rows < 14; rows++) {
     GAvgPoolMicrokernelTester()
-      .rows(7 + rows)
+      .rows(rows)
       .channels(1)
-        .input_stride(11)
+      .input_stride(3)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 }
@@ -1618,7 +1685,7 @@ TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_eq_1_multipass_fulltile) {
     GAvgPoolMicrokernelTester()
       .rows(rows)
       .channels(1)
-        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+      .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 }
 
@@ -1627,68 +1694,112 @@ TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_eq_1_multipass_fulltile_with_
     GAvgPoolMicrokernelTester()
       .rows(rows)
       .channels(1)
+      .input_stride(3)
+      .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+  }
+}
+
+TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_div_1_2pass_fulltile) {
+  for (size_t channels = 2; channels < 8; channels += 1) {
+    GAvgPoolMicrokernelTester()
+      .rows(14)
+      .channels(channels)
+      .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+  }
+}
+
+TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_div_1_2pass_subtile) {
+  for (size_t channels = 2; channels < 8; channels += 1) {
+    for (size_t rows = 8; rows < 14; rows++) {
+      GAvgPoolMicrokernelTester()
+        .rows(rows)
+        .channels(channels)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+    }
+  }
+}
+
+TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_div_1_multipass_fulltile) {
+  for (size_t channels = 2; channels < 8; channels += 1) {
+    for (size_t rows = 14; rows <= 35; rows += 7) {
+      GAvgPoolMicrokernelTester()
+        .rows(rows)
+        .channels(channels)
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+    }
+  }
+}
+
+TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_div_1_multipass_fulltile_with_input_stride) {
+  for (size_t channels = 2; channels < 8; channels += 1) {
+    for (size_t rows = 14; rows <= 35; rows += 7) {
+      GAvgPoolMicrokernelTester()
+        .rows(rows)
+        .channels(channels)
+        .input_stride(19)
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+    }
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_gt_1_2pass_fulltile) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(channels)
-        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+      .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_gt_1_2pass_fulltile_with_qmax) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(channels)
-        .qmax(128)
+      .qmax(128)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_gt_1_2pass_fulltile_with_qmin) {
-  for (size_t channels = 2; channels < 8; channels++) {
+  for (size_t channels = 2; channels < 10; channels++) {
     GAvgPoolMicrokernelTester()
       .rows(14)
       .channels(channels)
-        .qmin(128)
+      .qmin(128)
       .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_gt_1_2pass_subtile) {
-  for (size_t channels = 2; channels < 8; channels++) {
-    for (size_t rows = 1; rows < 7; rows++) {
+  for (size_t channels = 2; channels < 10; channels++) {
+    for (size_t rows = 8; rows < 14; rows++) {
       GAvgPoolMicrokernelTester()
-        .rows(7 + rows)
+        .rows(rows)
         .channels(channels)
-            .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_gt_1_multipass_fulltile) {
-  for (size_t channels = 2; channels < 8; channels++) {
-    for (size_t rows = 14; rows <= 35; rows += 7) {
+  for (size_t channels = 2; channels < 10; channels++) {
+    for (size_t rows = 14; rows < 35; rows += 14) {
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(channels)
-            .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
+        .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }
 }
 
 TEST(F32_GAVGPOOL_MINMAX_7P7X__SCALAR_C1, channels_gt_1_multipass_fulltile_with_input_stride) {
-  for (size_t channels = 2; channels < 8; channels++) {
-    for (size_t rows = 14; rows <= 35; rows += 7) {
+  for (size_t channels = 2; channels < 10; channels++) {
+    for (size_t rows = 14; rows < 35; rows += 14) {
       GAvgPoolMicrokernelTester()
         .rows(rows)
         .channels(channels)
-            .input_stride(23)
+        .input_stride(17)
         .Test(xnn_f32_gavgpool_minmax_ukernel_7p7x__scalar_c1, GAvgPoolMicrokernelTester::Variant::Scalar);
     }
   }

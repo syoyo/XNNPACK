@@ -291,13 +291,13 @@ void xnn_compute_subconv2d(
       &context->params);
 }
 
-void xnn_compute_dconv2d_hwc2spchw(
-      const struct dconv2d_context context[restrict XNN_MIN_ELEMENTS(1)],
+void xnn_compute_conv2d_hwc2chw(
+      const struct conv2d_context context[restrict XNN_MIN_ELEMENTS(1)],
       size_t batch_index,
       size_t output_y_start,
       size_t output_y_slice)
 {
-  context->hwc2spchw_ukernel(
+  context->hwc2chw_ukernel(
       context->input_height,
       context->input_width,
       output_y_start,
@@ -325,16 +325,18 @@ void xnn_compute_dwconv_unipass(
     (void*) ((uintptr_t) context->output + output_y * context->output_row_stride),
     context->indirection_buffer_col_stride,
     context->output_col_increment,
+    context->input_offset,
+    context->zero,
     &context->params);
 }
 
-void xnn_compute_dwconv2d_spchw(
+void xnn_compute_dwconv2d_chw(
     const struct dwconv2d_context context[restrict XNN_MIN_ELEMENTS(1)],
     size_t batch_index,
     size_t channel)
 {
-  context->spchw_ukernel(
-    context->output_height,
+  context->chw_ukernel(
+    context->input_height,
     context->input_width,
     (const void*) ((uintptr_t) context->input + channel * context->input_channel_stride + batch_index * context->input_batch_stride),
     (const void*) ((uintptr_t) context->packed_weights + channel * context->weights_channel_stride),
@@ -375,7 +377,7 @@ void xnn_compute_argmax_pooling_multipass(
 {
   const void** indirect_input = (const void**) ((uintptr_t) context->indirect_input +
     output_y * context->indirect_input_height_stride);
-  const size_t input_offset = context->input_offset + batch_index * context->input_batch_stride;  
+  const size_t input_offset = context->input_offset + batch_index * context->input_batch_stride;
   void* output = (void*) ((uintptr_t) context->output +
     batch_index * context->output_batch_stride + output_y * context->output_height_stride);
   uint32_t* index = (uint32_t*) ((uintptr_t) context->index +

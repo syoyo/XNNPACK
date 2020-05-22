@@ -383,6 +383,16 @@ static inline struct xnn_f16_scaleminmax_params xnn_init_f16_scaleminmax_params(
   return params;
 }
 
+static inline struct xnn_f16_minmax_params xnn_init_f16_minmax_params(
+  uint16_t min,
+  uint16_t max)
+{
+  struct xnn_f16_minmax_params params;
+  params.min = min;
+  params.max = max;
+  return params;
+}
+
 static inline union xnn_f32_minmax_params xnn_init_f32_minmax_params(
   float output_min,
   float output_max)
@@ -407,6 +417,15 @@ static inline union xnn_f32_minmax_params xnn_init_scalar_f32_minmax_params(
   union xnn_f32_minmax_params params;
   params.scalar.min = output_min;
   params.scalar.max = output_max;
+  return params;
+}
+
+static inline struct xnn_f16_hswish_params xnn_init_f16_hswish_params(void)
+{
+  struct xnn_f16_hswish_params params;
+  params.sixth = fp16_ieee_from_fp32_value(0x1.555556p-3f);
+  params.half = fp16_ieee_from_fp32_value(0.5f);
+  params.one = fp16_ieee_from_fp32_value(1.0f);
   return params;
 }
 
@@ -436,12 +455,12 @@ static inline union xnn_f32_hswish_params xnn_init_scalar_f32_hswish_params(void
   return params;
 }
 
-static inline union xnn_f32_spchw_params xnn_init_f32_spchw_params(
+static inline union xnn_f32_chw_params xnn_init_f32_chw_params(
   uint32_t width,
   float output_min,
   float output_max)
 {
-  union xnn_f32_spchw_params params;
+  union xnn_f32_chw_params params;
   #if XNN_ARCH_X86 || XNN_ARCH_X86_64
     for (uint32_t i = 0; i < 4; i++) {
       params.sse.min[i] = output_min;
@@ -489,8 +508,8 @@ static inline union xnn_f32_spchw_params xnn_init_f32_spchw_params(
   return params;
 }
 
-static inline void xnn_update_f32_spchw_params(
-  union xnn_f32_spchw_params* params,
+static inline void xnn_update_f32_chw_params(
+  union xnn_f32_chw_params* params,
   uint32_t width)
 {
   #if XNN_ARCH_X86 || XNN_ARCH_X86_64
@@ -528,12 +547,12 @@ static inline void xnn_update_f32_spchw_params(
   #endif
 }
 
-static inline union xnn_f32_spchw_params xnn_init_scalar_f32_spchw_params(
+static inline union xnn_f32_chw_params xnn_init_scalar_f32_chw_params(
   uint32_t width,
   float output_min,
   float output_max)
 {
-  union xnn_f32_spchw_params params;
+  union xnn_f32_chw_params params;
   params.scalar.min = output_min;
   params.scalar.max = output_max;
   return params;

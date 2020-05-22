@@ -8,9 +8,9 @@ XNNPACK is a highly optimized library of floating-point neural network inference
 
 - ARM64 on Android, Linux, and iOS (including WatchOS and tvOS)
 - ARMv7 (with NEON) on Android, Linux, and iOS (including WatchOS)
+- x86 and x86-64 (up to AVX512) on Windows, Linux, macOS, Android, and iOS simulator
 - WebAssembly MVP
 - WebAssembly SIMD (experimental)
-- x86 and x86-64 (up to AVX512) on Android, Linux, macOS, and iOS simulator
 
 ## Operator Coverage
 
@@ -85,6 +85,8 @@ Benchmarked on February 12, 2020 with `end2end-bench --benchmark_min_time=5` on 
   models](https://github.com/google-research/google-research/tree/master/fastconvnets).
 - Marat Dukhan, Artsiom Ablavatski "The Two-Pass Softmax Algorithm".
   [Paper on ArXiv](https://arxiv.org/abs/2001.04438).
+- Yury Pisarchyk, Juhyun Lee "Efficient Memory Management for Deep Neural Net Inference".
+  [Paper on ArXiv](https://arxiv.org/abs/2001.03288).
 
 ## Ecosystem
 
