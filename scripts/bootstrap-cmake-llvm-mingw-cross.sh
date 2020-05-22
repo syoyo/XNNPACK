@@ -14,6 +14,7 @@ cd ${builddir} && cmake \
   -DCMAKE_TOOLCHAIN_FILE=${curdir}/cmake/llvm-mingw-cross.cmake \
   -G "Ninja" \
   -DCMAKE_VERBOSE_MAKEFILE=1 \
+  -DXNNPACK_BUILD_BENCHMARKS=Off \
   ..
 
 cd ${curdir}
