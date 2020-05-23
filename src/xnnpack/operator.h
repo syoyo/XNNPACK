@@ -57,6 +57,7 @@ enum xnn_operator_type {
   xnn_operator_type_channel_shuffle_nc_x8,
   xnn_operator_type_clamp_nc_f32,
   xnn_operator_type_clamp_nc_u8,
+  xnn_operator_type_constant_pad_nd_x32,
   xnn_operator_type_convolution_nhwc_f32,
   xnn_operator_type_convolution_nhwc_q8,
   xnn_operator_type_convolution_nchw_f32,
@@ -283,6 +284,7 @@ struct xnn_operator {
     struct lut_contiguous_context lut_contiguous;
     struct lut_strided_context lut_strided;
     struct max_pooling_context max_pooling;
+    struct pad_context pad;
     struct pixelwise_average_pooling_context pixelwise_average_pooling;
     struct prelu_context prelu;
     struct resize_bilinear_context resize_bilinear;

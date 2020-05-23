@@ -165,6 +165,7 @@ SET(XNNPACK_OPERATOR_SRCS
   src/operators/channel-pad-nc.c
   src/operators/channel-shuffle-nc.c
   src/operators/clamp-nc.c
+  src/operators/constant-pad-nd.c
   src/operators/convolution-nchw.c
   src/operators/convolution-nhwc.c
   src/operators/deconvolution-nhwc.c
@@ -1990,6 +1991,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_INCLUDE_DIRECTORIES(clamp-nc-test PRIVATE src test)
   TARGET_LINK_LIBRARIES(clamp-nc-test PRIVATE XNNPACK gtest gtest_main)
   ADD_TEST(clamp-nc-test clamp-nc-test)
+
+  ADD_EXECUTABLE(constant-pad-nd-test test/constant-pad-nd.cc)
+  SET_TARGET_PROPERTIES(constant-pad-nd-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(constant-pad-nd-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(constant-pad-nd-test PRIVATE XNNPACK gtest gtest_main)
+  ADD_TEST(constant-pad-nd-test constant-pad-nd-test)
 
   ADD_EXECUTABLE(convolution-nhwc-test test/convolution-nhwc.cc)
   SET_TARGET_PROPERTIES(convolution-nhwc-test PROPERTIES
