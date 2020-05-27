@@ -165,6 +165,7 @@ SET(XNNPACK_OPERATOR_SRCS
   src/operators/channel-pad-nc.c
   src/operators/channel-shuffle-nc.c
   src/operators/clamp-nc.c
+  src/operators/constant-pad-nd.c
   src/operators/convolution-nchw.c
   src/operators/convolution-nhwc.c
   src/operators/deconvolution-nhwc.c
@@ -174,7 +175,6 @@ SET(XNNPACK_OPERATOR_SRCS
   src/operators/hardswish-nc.c
   src/operators/leaky-relu-nc.c
   src/operators/max-pooling-nhwc.c
-  src/operators/pad-nd.c
   src/operators/prelu-nc.c
   src/operators/resize-bilinear-nhwc.c
   src/operators/sigmoid-nc.c
@@ -246,6 +246,10 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-gemm/gen/2x4-scalar.c
   src/f32-gemm/gen/4x2-scalar.c
   src/f32-gemm/gen/4x4-scalar.c
+  src/f32-gemm/gen/1x4-relu-scalar.c
+  src/f32-gemm/gen/2x4-relu-scalar.c
+  src/f32-gemm/gen/4x2-relu-scalar.c
+  src/f32-gemm/gen/4x4-relu-scalar.c
   src/f32-gemm/gen/1x4-minmax-scalar.c
   src/f32-gemm/gen/2x4-minmax-scalar.c
   src/f32-gemm/gen/4x2-minmax-scalar.c
@@ -263,6 +267,10 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-igemm/gen/2x4-scalar.c
   src/f32-igemm/gen/4x2-scalar.c
   src/f32-igemm/gen/4x4-scalar.c
+  src/f32-igemm/gen/1x4-relu-scalar.c
+  src/f32-igemm/gen/2x4-relu-scalar.c
+  src/f32-igemm/gen/4x2-relu-scalar.c
+  src/f32-igemm/gen/4x4-relu-scalar.c
   src/f32-igemm/gen/1x4-minmax-scalar.c
   src/f32-igemm/gen/2x4-minmax-scalar.c
   src/f32-igemm/gen/4x2-minmax-scalar.c
@@ -388,7 +396,8 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/x32-packx/x2-scalar.c
   src/x32-packx/x3-scalar.c
   src/x32-packx/x4-scalar.c
-  src/x32-pad/x2-scalar.c
+  src/x32-pad/scalar-float.c
+  src/x32-pad/scalar-int.c
   src/x32-unpool/scalar.c
   src/x32-zip/x2-scalar.c
   src/x32-zip/x3-scalar.c
@@ -498,7 +507,7 @@ SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
   src/f32-vmulcaddc/gen/c8-minmax-psimd-2x.c
   src/x32-fill/psimd.c
   src/x32-packx/x4-psimd.c
-  src/x32-pad/x2-psimd.c
+  src/x32-pad/psimd.c
   src/x32-unpool/psimd.c
   src/x32-zip/x2-psimd.c
   src/x32-zip/x3-psimd.c
@@ -537,8 +546,12 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-avgpool/9x-minmax-neon-c4.c
   src/f32-clamp/gen/neon-x4.c
   src/f32-clamp/gen/neon-x8.c
+  src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neon-2x1.c
+  src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neon-2x1.c
   src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neon-2x2.c
   src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neon-2x2.c
+  src/f32-conv-hwc/gen/3x3s2p1c3x4-neon-2x1.c
+  src/f32-conv-hwc/gen/3x3s2p1c3x8-neon-2x1.c
   src/f32-conv-hwc/gen/3x3s2p1c3x4-neon-2x2.c
   src/f32-conv-hwc/gen/3x3s2p1c3x8-neon-2x2.c
   src/f32-dwconv/gen/up4x4-minmax-neon.c
@@ -697,7 +710,7 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/u8-rmax/neon.c
   src/x32-fill/neon.c
   src/x32-packx/x4-neon-st4.c
-  src/x32-pad/x2-neon.c
+  src/x32-pad/neon.c
   src/x32-unpool/neon.c
   src/x32-zip/x2-neon.c
   src/x32-zip/x3-neon.c
@@ -909,8 +922,12 @@ SET(XNNPACK_AARCH64_NEONFMA_MICROKERNEL_SRCS
   src/f32-igemm/gen/4x8-minmax-neonfma-lane-ld64.c
   src/f32-igemm/gen/6x8-minmax-neonfma-lane-ld64.c
   src/f32-igemm/gen/6x8-minmax-neonfma-lane-ld128.c
+  src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neonfma-2x1.c
+  src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neonfma-2x1.c
   src/f32-conv-hwc/gen/3x3s2p0p1c3x4-neonfma-2x2.c
   src/f32-conv-hwc/gen/3x3s2p0p1c3x8-neonfma-2x2.c
+  src/f32-conv-hwc/gen/3x3s2p1c3x4-neonfma-2x1.c
+  src/f32-conv-hwc/gen/3x3s2p1c3x8-neonfma-2x1.c
   src/f32-conv-hwc/gen/3x3s2p1c3x4-neonfma-2x2.c
   src/f32-conv-hwc/gen/3x3s2p1c3x8-neonfma-2x2.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-neonfma-2x2.c
@@ -1114,6 +1131,7 @@ SET(XNNPACK_SSE_MICROKERNEL_SRCS
   src/f32-vmulcaddc/gen/c8-minmax-sse-2x.c
   src/x32-fill/sse.c
   src/x32-packx/x4-sse.c
+  src/x32-pad/sse.c
   src/math/roundne-sse-addsub.c
   src/math/roundd-sse-addsub.c
   src/math/roundu-sse-addsub.c
@@ -1155,7 +1173,6 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/u8-clamp/sse2-x64.c
   src/u8-maxpool/9p8x-minmax-sse2-c16.c
   src/u8-rmax/sse2.c
-  src/x32-pad/x2-sse2.c
   src/x32-unpool/sse2.c
   src/x32-zip/x2-sse2.c
   src/x32-zip/x3-sse2.c
@@ -1992,6 +2009,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_LINK_LIBRARIES(clamp-nc-test PRIVATE XNNPACK gtest gtest_main)
   ADD_TEST(clamp-nc-test clamp-nc-test)
 
+  ADD_EXECUTABLE(constant-pad-nd-test test/constant-pad-nd.cc)
+  SET_TARGET_PROPERTIES(constant-pad-nd-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(constant-pad-nd-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(constant-pad-nd-test PRIVATE XNNPACK gtest gtest_main)
+  ADD_TEST(constant-pad-nd-test constant-pad-nd-test)
+
   ADD_EXECUTABLE(convolution-nhwc-test test/convolution-nhwc.cc)
   SET_TARGET_PROPERTIES(convolution-nhwc-test PROPERTIES
     CXX_STANDARD 11
@@ -2108,15 +2134,6 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_INCLUDE_DIRECTORIES(multiply-nd-test PRIVATE src test)
   TARGET_LINK_LIBRARIES(multiply-nd-test PRIVATE XNNPACK gtest gtest_main)
   ADD_TEST(multiply-nd-test multiply-nd-test)
-
-  ADD_EXECUTABLE(pad-nd-test test/pad-nd.cc)
-  SET_TARGET_PROPERTIES(pad-nd-test PROPERTIES
-    CXX_STANDARD 11
-    CXX_STANDARD_REQUIRED YES
-    CXX_EXTENSIONS NO)
-  TARGET_INCLUDE_DIRECTORIES(pad-nd-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(pad-nd-test PRIVATE XNNPACK gtest gtest_main)
-  ADD_TEST(pad-nd-test pad-nd-test)
 
   ADD_EXECUTABLE(prelu-nc-test test/prelu-nc.cc)
   SET_TARGET_PROPERTIES(prelu-nc-test PROPERTIES
@@ -2299,6 +2316,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_LINK_LIBRARIES(f32-gemm-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-gemm-test f32-gemm-test)
 
+  ADD_EXECUTABLE(f32-gemm-relu-test test/f32-gemm-relu.cc)
+  SET_TARGET_PROPERTIES(f32-gemm-relu-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f32-gemm-relu-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(f32-gemm-relu-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(f32-gemm-relu-test f32-gemm-relu-test)
+
   ADD_EXECUTABLE(f32-gemm-minmax-test test/f32-gemm-minmax.cc)
   SET_TARGET_PROPERTIES(f32-gemm-minmax-test PROPERTIES
     CXX_STANDARD 11
@@ -2352,6 +2378,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_INCLUDE_DIRECTORIES(f32-igemm-test PRIVATE src test)
   TARGET_LINK_LIBRARIES(f32-igemm-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-igemm-test f32-igemm-test)
+
+  ADD_EXECUTABLE(f32-igemm-relu-test test/f32-igemm-relu.cc)
+  SET_TARGET_PROPERTIES(f32-igemm-relu-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f32-igemm-relu-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(f32-igemm-relu-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(f32-igemm-relu-test f32-igemm-relu-test)
 
   ADD_EXECUTABLE(f32-igemm-minmax-test test/f32-igemm-minmax.cc)
   SET_TARGET_PROPERTIES(f32-igemm-minmax-test PROPERTIES

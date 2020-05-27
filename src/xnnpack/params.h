@@ -37,6 +37,11 @@ union xnn_f32_default_params {
   char _; // Dummy member variable to comply with the C standard
 };
 
+union xnn_f32_relu_params {
+  // Empty; serves to differentiate pointer types for micro-kernels with different fused activations.
+  char _; // Dummy member variable to comply with the C standard
+};
+
 union xnn_f32_minmax_params {
   struct {
     float min;
@@ -428,6 +433,18 @@ typedef void (*xnn_f32_gemm_ukernel_function)(
     size_t cn_stride,
     const union xnn_f32_default_params* params);
 
+typedef void (*xnn_f32_gemm_relu_ukernel_function)(
+    size_t mr,
+    size_t nr,
+    size_t k,
+    const float* a,
+    size_t a_stride,
+    const float* w,
+    float* c,
+    size_t cm_stride,
+    size_t cn_stride,
+    const union xnn_f32_relu_params* params);
+
 typedef void (*xnn_f32_gemm_minmax_ukernel_function)(
     size_t mr,
     size_t nr,
@@ -518,6 +535,20 @@ typedef void (*xnn_f32_igemm_ukernel_function)(
     size_t a_offset,
     const float* zero,
     const union xnn_f32_default_params* params);
+
+typedef void (*xnn_f32_igemm_relu_ukernel_function)(
+    size_t mr,
+    size_t nr,
+    size_t kc,
+    size_t ks,
+    const float** a,
+    const float* w,
+    float* c,
+    size_t cm_stride,
+    size_t cn_stride,
+    size_t a_offset,
+    const float* zero,
+    const union xnn_f32_relu_params* params);
 
 typedef void (*xnn_f32_igemm_minmax_ukernel_function)(
     size_t mr,
@@ -666,15 +697,26 @@ typedef void (*xnn_x32_fill_ukernel_function)(
     const uint32_t* fill_value);
 
 typedef void (*xnn_pad_ukernel_function)(
-    size_t m,
-    size_t n,
-    size_t l,
-    size_t r,
-    uint32_t c,
-    const void* x,
-    size_t x_stride,
-    void* y,
-    size_t y_stride);
+    size_t rows,
+    size_t channels,
+    size_t pre_padding,
+    size_t post_padding,
+    const void* fill_value,
+    const void* input,
+    size_t input_stride,
+    void* output,
+    size_t output_stride);
+
+typedef void (*xnn_x32_pad_ukernel_function)(
+    size_t rows,
+    size_t channels,
+    size_t pre_padding,
+    size_t post_padding,
+    const uint32_t* fill_value,
+    const uint32_t* input,
+    size_t input_stride,
+    uint32_t* output,
+    size_t output_stride);
 
 typedef void (*xnn_unpool_ukernel_function)(
     size_t p,
@@ -1388,6 +1430,7 @@ struct gemm_fused_ukernels {
 
 struct gemm_parameters {
   struct gemm_fused_ukernels minmax;
+  struct gemm_fused_ukernels relu;
   struct gemm_fused_ukernels linear;
   uint8_t mr;
   uint8_t nr;
@@ -1524,7 +1567,9 @@ struct fill_parameters {
 
 struct pad_parameters {
   xnn_pad_ukernel_function ukernel;
-  uint8_t mr;
+  // Number of rows of inputs processed in one tile.
+  // For best efficiency, micro-kernel must produce a multiple of this number of rows in each call.
+  uint8_t row_tile;
 };
 
 struct vmulcaddc_parameters {

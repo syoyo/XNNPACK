@@ -62,6 +62,8 @@ enum xnn_status xnn_create_runtime_v2(
     goto error;
   }
 
+  xnn_subgraph_optimize(subgraph, 0 /* flags */);
+
   status = xnn_status_out_of_memory;
 
   runtime = xnn_allocate_zero_memory(sizeof(struct xnn_runtime));
@@ -82,6 +84,9 @@ enum xnn_status xnn_create_runtime_v2(
   for (size_t i = 0; i < subgraph->num_nodes; i++) {
     const struct xnn_node* node = subgraph->nodes + i;
     switch (node->type) {
+      case xnn_node_type_invalid:
+        // Node was fused
+        continue;
       case xnn_node_type_add2:
         status = xnn_create_add_nd_f32(
           node->activation.output_min,
@@ -151,7 +156,7 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_constant_pad:
-        status = xnn_create_pad_nd_x32(
+        status = xnn_create_constant_pad_nd_x32(
           &node->params.static_pad.padding_value,
           node->flags,
           &runtime->opdata[i].operator_object);
@@ -427,10 +432,6 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].inputs[1] = node->inputs[1];
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
-      case xnn_node_type_invalid:
-        xnn_log_fatal("unexpected node type %d in node #%zu", node->type, i);
-        XNN_UNREACHABLE;
-        break;
     }
   }
 
@@ -525,6 +526,11 @@ enum xnn_status xnn_setup_runtime(
 
   for (size_t i = 0; i < runtime->num_ops; i++) {
     const struct xnn_operator_data* opdata = &runtime->opdata[i];
+    if (opdata->operator_object == NULL) {
+      // Operator was removed during optimization
+      continue;
+    }
+
     enum xnn_status status = xnn_status_success;
     switch (opdata->operator_object->type) {
       case xnn_operator_type_add_nd_f32:
@@ -564,6 +570,19 @@ enum xnn_status xnn_setup_runtime(
           opdata->batch_size,
           opdata->input_height,
           opdata->input_width,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_constant_pad_nd_x32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_constant_pad_nd_x32(
+          opdata->operator_object,
+          opdata->shape1.num_dims,
+          opdata->shape1.dim,
+          opdata->pre_paddings,
+          opdata->post_paddings,
           runtime->blobs[opdata->inputs[0]].data,
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
@@ -651,19 +670,6 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
-      case xnn_operator_type_pad_nd_x32:
-        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
-        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
-        status = xnn_setup_pad_nd_x32(
-          opdata->operator_object,
-          opdata->shape1.num_dims,
-          opdata->shape1.dim,
-          opdata->pre_paddings,
-          opdata->post_paddings,
-          runtime->blobs[opdata->inputs[0]].data,
-          runtime->blobs[opdata->outputs[0]].data,
-          runtime->threadpool);
-        break;
       case xnn_operator_type_prelu_nc_f32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->outputs[0]].data != NULL);
@@ -725,6 +731,11 @@ enum xnn_status xnn_invoke_runtime(
   xnn_runtime_t runtime)
 {
   for (size_t i = 0; i < runtime->num_ops; i++) {
+    if (runtime->opdata[i].operator_object == NULL) {
+      // Operator was removed after fusion
+      continue;
+    }
+
     const enum xnn_status status = xnn_run_operator(runtime->opdata[i].operator_object, runtime->threadpool);
     if (status != xnn_status_success) {
       return status;
