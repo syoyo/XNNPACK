@@ -74,6 +74,25 @@ OPERATOR_SRCS = [
     "src/operators/unpooling-nhwc.c",
 ]
 
+SUBGRAPH_SRCS = [
+    "src/subgraph/add2.c",
+    "src/subgraph/argmax-pooling-2d.c",
+    "src/subgraph/average-pooling-2d.c",
+    "src/subgraph/clamp.c",
+    "src/subgraph/convolution-2d.c",
+    "src/subgraph/deconvolution-2d.c",
+    "src/subgraph/depthwise-convolution-2d.c",
+    "src/subgraph/fully-connected.c",
+    "src/subgraph/hardswish.c",
+    "src/subgraph/max-pooling-2d.c",
+    "src/subgraph/multiply2.c",
+    "src/subgraph/prelu.c",
+    "src/subgraph/sigmoid.c",
+    "src/subgraph/softmax.c",
+    "src/subgraph/static-constant-pad.c",
+    "src/subgraph/unpooling-2d.c",
+]
+
 TABLE_SRCS = [
     "src/tables/exp2-k-over-64.c",
     "src/tables/exp2-k-over-2048.c",
@@ -1013,6 +1032,8 @@ AARCH64_NEONFP16ARITH_UKERNELS = [
     "src/f16-vbinary/gen/vsubc-minmax-neonfp16arith-x8.c",
     "src/f16-vbinary/gen/vsub-minmax-neonfp16arith-x16.c",
     "src/f16-vbinary/gen/vsub-minmax-neonfp16arith-x8.c",
+    "src/f16-vmulcaddc/gen/c16-minmax-neonfp16arith-2x.c",
+    "src/f16-vmulcaddc/gen/c8-minmax-neonfp16arith-2x.c",
     "src/f16-gemm/gen/1x8-minmax-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/4x8-minmax-neonfp16arith-ld64.c",
     "src/f16-gemm/gen/6x8-minmax-neonfp16arith-ld64.c",
@@ -1785,6 +1806,15 @@ LOGGING_COPTS = select({
     "//conditions:default": ["-DXNN_LOG_LEVEL=2"],
 })
 
+LOGGING_SRCS = select({
+    # No logging in optimized mode
+    ":optimized_build": [],
+    "//conditions:default": [
+        "src/operator-strings.c",
+        "src/subgraph-strings.c",
+    ],
+})
+
 LOGGING_HDRS = [
     "src/xnnpack/log.h",
 ]
@@ -2383,6 +2413,27 @@ xnnpack_cc_library(
     aarch64_srcs = AARCH64_ASM_UKERNELS,
 )
 
+xnnpack_cc_library(
+    name = "logging_utils",
+    srcs = LOGGING_SRCS,
+    hdrs = INTERNAL_HDRS + LOGGING_HDRS,
+    copts = LOGGING_COPTS + [
+        "-Isrc",
+        "-Iinclude",
+    ] + select({
+        ":debug_build": [],
+        "//conditions:default": xnnpack_min_size_copts(),
+    }),
+    gcc_copts = xnnpack_gcc_std_copts(),
+    msvc_copts = xnnpack_msvc_std_copts(),
+    visibility = xnnpack_visibility(),
+    deps = [
+        "@FP16",
+        "@clog",
+        "@pthreadpool",
+    ],
+)
+
 xnnpack_aggregate_library(
     name = "ukernels",
     aarch32_deps = [
@@ -2513,6 +2564,7 @@ xnnpack_cc_library(
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
+        ":logging_utils",
         "@FP16",
         "@FXdiv",
         "@clog",
@@ -2534,6 +2586,7 @@ xnnpack_cc_library(
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
+        ":logging_utils",
         "@FP16",
         "@FXdiv",
         "@clog",
@@ -2553,6 +2606,7 @@ xnnpack_cc_library(
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
+        ":logging_utils",
         "@pthreadpool",
     ],
 )
@@ -2573,6 +2627,7 @@ xnnpack_cc_library(
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
+        ":logging_utils",
         "@pthreadpool",
     ],
 )
@@ -2607,6 +2662,7 @@ xnnpack_cc_library(
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
         ":indirection",
+        ":logging_utils",
         "@FP16",
         "@FXdiv",
         "@clog",
@@ -2637,6 +2693,7 @@ xnnpack_cc_library(
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
         ":indirection_test_mode",
+        ":logging_utils",
         "@FP16",
         "@FXdiv",
         "@clog",
@@ -2651,7 +2708,7 @@ xnnpack_cc_library(
         "src/runtime.c",
         "src/subgraph.c",
         "src/tensor.c",
-    ],
+    ] + SUBGRAPH_SRCS + LOGGING_SRCS,
     hdrs = ["include/xnnpack.h"],
     copts = LOGGING_COPTS + [
         "-Isrc",
@@ -2669,10 +2726,11 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":logging_utils",
         ":memory_planner",
-        ":ukernels",
         ":operator_run",
         ":operators",
+        ":ukernels",
         "@clog",
         "@FP16",
         "@pthreadpool",
@@ -2689,7 +2747,7 @@ xnnpack_cc_library(
         "src/runtime.c",
         "src/subgraph.c",
         "src/tensor.c",
-    ],
+    ] + SUBGRAPH_SRCS + LOGGING_SRCS,
     hdrs = ["include/xnnpack.h"],
     copts = LOGGING_COPTS + [
         "-Isrc",
@@ -2709,10 +2767,11 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":logging_utils",
         ":memory_planner_test_mode",
-        ":ukernels_test_mode",
         ":operator_run_test_mode",
         ":operators_test_mode",
+        ":ukernels_test_mode",
         "@clog",
         "@FP16",
         "@pthreadpool",
@@ -2750,9 +2809,10 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
-        ":ukernels",
+        ":logging_utils",
         ":operator_run",
         ":operators",
+        ":ukernels",
         "@clog",
         "@pthreadpool",
     ] + select({
@@ -3802,6 +3862,16 @@ xnnpack_unit_test(
         "test/f32-vmulc-minmax.cc",
         "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f16_vmulcaddc_minmax_test",
+    srcs = [
+        "test/f16-vmulcaddc-minmax.cc",
+        "test/vmulcaddc-microkernel-tester.h",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
 

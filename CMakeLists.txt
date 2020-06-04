@@ -181,7 +181,29 @@ SET(XNNPACK_OPERATOR_SRCS
   src/operators/softmax-nc.c
   src/operators/unpooling-nhwc.c)
 
-SET(XNNPACK_COLD_SRCS ${XNNPACK_OPERATOR_SRCS})
+SET(XNNPACK_SUBGRAPH_SRCS
+  src/subgraph/add2.c
+  src/subgraph/argmax-pooling-2d.c
+  src/subgraph/average-pooling-2d.c
+  src/subgraph/clamp.c
+  src/subgraph/convolution-2d.c
+  src/subgraph/deconvolution-2d.c
+  src/subgraph/depthwise-convolution-2d.c
+  src/subgraph/fully-connected.c
+  src/subgraph/hardswish.c
+  src/subgraph/max-pooling-2d.c
+  src/subgraph/multiply2.c
+  src/subgraph/prelu.c
+  src/subgraph/sigmoid.c
+  src/subgraph/softmax.c
+  src/subgraph/static-constant-pad.c
+  src/subgraph/unpooling-2d.c)
+
+SET(XNNPACK_LOGGING_SRCS
+  src/operator-strings.c
+  src/subgraph-strings.c)
+
+SET(XNNPACK_COLD_SRCS ${XNNPACK_OPERATOR_SRCS} ${XNNPACK_SUBGRAPH_SRCS} ${XNNPACK_LOGGING_SRCS})
 LIST(APPEND XNNPACK_COLD_SRCS
   src/init.c
   src/memory.c
@@ -1013,6 +1035,8 @@ SET(XNNPACK_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS
   src/f16-vbinary/gen/vsubc-minmax-neonfp16arith-x8.c
   src/f16-vbinary/gen/vsub-minmax-neonfp16arith-x16.c
   src/f16-vbinary/gen/vsub-minmax-neonfp16arith-x8.c
+  src/f16-vmulcaddc/gen/c16-minmax-neonfp16arith-2x.c
+  src/f16-vmulcaddc/gen/c8-minmax-neonfp16arith-2x.c
   src/f16-gemm/gen/1x8-minmax-neonfp16arith-ld64.c
   src/f16-gemm/gen/4x8-minmax-neonfp16arith-ld64.c
   src/f16-gemm/gen/6x8-minmax-neonfp16arith-ld64.c
@@ -2733,6 +2757,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_INCLUDE_DIRECTORIES(f32-vmulc-minmax-test PRIVATE src test)
   TARGET_LINK_LIBRARIES(f32-vmulc-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-vmulc-minmax-test f32-vmulc-minmax-test)
+
+  ADD_EXECUTABLE(f16-vmulcaddc-minmax-test test/f16-vmulcaddc-minmax.cc)
+  SET_TARGET_PROPERTIES(f16-vmulcaddc-minmax-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f16-vmulcaddc-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(f16-vmulcaddc-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(f16-vmulcaddc-minmax-test f16-vmulcaddc-minmax-test)
 
   ADD_EXECUTABLE(f32-vmulcaddc-minmax-test test/f32-vmulcaddc-minmax.cc)
   SET_TARGET_PROPERTIES(f32-vmulcaddc-minmax-test PROPERTIES
