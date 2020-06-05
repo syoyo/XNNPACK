@@ -15,6 +15,8 @@
 #include <random>
 #include <vector>
 
+#include <fp16.h>
+
 #include <xnnpack.h>
 #include <xnnpack/params-init.h>
 #include <xnnpack/params.h>
@@ -29,6 +31,7 @@ class VBinOpMicrokernelTester {
     Min,
     Mul,
     Sub,
+    SqrDiff,
   };
 
   enum class Variant {
@@ -130,6 +133,12 @@ class VBinOpMicrokernelTester {
           case OpType::Mul:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) * fp16_ieee_to_fp32_value(b_data[i]);
             break;
+          case OpType::SqrDiff:
+          {
+            const float diff = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b_data[i]);
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::Sub:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b_data[i]);
             break;
@@ -186,6 +195,12 @@ class VBinOpMicrokernelTester {
           case OpType::Mul:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) * fp16_ieee_to_fp32_value(b_data[i]);
             break;
+          case OpType::SqrDiff:
+          {
+            const float diff = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b_data[i]);
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::Sub:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b_data[i]);
             break;
@@ -205,7 +220,7 @@ class VBinOpMicrokernelTester {
         y_ref[i] = std::max<float>(std::min<float>(y_ref[i], y_max), y_min);
       }
 
-      // Prepare output parameters.
+      // Prepare parameters.
       xnn_f16_minmax_params params = xnn_init_f16_minmax_params(
         fp16_ieee_from_fp32_value(y_min),
         fp16_ieee_from_fp32_value(y_max));
@@ -259,6 +274,12 @@ class VBinOpMicrokernelTester {
           case OpType::Mul:
             y_ref[i] = a_data[i] * b_data[i];
             break;
+          case OpType::SqrDiff:
+          {
+            const float diff = a_data[i] - b_data[i];
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::Sub:
             y_ref[i] = a_data[i] - b_data[i];
             break;
@@ -314,6 +335,12 @@ class VBinOpMicrokernelTester {
           case OpType::Mul:
             y_ref[i] = a_data[i] * b_data[i];
             break;
+          case OpType::SqrDiff:
+          {
+            const float diff = a_data[i] - b_data[i];
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::Sub:
             y_ref[i] = a_data[i] - b_data[i];
             break;
@@ -332,7 +359,7 @@ class VBinOpMicrokernelTester {
         y_ref[i] = std::max<float>(std::min<float>(y_ref[i], y_max), y_min);
       }
 
-      // Prepare output parameters.
+      // Prepare parameters.
       xnn_f32_minmax_params params = { };
       switch (variant) {
         case Variant::Native:

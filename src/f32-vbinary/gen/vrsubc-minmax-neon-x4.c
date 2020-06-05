@@ -20,7 +20,7 @@ void xnn_f32_vrsubc_minmax_ukernel__neon_x4(
     const float* a,
     const float* b,
     float* y,
-    const union xnn_f32_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])
+    const union xnn_f32_minmax_params params[restrict XNN_MIN_ELEMENTS(1)]) XNN_DISABLE_TSAN
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
@@ -33,6 +33,7 @@ void xnn_f32_vrsubc_minmax_ukernel__neon_x4(
     const float32x4_t va0123 = vld1q_f32(a); a += 4;
 
     float32x4_t vy0123 = vsubq_f32(vb, va0123);
+
 
     vy0123 = vmaxq_f32(vy0123, vy_min);
 

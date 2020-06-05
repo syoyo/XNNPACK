@@ -15,6 +15,8 @@
 #include <random>
 #include <vector>
 
+#include <fp16.h>
+
 #include <xnnpack.h>
 #include <xnnpack/params-init.h>
 #include <xnnpack/params.h>
@@ -29,6 +31,8 @@ class VBinOpCMicrokernelTester {
     MaxC,
     MinC,
     MulC,
+    SqrDiffC,
+    RSqrDiffC,
     SubC,
     RSubC,
   };
@@ -124,6 +128,18 @@ class VBinOpCMicrokernelTester {
           case OpType::MulC:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) * fp16_ieee_to_fp32_value(b);
             break;
+          case OpType::SqrDiffC:
+          {
+            const float diff = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b);
+            y_ref[i] = diff * diff;
+            break;
+          }
+          case OpType::RSqrDiffC:
+          {
+            const float diff = fp16_ieee_to_fp32_value(b) - fp16_ieee_to_fp32_value(a_data[i]);
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::SubC:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b);
             break;
@@ -183,6 +199,18 @@ class VBinOpCMicrokernelTester {
           case OpType::MulC:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) * fp16_ieee_to_fp32_value(b);
             break;
+          case OpType::SqrDiffC:
+          {
+            const float diff = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b);
+            y_ref[i] = diff * diff;
+            break;
+          }
+          case OpType::RSqrDiffC:
+          {
+            const float diff = fp16_ieee_to_fp32_value(b) - fp16_ieee_to_fp32_value(a_data[i]);
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::SubC:
             y_ref[i] = fp16_ieee_to_fp32_value(a_data[i]) - fp16_ieee_to_fp32_value(b);
             break;
@@ -204,7 +232,7 @@ class VBinOpCMicrokernelTester {
         y_ref[i] = std::max<float>(std::min<float>(y_ref[i], y_max), y_min);
       }
 
-      // Prepare output parameters.
+      // Prepare parameters.
       xnn_f16_minmax_params params = xnn_init_f16_minmax_params(
          fp16_ieee_from_fp32_value(y_min),
          fp16_ieee_from_fp32_value(y_max));
@@ -259,6 +287,18 @@ class VBinOpCMicrokernelTester {
           case OpType::MulC:
             y_ref[i] = a_data[i] * b;
             break;
+          case OpType::SqrDiffC:
+          {
+            const float diff = a_data[i] - b;
+            y_ref[i] = diff * diff;
+            break;
+          }
+          case OpType::RSqrDiffC:
+          {
+            const float diff = b - a_data[i];
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::SubC:
             y_ref[i] = a_data[i] - b;
             break;
@@ -317,6 +357,18 @@ class VBinOpCMicrokernelTester {
           case OpType::MulC:
             y_ref[i] = a_data[i] * b;
             break;
+          case OpType::SqrDiffC:
+          {
+            const float diff = a_data[i] - b;
+            y_ref[i] = diff * diff;
+            break;
+          }
+          case OpType::RSqrDiffC:
+          {
+            const float diff = b - a_data[i];
+            y_ref[i] = diff * diff;
+            break;
+          }
           case OpType::SubC:
             y_ref[i] = a_data[i] - b;
             break;
@@ -338,7 +390,7 @@ class VBinOpCMicrokernelTester {
         y_ref[i] = std::max<float>(std::min<float>(y_ref[i], y_max), y_min);
       }
 
-      // Prepare output parameters.
+      // Prepare parameters.
       xnn_f32_minmax_params params = { };
       switch (variant) {
         case Variant::Native:

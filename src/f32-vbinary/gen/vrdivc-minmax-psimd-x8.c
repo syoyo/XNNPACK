@@ -20,7 +20,7 @@ void xnn_f32_vrdivc_minmax_ukernel__psimd_x8(
     const float* a,
     const float* b,
     float* y,
-    const union xnn_f32_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])
+    const union xnn_f32_minmax_params params[restrict XNN_MIN_ELEMENTS(1)]) XNN_DISABLE_TSAN
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
@@ -36,6 +36,7 @@ void xnn_f32_vrdivc_minmax_ukernel__psimd_x8(
 
     psimd_f32 vy0123 = psimd_div_f32(vb, va0123);
     psimd_f32 vy4567 = psimd_div_f32(vb, va4567);
+
 
     vy0123 = psimd_max_f32(vy0123, vy_min);
     vy4567 = psimd_max_f32(vy4567, vy_min);

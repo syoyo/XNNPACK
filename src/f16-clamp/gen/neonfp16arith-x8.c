@@ -19,13 +19,13 @@ void xnn_f16_clamp_ukernel__neonfp16arith_x8(
     size_t n,
     const void* restrict x_ptr,
     void* restrict y_ptr,
-    const struct xnn_f16_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])
+    const struct xnn_f16_minmax_params params[restrict XNN_MIN_ELEMENTS(1)]) XNN_DISABLE_TSAN
 {
   assert(n != 0);
   assert(n % sizeof(__fp16) == 0);
 
-  const __fp16* x = x_ptr;
-  __fp16* y = y_ptr;
+  const __fp16* x = (const __fp16*) x_ptr;
+  __fp16* y = (__fp16*) y_ptr;
 
   const float16x8_t vy_min = vld1q_dup_f16(&params->min);
   const float16x8_t vy_max = vld1q_dup_f16(&params->max);

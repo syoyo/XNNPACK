@@ -24,28 +24,26 @@ enum xnn_ukernel_type {
   xnn_ukernel_type_average_pooling,
   xnn_ukernel_type_binary_elementwise,
   xnn_ukernel_type_channel_shuffle,
-  xnn_ukernel_type_clamp,
   xnn_ukernel_type_conv2d_hwc2chw,
   xnn_ukernel_type_dwconv,
   xnn_ukernel_type_gemm,
   xnn_ukernel_type_global_average_pooling,
-  xnn_ukernel_type_hswish,
   xnn_ukernel_type_igemm,
   xnn_ukernel_type_lut,
   xnn_ukernel_type_max_pooling,
   xnn_ukernel_type_pad,
   xnn_ukernel_type_pixelwise_average_pooling,
   xnn_ukernel_type_prelu,
-  xnn_ukernel_type_sigmoid,
   xnn_ukernel_type_softmax,
   xnn_ukernel_type_spmm,
   xnn_ukernel_type_subconv2d,
+  xnn_ukernel_type_unary_elementwise,
   xnn_ukernel_type_unpooling,
   xnn_ukernel_type_vmulcaddc,
 };
 
 enum xnn_operator_type {
-  xnn_operator_type_none = 0,
+  xnn_operator_type_invalid = 0,
   xnn_operator_type_add_nc_f32,
   xnn_operator_type_add_nd_f32,
   xnn_operator_type_add_nc_q8,
@@ -58,9 +56,10 @@ enum xnn_operator_type {
   xnn_operator_type_clamp_nc_f32,
   xnn_operator_type_clamp_nc_u8,
   xnn_operator_type_constant_pad_nd_x32,
+  xnn_operator_type_convolution_nchw_f32,
   xnn_operator_type_convolution_nhwc_f32,
   xnn_operator_type_convolution_nhwc_q8,
-  xnn_operator_type_convolution_nchw_f32,
+  xnn_operator_type_copy_nc_x32,
   xnn_operator_type_deconvolution_nhwc_f32,
   xnn_operator_type_deconvolution_nhwc_q8,
   xnn_operator_type_divide_nd_f32,
@@ -242,33 +241,31 @@ struct xnn_operator {
 
   union {
     // Parameters for Global Average Pooling in CHW layout
-    union xnn_f32_gavgpool_params f32_gavgpool_params;
-    union xnn_f32_hswish_params f32_hswish_params;
+    union xnn_f32_gavgpool_params f32_gavgpool;
+    union xnn_f32_hswish_params f32_hswish;
     // Pixelwise Average Pooling normally use f32_minmax_params, but also initialize
     // f32_scaleminmax_params in case it needs to switch to Global Average Pooling operation.
     struct {
-      union xnn_f32_scaleminmax_params f32_scaleminmax_params;
-      union xnn_f32_minmax_params f32_minmax_params;
+      union xnn_f32_minmax_params f32_minmax;
+      union xnn_f32_scaleminmax_params f32_scaleminmax;
     };
-    union xnn_f32_chw_params f32_chw_params;
-    union xnn_q8_add_params q8_add_params;
-    union xnn_q8_gemm_params q8_gemm_params;
+    union xnn_f32_chw_params f32_chw;
+    union xnn_q8_add_params q8_add;
+    union xnn_q8_gemm_params q8_gemm;
     // Average Pooling normally use q8_avgpool_params, but also initialize q8_gavgpool_params in case it needs to switch
     // to Global Average Pooling operation.
     struct {
-      union xnn_q8_avgpool_params q8_avgpool_params;
-      union xnn_q8_avgpool_params q8_gavgpool_params;
+      union xnn_q8_avgpool_params q8_avgpool;
+      union xnn_q8_avgpool_params q8_gavgpool;
     };
-    union xnn_u8_minmax_params u8_minmax_params;
-  };
+    union xnn_u8_minmax_params u8_minmax;
+  } params;
   enum xnn_operator_type type;
   struct xnn_ukernel ukernel;
 
   struct compute_parameters compute;
   struct compute_parameters compute2;
   union {
-    struct add_contiguous_context add_contiguous;
-    struct add_strided_context add_strided;
     struct argmax_pooling_context argmax_pooling;
     struct average_pooling_context average_pooling;
     struct channel_pad_context channel_pad;

@@ -13,6 +13,7 @@
 #include <cpuinfo.h>
 
 #include <benchmark/benchmark.h>
+#include <fp16/fp16.h>
 #include "bench/conv.h"
 #include "bench/utils.h"
 #include <xnnpack/AlignedAllocator.h>
@@ -27,13 +28,12 @@
 
 static void IGEMMBenchmark(benchmark::State& state,
   xnn_f16_igemm_minmax_ukernel_function f16_igemm,
-  uint32_t mr, uint32_t nr, uint32_t kr, uint32_t sr,
-  benchmark::utils::IsaCheckFunction isa_check = nullptr)
+  uint32_t mr, uint32_t nr, uint32_t kr, uint32_t sr)
 {
   if (!cpuinfo_initialize()) {
     state.SkipWithError("cpuinfo initialization failed");
   }
-  if (isa_check && !isa_check(state)) {
+  if (!benchmark::utils::CheckNEONFP16ARITH(state)) {
     return;
   }
 
@@ -114,7 +114,7 @@ static void IGEMMBenchmark(benchmark::State& state,
   convolution_op.dilation_width       = dilation;
   convolution_op.padding_top          = padding_top;
   convolution_op.padding_left         = padding_left;
-  xnn_indirection_init_conv2d(&convolution_op, mr, 2 /* log2(sizeof(uint16_t)) */);
+  xnn_indirection_init_conv2d(&convolution_op, mr, 1 /* log2(sizeof(uint16_t)) */);
   for (size_t n = 1; n < num_buffers; n++) {
     std::copy(i.cbegin(), i.cbegin() + i_elements, i.begin() + n * i_elements);
   }

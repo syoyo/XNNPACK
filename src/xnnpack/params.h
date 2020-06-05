@@ -837,6 +837,18 @@ typedef void (*xnn_f32_dwconv_minmax_unipass_ukernel_function)(
     const float* zero,
     const union xnn_f32_minmax_params* params);
 
+typedef void (*xnn_f16_dwconv_minmax_unipass_ukernel_function)(
+    size_t channels,
+    size_t output_width,
+    const void** input,
+    const void* weights,
+    void* output,
+    size_t input_stride,
+    size_t output_increment,
+    size_t input_offset,
+    const void* zero,
+    const struct xnn_f16_minmax_params* params);
+
 typedef void (*xnn_q8_dwconv_minmax_unipass_ukernel_function)(
     size_t channels,
     size_t output_width,
@@ -889,6 +901,15 @@ typedef void (*xnn_gavgpool_unipass_ukernel_function)(
     void* output,
     const void* params);
 
+typedef void (*xnn_f16_gavgpool_minmax_unipass_ukernel_function)(
+    size_t rows,
+    size_t channels,
+    const void* input,
+    size_t input_stride,
+    const void* zero,
+    void* output,
+    const struct xnn_f16_scaleminmax_params* params);
+
 typedef void (*xnn_f32_gavgpool_minmax_unipass_ukernel_function)(
     size_t rows,
     size_t channels,
@@ -916,6 +937,16 @@ typedef void (*xnn_gavgpool_multipass_ukernel_function)(
     void* buffer,
     void* output,
     const void* params);
+
+typedef void (*xnn_f16_gavgpool_minmax_multipass_ukernel_function)(
+    size_t rows,
+    size_t channels,
+    const void* input,
+    size_t input_stride,
+    const void* zero,
+    void* buffer,
+    void* output,
+    const struct xnn_f16_scaleminmax_params* params);
 
 typedef void (*xnn_f32_gavgpool_minmax_multipass_ukernel_function)(
     size_t rows,
@@ -1292,6 +1323,16 @@ typedef void (*xnn_vmulcaddc_ukernel_function)(
     void* y,
     size_t y_stride,
     const void* params);
+
+typedef void (*xnn_f16_vmulcaddc_ukernel_function)(
+    size_t m,
+    size_t c,
+    const void* x,
+    size_t x_stride,
+    const void* w,
+    void* y,
+    size_t y_stride,
+    const struct xnn_f16_minmax_params* params);
 
 typedef void (*xnn_f32_vmulcaddc_ukernel_function)(
     size_t m,

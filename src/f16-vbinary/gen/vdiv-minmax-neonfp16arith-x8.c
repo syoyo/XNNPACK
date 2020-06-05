@@ -20,14 +20,14 @@ void xnn_f16_vdiv_minmax_ukernel__neonfp16arith_x8(
     const void* restrict a_ptr,
     const void* restrict b_ptr,
     void* restrict y_ptr,
-    const struct xnn_f16_minmax_params params[restrict XNN_MIN_ELEMENTS(1)])
+    const struct xnn_f16_minmax_params params[restrict XNN_MIN_ELEMENTS(1)]) XNN_DISABLE_TSAN
 {
   assert(n != 0);
   assert(n % sizeof(__fp16) == 0);
 
-  const __fp16* a = a_ptr;
-  const __fp16* b = b_ptr;
-  __fp16* y = y_ptr;
+  const __fp16* a = (const __fp16*) a_ptr;
+  const __fp16* b = (const __fp16*) b_ptr;
+  __fp16* y = (__fp16*) y_ptr;
 
   const float16x8_t vy_min = vld1q_dup_f16(&params->min);
   const float16x8_t vy_max = vld1q_dup_f16(&params->max);
@@ -37,6 +37,7 @@ void xnn_f16_vdiv_minmax_ukernel__neonfp16arith_x8(
     const float16x8_t vb01234567 = vld1q_f16(b); b += 8;
 
     float16x8_t vy01234567 = vdivq_f16(va01234567, vb01234567);
+
 
     vy01234567 = vmaxq_f16(vy01234567, vy_min);
 

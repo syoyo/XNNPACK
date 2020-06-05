@@ -16,6 +16,8 @@
 #include <random>
 #include <vector>
 
+#include <fp16.h>
+
 #include <xnnpack.h>
 #include <xnnpack/AlignedAllocator.h>
 #include <xnnpack/params-init.h>
@@ -256,7 +258,7 @@ class SpMMMicrokernelTester {
         c_value = std::min(std::max(c_value, c_min), c_max);
       }
 
-      // Prepare minmax parameters.
+      // Prepare parameters.
       xnn_f32_minmax_params params = { };
       switch (variant) {
         case Variant::Native:
@@ -428,7 +430,7 @@ class SpMMMicrokernelTester {
         c_value = std::min(std::max(c_value, c_min), c_max);
       }
 
-      // Prepare scaleminmax parameters.
+      // Prepare parameters.
       xnn_f16_scaleminmax_params params;
       params.scale = UINT16_C(0x3C00) /* 1.0 */;
       params.max = fp16_ieee_from_fp32_value(c_max);
