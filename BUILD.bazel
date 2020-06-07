@@ -53,7 +53,6 @@ OPERATOR_SRCS = [
     "src/operators/argmax-pooling-nhwc.c",
     "src/operators/average-pooling-nhwc.c",
     "src/operators/binary-elementwise-nd.c",
-    "src/operators/channel-pad-nc.c",
     "src/operators/channel-shuffle-nc.c",
     "src/operators/constant-pad-nd.c",
     "src/operators/convolution-nchw.c",
@@ -80,14 +79,19 @@ SUBGRAPH_SRCS = [
     "src/subgraph/convolution-2d.c",
     "src/subgraph/deconvolution-2d.c",
     "src/subgraph/depthwise-convolution-2d.c",
+    "src/subgraph/divide.c",
     "src/subgraph/fully-connected.c",
     "src/subgraph/hardswish.c",
     "src/subgraph/max-pooling-2d.c",
+    "src/subgraph/maximum2.c",
+    "src/subgraph/minimum2.c",
     "src/subgraph/multiply2.c",
     "src/subgraph/prelu.c",
     "src/subgraph/sigmoid.c",
     "src/subgraph/softmax.c",
     "src/subgraph/static-constant-pad.c",
+    "src/subgraph/squared-difference.c",
+    "src/subgraph/subtract.c",
     "src/subgraph/unpooling-2d.c",
 ]
 
@@ -418,18 +422,9 @@ WASM_UKERNELS = [
     "src/f32-vbinary/gen/vrdivc-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vrdivc-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vrdivc-minmax-wasm-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-wasm-x1.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-wasm-x2.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-wasm-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vrsubc-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vrsubc-minmax-wasm-x4.c",
-    "src/f32-vbinary/gen/vsqrdiff-wasm-x1.c",
-    "src/f32-vbinary/gen/vsqrdiff-wasm-x2.c",
-    "src/f32-vbinary/gen/vsqrdiff-wasm-x4.c",
-    "src/f32-vbinary/gen/vsqrdiffc-wasm-x1.c",
-    "src/f32-vbinary/gen/vsqrdiffc-wasm-x2.c",
-    "src/f32-vbinary/gen/vsqrdiffc-wasm-x4.c",
     "src/f32-vbinary/gen/vsub-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vsub-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vsub-minmax-wasm-x4.c",
@@ -4264,15 +4259,6 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "channel_pad_nc_test",
-    srcs = [
-        "test/channel-pad-nc.cc",
-        "test/channel-pad-operator-tester.h",
-    ] + OPERATOR_TEST_PARAMS_HDRS,
-    deps = OPERATOR_TEST_DEPS,
-)
-
-xnnpack_unit_test(
     name = "channel_shuffle_nc_test",
     srcs = [
         "test/channel-shuffle-nc.cc",
@@ -4457,6 +4443,15 @@ xnnpack_unit_test(
     srcs = [
         "test/softmax-nc.cc",
         "test/softmax-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "squared_difference_nd_test",
+    srcs = [
+        "test/binary-elementwise-operator-tester.h",
+        "test/squared-difference-nd.cc",
     ],
     deps = OPERATOR_TEST_DEPS,
 )

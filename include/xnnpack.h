@@ -612,6 +612,135 @@ enum xnn_status xnn_define_multiply2(
   uint32_t output_id,
   uint32_t flags);
 
+/// Define a Subtract Node and add it to a Subgraph.
+///
+/// The Subtract Node computes elementwise subtraction of two tensor inputs with numpy broadcasting rules.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param output_min - lower bound for clipping output values.
+/// @param output_max - upper bound for clipping output values.
+/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the second
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param input2_id - Value ID for the second input tensor. The input tensor must be an M-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the first
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a max(N,M)-dimensional tensor defined
+///                    in the @a subgraph with each dimension equal to the maximum between the corresponding dimension
+///                    of the two inputs.
+/// @param flags - binary features of the Subtract Node. No supported flags are currently defined.
+enum xnn_status xnn_define_subtract(
+  xnn_subgraph_t subgraph,
+  float output_min,
+  float output_max,
+  uint32_t input1_id,
+  uint32_t input2_id,
+  uint32_t output_id,
+  uint32_t flags);
+
+/// Define a Divide Node and add it to a Subgraph.
+///
+/// The Divide Node computes elementwise division of two tensor inputs with numpy broadcasting rules.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param output_min - lower bound for clipping output values.
+/// @param output_max - upper bound for clipping output values.
+/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the second
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param input2_id - Value ID for the second input tensor. The input tensor must be an M-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the first
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a max(N,M)-dimensional tensor defined
+///                    in the @a subgraph with each dimension equal to the maximum between the corresponding dimension
+///                    of the two inputs.
+/// @param flags - binary features of the Divide Node. No supported flags are currently defined.
+enum xnn_status xnn_define_divide(
+  xnn_subgraph_t subgraph,
+  float output_min,
+  float output_max,
+  uint32_t input1_id,
+  uint32_t input2_id,
+  uint32_t output_id,
+  uint32_t flags);
+
+/// Define a 2-Input Maximum Node and add it to a Subgraph.
+///
+/// The 2-Input Maximum Node computes elementwise maximum of two tensor inputs with numpy broadcasting rules.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the second
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param input2_id - Value ID for the second input tensor. The input tensor must be an M-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the first
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a max(N,M)-dimensional tensor defined
+///                    in the @a subgraph with each dimension equal to the maximum between the corresponding dimension
+///                    of the two inputs.
+/// @param flags - binary features of the Maximum Node. No supported flags are currently defined.
+enum xnn_status xnn_define_maximum2(
+  xnn_subgraph_t subgraph,
+  uint32_t input1_id,
+  uint32_t input2_id,
+  uint32_t output_id,
+  uint32_t flags);
+
+/// Define a 2-Input Minimum Node and add it to a Subgraph.
+///
+/// The 2-Input Minimum Node computes elementwise minimum of two tensor inputs with numpy broadcasting rules.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the second
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param input2_id - Value ID for the second input tensor. The input tensor must be an M-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the first
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a max(N,M)-dimensional tensor defined
+///                    in the @a subgraph with each dimension equal to the maximum between the corresponding dimension
+///                    of the two inputs.
+/// @param flags - binary features of the Minimum Node. No supported flags are currently defined.
+enum xnn_status xnn_define_minimum2(
+  xnn_subgraph_t subgraph,
+  uint32_t input1_id,
+  uint32_t input2_id,
+  uint32_t output_id,
+  uint32_t flags);
+
+/// Define a Squared Difference Node and add it to a Subgraph.
+///
+/// The Squared Difference Node computes elementwise squared difference of two tensor inputs with numpy broadcasting
+/// rules.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param input1_id - Value ID for the first input tensor. The input tensor must be an N-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the second
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param input2_id - Value ID for the second input tensor. The input tensor must be an M-dimensional tensor defined in
+///                    the @a subgraph with each dimension either equal to the corresponding dimension of the first
+///                    input, or equal to 1. In the latter case, the elements of the input tensor are broadcasted along
+///                    that dimension.
+/// @param output_id - Value ID for the output tensor. The output tensor must be a max(N,M)-dimensional tensor defined
+///                    in the @a subgraph with each dimension equal to the maximum between the corresponding dimension
+///                    of the two inputs.
+/// @param flags - binary features of the Squared Difference Node. No supported flags are currently defined.
+enum xnn_status xnn_define_squared_difference(
+  xnn_subgraph_t subgraph,
+  uint32_t input1_id,
+  uint32_t input2_id,
+  uint32_t output_id,
+  uint32_t flags);
+
 /// Define a Constant Pad Node with static padding specification and add it to a Subgraph.
 ///
 /// @param subgraph - a Subgraph object that will own the created Node.
@@ -1142,6 +1271,21 @@ enum xnn_status xnn_setup_softmax_nc_f32(
   float* output,
   pthreadpool_t threadpool);
 
+enum xnn_status xnn_create_squared_difference_nd_f32(
+  uint32_t flags,
+  xnn_operator_t* squared_difference_op_out);
+
+enum xnn_status xnn_setup_squared_difference_nd_f32(
+  xnn_operator_t squared_difference_op,
+  size_t num_input1_dims,
+  const size_t* input1_shape,
+  size_t num_input2_dims,
+  const size_t* input2_shape,
+  const float* input1,
+  const float* input2,
+  float* output,
+  pthreadpool_t threadpool);
+
 enum xnn_status xnn_create_subtract_nd_f32(
   float output_min,
   float output_max,
@@ -1213,23 +1357,6 @@ enum xnn_status xnn_setup_global_average_pooling_ncw_f32(
 #endif  // XNN_NO_F32_OPERATORS
 
 #ifndef XNN_NO_X32_OPERATORS
-
-enum xnn_status xnn_create_channel_pad_nc_x32(
-  size_t input_channels,
-  size_t pad_before_channels,
-  size_t pad_after_channels,
-  size_t input_stride,
-  size_t output_stride,
-  const void* pad_value,
-  uint32_t flags,
-  xnn_operator_t* channel_pad_op_out);
-
-enum xnn_status xnn_setup_channel_pad_nc_x32(
-  xnn_operator_t channel_pad_op,
-  size_t batch_size,
-  const void* input,
-  void* output,
-  pthreadpool_t threadpool);
 
 enum xnn_status xnn_create_channel_shuffle_nc_x32(
   size_t groups,
