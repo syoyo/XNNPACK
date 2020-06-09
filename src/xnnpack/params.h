@@ -55,6 +55,24 @@ union xnn_f32_minmax_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
+union xnn_f32_abs_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float nonsign_mask[4];
+  } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
+union xnn_f32_neg_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float sign_mask[4];
+  } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
 union xnn_f32_chw_params {
   struct {
     float min;
@@ -1654,9 +1672,12 @@ struct xnn_parameters {
     struct argmaxpool_parameters argmaxpool[XNN_MAX_F32_ARGMAXPOOL_UKERNELS];
     // Bilinear interpolation (2D).
     struct ibilinear_parameters ibilinear;
+    xnn_univector_ukernel_function abs;
     xnn_univector_ukernel_function clamp;
     xnn_univector_ukernel_function hswish;
+    xnn_univector_ukernel_function neg;
     xnn_univector_ukernel_function sigmoid;
+    xnn_univector_ukernel_function sqr;
     struct prelu_parameters prelu;
     struct vbinary_parameters vadd;
     struct vbinary_parameters vdiv;
