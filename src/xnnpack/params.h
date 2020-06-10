@@ -73,6 +73,16 @@ union xnn_f32_neg_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
+union xnn_f32_rnd_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float sign_mask[4];
+    XNN_ALIGN(16) float one[4];
+  } sse2;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
 union xnn_f32_chw_params {
   struct {
     float min;
@@ -1676,6 +1686,10 @@ struct xnn_parameters {
     xnn_univector_ukernel_function clamp;
     xnn_univector_ukernel_function hswish;
     xnn_univector_ukernel_function neg;
+    xnn_univector_ukernel_function rndne;
+    xnn_univector_ukernel_function rndz;
+    xnn_univector_ukernel_function rndu;
+    xnn_univector_ukernel_function rndd;
     xnn_univector_ukernel_function sigmoid;
     xnn_univector_ukernel_function sqr;
     struct prelu_parameters prelu;
