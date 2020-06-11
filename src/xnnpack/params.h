@@ -83,8 +83,20 @@ union xnn_f32_rnd_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
+union xnn_f32_lrelu_params {
+  struct {
+    float slope;
+  } scalar;
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float slope[4];
+  } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
 union xnn_f32_chw_params {
   struct {
+    XNN_ALIGN(16) int32_t mask[4]; // used by stride 1 kernels
     float min;
     float max;
   } scalar;
@@ -144,6 +156,7 @@ union xnn_f32_scaleminmax_params {
 
 union xnn_f32_gavgpool_params {
   struct {
+    XNN_ALIGN(16) int32_t mask[4];
     float multiplier;
     float output_min;
     float output_max;
@@ -1685,6 +1698,7 @@ struct xnn_parameters {
     xnn_univector_ukernel_function abs;
     xnn_univector_ukernel_function clamp;
     xnn_univector_ukernel_function hswish;
+    xnn_univector_ukernel_function lrelu;
     xnn_univector_ukernel_function neg;
     xnn_univector_ukernel_function rndne;
     xnn_univector_ukernel_function rndz;

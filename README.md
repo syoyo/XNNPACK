@@ -40,6 +40,7 @@ XNNPACK implements the following neural network operators:
 - Copy
 - Floor (rounding to integer below)
 - HardSwish
+- Leaky ReLU
 - Negate
 - Sigmoid
 - Softmax
@@ -108,4 +109,4 @@ Benchmarked on May 22, 2020 with `end2end-bench --benchmark_min_time=5` on a Ras
 
 ## Acknowledgements
 
-XNNPACK is a based on [QNNPACK](https://github.com/pytorch/QNNPACK) library. Unlike QNNPACK, XNNPACK focuses entirely on floating-point operators, and its API is no longer compatible with QNNPACK.
+XNNPACK is a based on [QNNPACK](https://github.com/pytorch/QNNPACK) library. Over time its codebase diverged a lot, and XNNPACK API is no longer compatible with QNNPACK.

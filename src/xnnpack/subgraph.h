@@ -68,9 +68,12 @@ struct xnn_blob {
 
 enum xnn_node_type {
   xnn_node_type_invalid = 0,
+  xnn_node_type_abs,
   xnn_node_type_add2,
   xnn_node_type_argmax_pooling_2d,
   xnn_node_type_average_pooling_2d,
+  xnn_node_type_bankers_rounding,
+  xnn_node_type_ceiling,
   xnn_node_type_clamp,
   xnn_node_type_constant_pad,
   xnn_node_type_convolution_2d,
@@ -78,14 +81,18 @@ enum xnn_node_type {
   xnn_node_type_depthwise_convolution_2d,
   xnn_node_type_divide,
   xnn_node_type_fully_connected,
+  xnn_node_type_floor,
   xnn_node_type_hardswish,
+  xnn_node_type_leaky_relu,
   xnn_node_type_max_pooling_2d,
   xnn_node_type_maximum2,
   xnn_node_type_minimum2,
   xnn_node_type_multiply2,
+  xnn_node_type_negate,
   xnn_node_type_prelu,
   xnn_node_type_sigmoid,
   xnn_node_type_softmax,
+  xnn_node_type_square,
   xnn_node_type_squared_difference,
   xnn_node_type_subtract,
   xnn_node_type_unpooling_2d,
@@ -154,6 +161,9 @@ struct xnn_node {
       uint32_t dilation_height;
       uint32_t dilation_width;
     } pooling_2d;
+    struct {
+      float negative_slope;
+    } leaky_relu;
     struct {
       size_t pre_paddings[XNN_MAX_TENSOR_DIMS];
       size_t post_paddings[XNN_MAX_TENSOR_DIMS];
