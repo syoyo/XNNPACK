@@ -96,6 +96,8 @@ union xnn_f32_lrelu_params {
 
 union xnn_f32_chw_params {
   struct {
+    XNN_ALIGN(16) int32_t mask_even[4]; // used by stride 2 kernels
+    XNN_ALIGN(16) int32_t mask_odd[4];  // used by stride 2 kernels
     XNN_ALIGN(16) int32_t mask[4]; // used by stride 1 kernels
     float min;
     float max;
@@ -1684,6 +1686,9 @@ struct xnn_parameters {
     xnn_x8_lut_ukernel_function lut;
     struct zip_parameters zip;
   } x8;
+  struct {
+    struct gavgpool_parameters gavgpool;
+  } f16;
   struct {
     struct gemm_parameters gemm;
     struct gemm_parameters gemm2;

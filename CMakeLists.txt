@@ -192,6 +192,7 @@ SET(XNNPACK_SUBGRAPH_SRCS
   src/subgraph/divide.c
   src/subgraph/fully-connected.c
   src/subgraph/floor.c
+  src/subgraph/global-average-pooling-2d.c
   src/subgraph/hardswish.c
   src/subgraph/leaky-relu.c
   src/subgraph/max-pooling-2d.c
@@ -487,6 +488,9 @@ SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
   src/f32-clamp/gen/psimd-x8.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c
   src/f32-dwconv-chw/3x3p1-psimd.c
+  src/f32-dwconv-chw/3x3s2p1-psimd.c
+  src/f32-dwconv-chw/5x5p2-psimd.c
+  src/f32-dwconv-chw/5x5s2p2-psimd.c
   src/f32-dwconv/gen/up4x25-minmax-psimd-acc2.c
   src/f32-dwconv/gen/up4x25-minmax-psimd.c
   src/f32-dwconv/gen/up4x4-minmax-psimd-acc2.c
@@ -1852,7 +1856,6 @@ SET(XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS
   src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-cortex-a73.S
   src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-cortex-a57.S
   src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-cortex-a75.S
-  src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-ios.S
   src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-ld128.S
   src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-ld64.S
   src/f32-gemm/gen-inc/1x8inc-minmax-aarch64-neonfma-ld64.S
@@ -1874,7 +1877,6 @@ SET(XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS
   src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-cortex-a73.S
   src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-cortex-a57.S
   src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-cortex-a75.S
-  src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-ios.S
   src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-ld128.S
   src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-ld64.S
   src/f32-igemm/1x12-minmax-aarch64-neonfma-cortex-a53.S
@@ -1892,8 +1894,7 @@ SET(XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS
   src/f32-igemm/6x8-minmax-aarch64-neonfma-cortex-a55.S
   src/f32-igemm/6x8-minmax-aarch64-neonfma-cortex-a73.S
   src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a57.S
-  src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a75.S
-  src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-ios.S)
+  src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a75.S)
 
 SET(XNNPACK_MICROKERNEL_SRCS ${XNNPACK_SCALAR_MICROKERNEL_SRCS})
 IF(NOT EMSCRIPTEN AND NOT MSVC AND NOT CMAKE_C_COMPILER_ID STREQUAL "Intel")
@@ -3514,7 +3515,7 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
   TARGET_INCLUDE_DIRECTORIES(global-average-pooling-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-  TARGET_LINK_LIBRARIES(global-average-pooling-bench PRIVATE XNNPACK cpuinfo benchmark bench-utils)
+  TARGET_LINK_LIBRARIES(global-average-pooling-bench PRIVATE XNNPACK fp16 benchmark bench-utils)
 
   ADD_EXECUTABLE(max-pooling-bench bench/max-pooling.cc)
   SET_TARGET_PROPERTIES(max-pooling-bench PROPERTIES
