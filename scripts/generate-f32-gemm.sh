@@ -113,6 +113,9 @@ tools/xngen src/f32-gemm/6x8-aarch64-neonfma-ld128.S.in       -D INC=1 -o src/f3
 tools/xngen src/f32-gemm/4x8-aarch32-neon-cortex-a75.S.in  -D INC=0 -D PREFETCH=0 -o src/f32-gemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S
 tools/xngen src/f32-gemm/4x8-aarch32-neon-cortex-a75.S.in  -D INC=0 -D PREFETCH=1 -o src/f32-gemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S
 
+tools/xngen src/f32-gemm/4x8-minmax-aarch32-neon-ld64.S.in -D INC=0 -D PREFETCH=0 -o src/f32-gemm/gen/4x8-minmax-aarch32-neon-ld64.S
+tools/xngen src/f32-gemm/4x8-minmax-aarch32-neon-ld64.S.in -D INC=0 -D PREFETCH=1 -o src/f32-gemm/gen/4x8-minmax-aarch32-neon-pld-ld64.S
+
 ################################### ARM NEON ##################################
 ### LD64 micro-kernels
 tools/xngen src/f32-gemm/neon-ld64.c.in      -D MR=1 -D NR=8  -D FMA=0 -D INC=0 -D DUP=0 -o src/f32-gemm/gen/1x8-minmax-neon-lane-ld64.c
@@ -213,6 +216,112 @@ tools/xngen src/f32-gemm/psimd-s4.c.in -D MR=6 -D NR=8 -D INC=0 -o src/f32-gemm/
 tools/xngen src/f32-gemm/psimd-s4.c.in -D MR=6 -D NR=8 -D INC=1 -o src/f32-gemm/gen-inc/6x8s4inc-minmax-psimd.c
 ### MRx2 micro-kernels
 tools/xngen src/f32-gemm/MRx2c4-psimd.c.in -D MR=4 -D NR=2 -o src/f32-gemm/gen/4x2c4-minmax-psimd.c
+
+################################## WAsm SIMD ##################################
+### LOAD1+BROADCAST micro-kernels
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8-minmax-wasmsimd-loadsplat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-loadsplat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=3 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/3x8-minmax-wasmsimd-loadsplat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=3 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-loadsplat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/4x8-minmax-wasmsimd-loadsplat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-loadsplat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/5x8-minmax-wasmsimd-loadsplat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-loadsplat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=6 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/6x8-minmax-wasmsimd-loadsplat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=6 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-loadsplat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8-minmax-wasmsimd-loadsplat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-loadsplat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=3 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/3x8-minmax-wasmsimd-loadsplat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=3 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-loadsplat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/4x8-minmax-wasmsimd-loadsplat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-loadsplat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=5 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/5x8-minmax-wasmsimd-loadsplat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=5 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-loadsplat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=6 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/6x8-minmax-wasmsimd-loadsplat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-loadsplat.c.in -D MR=6 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-loadsplat-x86.c
+### LOAD4+DUPLICATE micro-kernels
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8-minmax-wasmsimd-splat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-splat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=3 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/3x8-minmax-wasmsimd-splat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=3 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-splat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/4x8-minmax-wasmsimd-splat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-splat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/5x8-minmax-wasmsimd-splat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-splat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=6 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/6x8-minmax-wasmsimd-splat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=6 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-splat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=RELU   -o src/f32-gemm/gen/1x8-relu-wasmsimd-splat-arm.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=RELU   -o src/f32-gemm/gen/5x8-relu-wasmsimd-splat-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=LINEAR -o src/f32-gemm/gen/1x8-wasmsimd-splat.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=LINEAR -o src/f32-gemm/gen/4x8-wasmsimd-splat.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=LINEAR -o src/f32-gemm/gen/5x8-wasmsimd-splat.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8-minmax-wasmsimd-splat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-splat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=3 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/3x8-minmax-wasmsimd-splat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=3 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-splat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/4x8-minmax-wasmsimd-splat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-splat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=5 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/5x8-minmax-wasmsimd-splat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=5 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-splat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=6 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/6x8-minmax-wasmsimd-splat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=6 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-splat-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=RELU   -o src/f32-gemm/gen/1x8-relu-wasmsimd-splat-x86.c
+tools/xngen src/f32-gemm/wasmsimd-splat.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=RELU   -o src/f32-gemm/gen/4x8-relu-wasmsimd-splat-x86.c
+
+### LOAD4+PERMUTE micro-kernels
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8s4-minmax-wasmsimd-arm.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8s4inc-minmax-wasmsimd-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=3 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/3x8s4-minmax-wasmsimd-arm.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=3 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/3x8s4inc-minmax-wasmsimd-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/4x8s4-minmax-wasmsimd-arm.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=4 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/4x8s4inc-minmax-wasmsimd-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/5x8s4-minmax-wasmsimd-arm.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=5 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/5x8s4inc-minmax-wasmsimd-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=6 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/6x8s4-minmax-wasmsimd-arm.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=6 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/6x8s4inc-minmax-wasmsimd-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8s4-minmax-wasmsimd-arm.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=1 -D NR=8 -D X86=0 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8s4inc-minmax-wasmsimd-arm.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/1x8s4-minmax-wasmsimd-x86.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=1 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/1x8s4inc-minmax-wasmsimd-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=3 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/3x8s4-minmax-wasmsimd-x86.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=3 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/3x8s4inc-minmax-wasmsimd-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/4x8s4-minmax-wasmsimd-x86.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=4 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/4x8s4inc-minmax-wasmsimd-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=5 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/5x8s4-minmax-wasmsimd-x86.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=5 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/5x8s4inc-minmax-wasmsimd-x86.c
+
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=6 -D NR=8 -D X86=1 -D INC=0 -D ACTIVATION=MINMAX -o src/f32-gemm/gen/6x8s4-minmax-wasmsimd-x86.c
+tools/xngen src/f32-gemm/wasmsimd-s4.c.in -D MR=6 -D NR=8 -D X86=1 -D INC=1 -D ACTIVATION=MINMAX -o src/f32-gemm/gen-inc/6x8s4inc-minmax-wasmsimd-x86.c
 
 ################################### x86 SSE ###################################
 ### LOAD1+BROADCAST micro-kernels
