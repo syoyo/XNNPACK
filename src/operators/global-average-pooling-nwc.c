@@ -38,7 +38,7 @@ enum xnn_status xnn_create_global_average_pooling_nwc_q8(
   xnn_operator_t global_average_pooling_op = NULL;
   enum xnn_status status = xnn_status_uninitialized;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to create %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_q8));
     goto error;
@@ -155,8 +155,16 @@ enum xnn_status xnn_create_global_average_pooling_nwc_f16(
   xnn_operator_t global_average_pooling_op = NULL;
   enum xnn_status status = xnn_status_uninitialized;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to create %s operator: XNNPACK is not initialized",
+      xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f16));
+    goto error;
+  }
+
+  status = xnn_status_unsupported_hardware;
+
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_F16) == 0) {
+    xnn_log_error("failed to create %s operator: FP16 operations are not supported",
       xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f16));
     goto error;
   }
@@ -200,10 +208,12 @@ enum xnn_status xnn_create_global_average_pooling_nwc_f16(
     goto error;
   }
 
-  if (output_min >= output_max) {
+  if (fp16_ieee_to_fp32_value(fp16_ieee_from_fp32_value(output_min)) >= fp16_ieee_to_fp32_value(fp16_ieee_from_fp32_value(output_max))) {
     xnn_log_error(
       "failed to create %s operator with [%.7g, %.7g] output range: lower bound must be below upper bound",
-      xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f16), output_min, output_max);
+      xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f16),
+      fp16_ieee_to_fp32_value(fp16_ieee_from_fp32_value(output_min)),
+      fp16_ieee_to_fp32_value(fp16_ieee_from_fp32_value(output_max)));
     goto error;
   }
 
@@ -260,7 +270,7 @@ enum xnn_status xnn_create_global_average_pooling_nwc_f32(
   xnn_operator_t global_average_pooling_op = NULL;
   enum xnn_status status = xnn_status_uninitialized;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to create %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f32));
     goto error;
@@ -366,7 +376,7 @@ enum xnn_status xnn_setup_global_average_pooling_nwc_q8(
   }
   global_average_pooling_op->state = xnn_run_state_invalid;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to setup %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_q8));
     return xnn_status_uninitialized;
@@ -440,10 +450,16 @@ enum xnn_status xnn_setup_global_average_pooling_nwc_f16(
   }
   global_average_pooling_op->state = xnn_run_state_invalid;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to setup %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f16));
     return xnn_status_uninitialized;
+  }
+
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_F16) == 0) {
+    xnn_log_error("failed to setup %s operator: FP16 operations are not supported",
+      xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f16));
+    return xnn_status_unsupported_hardware;
   }
 
   if (width == 0) {
@@ -508,7 +524,7 @@ enum xnn_status xnn_setup_global_average_pooling_nwc_f32(
   }
   global_average_pooling_op->state = xnn_run_state_invalid;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to setup %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_global_average_pooling_nwc_f32));
     return xnn_status_uninitialized;

@@ -1153,8 +1153,8 @@ enum xnn_status xnn_create_convolution2d_nhwc_f32(
   uint32_t groups,
   size_t group_input_channels,
   size_t group_output_channels,
-  size_t input_pixel_stride,
-  size_t output_pixel_stride,
+  size_t input_channel_stride,
+  size_t output_channel_stride,
   const float* kernel,
   const float* bias,
   float output_min,
@@ -1253,23 +1253,6 @@ enum xnn_status xnn_setup_floor_nc_f32(
   size_t batch_size,
   const float* input,
   float* output,
-  pthreadpool_t threadpool);
-
-enum xnn_status xnn_create_global_average_pooling_nwc_f16(
-  size_t channels,
-  size_t input_stride,
-  size_t output_stride,
-  float output_min,
-  float output_max,
-  uint32_t flags,
-  xnn_operator_t* global_average_pooling_op_out);
-
-enum xnn_status xnn_setup_global_average_pooling_nwc_f16(
-  xnn_operator_t global_average_pooling_op,
-  size_t batch_size,
-  size_t width,
-  const void* input,
-  void* output,
   pthreadpool_t threadpool);
 
 enum xnn_status xnn_create_global_average_pooling_nwc_f32(
@@ -1544,6 +1527,8 @@ enum xnn_status xnn_create_convolution2d_nchw_f32(
   uint32_t groups,
   size_t group_input_channels,
   size_t group_output_channels,
+  size_t input_channel_stride,
+  size_t output_channel_stride,
   const float* kernel,
   const float* bias,
   float output_min,
@@ -1554,8 +1539,6 @@ enum xnn_status xnn_create_convolution2d_nchw_f32(
 enum xnn_status xnn_setup_convolution2d_nchw_f32(
   xnn_operator_t convolution_op,
   size_t batch_size,
-  size_t input_batch_stride,
-  size_t output_batch_stride,
   size_t input_height,
   size_t input_width,
   const float* input,
@@ -1651,6 +1634,44 @@ enum xnn_status xnn_setup_unpooling2d_nhwc_x32(
   pthreadpool_t threadpool);
 
 #endif  // XNN_NO_X32_OPERATORS
+
+#ifndef XNN_NO_F16_OPERATORS
+
+enum xnn_status xnn_create_add_nd_f16(
+  float output_min,
+  float output_max,
+  uint32_t flags,
+  xnn_operator_t* add_op_out);
+
+enum xnn_status xnn_setup_add_nd_f16(
+  xnn_operator_t add_op,
+  size_t num_input1_dims,
+  const size_t* input1_shape,
+  size_t num_input2_dims,
+  const size_t* input2_shape,
+  const void* input1,
+  const void* input2,
+  void* output,
+  pthreadpool_t threadpool);
+
+enum xnn_status xnn_create_global_average_pooling_nwc_f16(
+  size_t channels,
+  size_t input_stride,
+  size_t output_stride,
+  float output_min,
+  float output_max,
+  uint32_t flags,
+  xnn_operator_t* global_average_pooling_op_out);
+
+enum xnn_status xnn_setup_global_average_pooling_nwc_f16(
+  xnn_operator_t global_average_pooling_op,
+  size_t batch_size,
+  size_t width,
+  const void* input,
+  void* output,
+  pthreadpool_t threadpool);
+
+#endif  // XNN_NO_F16_OPERATORS
 
 #ifndef XNN_NO_Q8_OPERATORS
 

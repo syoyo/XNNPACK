@@ -607,6 +607,10 @@ WASMSIMD_UKERNELS = [
     "src/f32-igemm/gen/6x8-minmax-wasmsimd-loadsplat-x86.c",
     "src/f32-igemm/gen/6x8-minmax-wasmsimd-splat-x86.c",
     "src/f32-igemm/gen/6x8s4-minmax-wasmsimd-x86.c",
+    "src/math/roundne-wasmsimd-addsub.c",
+    "src/math/roundd-wasmsimd-addsub.c",
+    "src/math/roundu-wasmsimd-addsub.c",
+    "src/math/roundz-wasmsimd-addsub.c",
     "src/requantization/fp32-wasmsimd.c",
 ]
 
@@ -1380,6 +1384,8 @@ SSE_UKERNELS = [
     "src/f32-pavgpool/9p8x-minmax-sse-c4.c",
     "src/f32-pavgpool/9x-minmax-sse-c4.c",
     "src/f32-ppmm/gen/4x8-minmax-sse.c",
+    "src/f32-prelu/gen/sse-2x4.c",
+    "src/f32-prelu/gen/sse-2x8.c",
     "src/f32-rmax/sse.c",
     "src/f32-spmm/gen/4x1-minmax-sse.c",
     "src/f32-spmm/gen/8x1-minmax-sse.c",
@@ -3044,6 +3050,15 @@ cc_library(
     }),
 )
 
+cc_library(
+    name = "enable_sparse",
+    defines = select({
+        ":xnn_enable_sparse_explicit_true": ["XNN_ENABLE_SPARSE=1"],
+        ":xnn_enable_sparse_explicit_false": ["XNN_ENABLE_SPARSE=0"],
+        "//conditions:default": ["XNN_ENABLE_SPARSE=0"],
+    }),
+)
+
 xnnpack_cc_library(
     name = "operators",
     srcs = OPERATOR_SRCS + [
@@ -3129,6 +3144,7 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":enable_sparse",
         ":logging_utils",
         ":memory_planner",
         ":operator_run",
@@ -3170,6 +3186,7 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":enable_sparse",
         ":logging_utils",
         ":memory_planner_test_mode",
         ":operator_run_test_mode",
@@ -3216,6 +3233,7 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":enable_sparse",
         ":logging_utils",
         ":memory_planner",
         ":operator_run",
@@ -3519,6 +3537,22 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
+    name = "bankers_rounding_bench",
+    srcs = ["bench/bankers-rounding.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
+    name = "ceiling_bench",
+    srcs = ["bench/ceiling.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
     name = "channel_shuffle_bench",
     srcs = ["bench/channel-shuffle.cc"],
     deps = OPERATOR_BENCHMARK_DEPS,
@@ -3535,6 +3569,14 @@ xnnpack_benchmark(
 xnnpack_benchmark(
     name = "deconvolution_bench",
     srcs = ["bench/deconvolution.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
+    name = "floor_bench",
+    srcs = ["bench/floor.cc"],
     copts = xnnpack_optional_tflite_copts(),
     tags = ["nowin32"],
     deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
@@ -3574,6 +3616,12 @@ xnnpack_benchmark(
     copts = xnnpack_optional_tflite_copts(),
     tags = ["nowin32"],
     deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
+    name = "truncation_bench",
+    srcs = ["bench/truncation.cc"],
+    deps = OPERATOR_BENCHMARK_DEPS,
 )
 
 ############################# End-to-end benchmarks ############################
@@ -5028,6 +5076,18 @@ config_setting(
 config_setting(
     name = "xnn_enable_assembly_explicit_false",
     define_values = {"xnn_enable_assembly": "false"},
+)
+
+# Enables usage of sparse inference.
+config_setting(
+    name = "xnn_enable_sparse_explicit_true",
+    define_values = {"xnn_enable_sparse": "true"},
+)
+
+# Disables usage of sparse inference.
+config_setting(
+    name = "xnn_enable_sparse_explicit_false",
+    define_values = {"xnn_enable_sparse": "false"},
 )
 
 # Disables usage of HMP-aware optimizations.
