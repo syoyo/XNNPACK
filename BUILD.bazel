@@ -259,9 +259,6 @@ SCALAR_UKERNELS = [
     "src/f32-vbinary/gen/vrdivc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vrdivc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vrdivc-minmax-scalar-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-scalar-x1.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-scalar-x2.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-scalar-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vrsubc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vrsubc-minmax-scalar-x4.c",
@@ -422,6 +419,8 @@ WASM_UKERNELS = [
     "src/f32-maxpool/9p8x-minmax-wasm-c1.c",
     "src/f32-pavgpool/9p8x-minmax-wasm-c1.c",
     "src/f32-pavgpool/9x-minmax-wasm-c1.c",
+    "src/f32-prelu/gen/wasm-2x1.c",
+    "src/f32-prelu/gen/wasm-2x4.c",
     "src/f32-vbinary/gen/vadd-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vadd-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vadd-minmax-wasm-x4.c",
@@ -607,6 +606,76 @@ WASMSIMD_UKERNELS = [
     "src/f32-igemm/gen/6x8-minmax-wasmsimd-loadsplat-x86.c",
     "src/f32-igemm/gen/6x8-minmax-wasmsimd-splat-x86.c",
     "src/f32-igemm/gen/6x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-hswish/gen/wasmsimd-arm-x4.c",
+    "src/f32-hswish/gen/wasmsimd-arm-x8.c",
+    "src/f32-hswish/gen/wasmsimd-arm-x16.c",
+    "src/f32-hswish/gen/wasmsimd-x86-x4.c",
+    "src/f32-hswish/gen/wasmsimd-x86-x8.c",
+    "src/f32-hswish/gen/wasmsimd-x86-x16.c",
+    "src/f32-prelu/gen/wasmsimd-bitselect-2x4.c",
+    "src/f32-prelu/gen/wasmsimd-bitselect-2x8.c",
+    "src/f32-prelu/gen/wasmsimd-minmax-2x4.c",
+    "src/f32-prelu/gen/wasmsimd-minmax-2x8.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vsqrdiff-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vsqrdiff-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vsqrdiffc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vsqrdiffc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-x86-x8.c",
     "src/math/roundne-wasmsimd-addsub.c",
     "src/math/roundd-wasmsimd-addsub.c",
     "src/math/roundu-wasmsimd-addsub.c",
@@ -707,8 +776,6 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-psimd-x8.c",
     "src/f32-vbinary/gen/vrdivc-minmax-psimd-x4.c",
     "src/f32-vbinary/gen/vrdivc-minmax-psimd-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-psimd-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-psimd-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-psimd-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-psimd-x8.c",
     "src/f32-vbinary/gen/vsqrdiff-psimd-x4.c",
@@ -922,8 +989,6 @@ NEON_UKERNELS = [
     "src/f32-vbinary/gen/vmul-minmax-neon-x8.c",
     "src/f32-vbinary/gen/vmulc-minmax-neon-x4.c",
     "src/f32-vbinary/gen/vmulc-minmax-neon-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-neon-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-neon-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-neon-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-neon-x8.c",
     "src/f32-vbinary/gen/vsqrdiff-neon-x4.c",
@@ -1412,8 +1477,6 @@ SSE_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-sse-x8.c",
     "src/f32-vbinary/gen/vrdivc-minmax-sse-x4.c",
     "src/f32-vbinary/gen/vrdivc-minmax-sse-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-sse-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-sse-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-sse-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-sse-x8.c",
     "src/f32-vbinary/gen/vsqrdiff-sse-x4.c",
@@ -1467,6 +1530,8 @@ SSE2_UKERNELS = [
     "src/f32-sigmoid/gen/sse2-p5-div-x16.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x20.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x24.c",
+    "src/f32-vlrelu/gen/sse2-x4.c",
+    "src/f32-vlrelu/gen/sse2-x8.c",
     "src/f32-vrnd/gen/vrndne-sse2-x4.c",
     "src/f32-vrnd/gen/vrndne-sse2-x8.c",
     "src/f32-vrnd/gen/vrndz-sse2-x4.c",
@@ -1524,6 +1589,8 @@ SSE41_UKERNELS = [
     "src/f32-sigmoid/gen/sse41-p5-div-x16.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x20.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x24.c",
+    "src/f32-vlrelu/gen/sse41-x4.c",
+    "src/f32-vlrelu/gen/sse41-x8.c",
     "src/f32-vrnd/gen/vrndne-sse41-x4.c",
     "src/f32-vrnd/gen/vrndne-sse41-x8.c",
     "src/f32-vrnd/gen/vrndz-sse41-x4.c",
@@ -1610,8 +1677,6 @@ AVX_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-avx-x16.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx-x8.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx-x16.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx-x16.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx-x16.c",
     "src/f32-vbinary/gen/vsqrdiff-avx-x8.c",
@@ -1900,8 +1965,6 @@ AVX512F_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-avx512f-x32.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx512f-x16.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx512f-x32.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx512f-x16.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx512f-x32.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx512f-x16.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx512f-x32.c",
     "src/f32-vbinary/gen/vsqrdiff-avx512f-x16.c",
@@ -2213,7 +2276,7 @@ xnnpack_cc_library(
         "-msimd128",
         "-munimplemented-simd128",
     ],
-    wasmsimd_srcs = WASMSIMD_UKERNELS,
+    wasmsimd_srcs = WASM_UKERNELS + WASMSIMD_UKERNELS,
     deps = [
         ":tables",
         "@FP16",
@@ -2236,7 +2299,7 @@ xnnpack_cc_library(
         "-msimd128",
         "-munimplemented-simd128",
     ],
-    wasmsimd_srcs = WASMSIMD_UKERNELS,
+    wasmsimd_srcs = WASM_UKERNELS + WASMSIMD_UKERNELS,
     deps = [
         ":tables",
         "@FP16",
@@ -3415,6 +3478,15 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
+    name = "f32_hswish_bench",
+    srcs = [
+        "bench/f32-hswish.cc",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_BENCHMARK_HDRS,
+    deps = MICROKERNEL_BENCHMARK_DEPS,
+)
+
+xnnpack_benchmark(
     name = "f32_raddexpminusmax_bench",
     srcs = [
         "bench/f32-raddexpminusmax.cc",
@@ -3589,6 +3661,14 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
+    name = "hardswish_bench",
+    srcs = ["bench/hardswish.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
     name = "max_pooling_bench",
     srcs = ["bench/max-pooling.cc"],
     deps = OPERATOR_BENCHMARK_DEPS,
@@ -3627,8 +3707,8 @@ xnnpack_benchmark(
 ############################# End-to-end benchmarks ############################
 
 cc_library(
-    name = "mobilenet_v1",
-    srcs = ["models/mobilenet-v1.cc"],
+    name = "fp32_mobilenet_v1",
+    srcs = ["models/fp32-mobilenet-v1.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3639,8 +3719,21 @@ cc_library(
 )
 
 cc_library(
-    name = "mobilenet_v2",
-    srcs = ["models/mobilenet-v2.cc"],
+    name = "fp16_mobilenet_v1",
+    srcs = ["models/fp16-mobilenet-v1.cc"],
+    hdrs = ["models/models.h"],
+    copts = xnnpack_std_cxxopts(),
+    linkstatic = True,
+    deps = [
+        ":XNNPACK",
+        "@FP16",
+        "@pthreadpool",
+    ],
+)
+
+cc_library(
+    name = "fp32_mobilenet_v2",
+    srcs = ["models/fp32-mobilenet-v2.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3651,8 +3744,21 @@ cc_library(
 )
 
 cc_library(
-    name = "mobilenet_v3_large",
-    srcs = ["models/mobilenet-v3-large.cc"],
+    name = "fp16_mobilenet_v2",
+    srcs = ["models/fp16-mobilenet-v2.cc"],
+    hdrs = ["models/models.h"],
+    copts = xnnpack_std_cxxopts(),
+    linkstatic = True,
+    deps = [
+        ":XNNPACK",
+        "@FP16",
+        "@pthreadpool",
+    ],
+)
+
+cc_library(
+    name = "fp32_mobilenet_v3_large",
+    srcs = ["models/fp32-mobilenet-v3-large.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3663,8 +3769,8 @@ cc_library(
 )
 
 cc_library(
-    name = "mobilenet_v3_small",
-    srcs = ["models/mobilenet-v3-small.cc"],
+    name = "fp32_mobilenet_v3_small",
+    srcs = ["models/fp32-mobilenet-v3-small.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3682,10 +3788,10 @@ xnnpack_benchmark(
     ] + MICROKERNEL_BENCHMARK_HDRS,
     deps = MICROKERNEL_BENCHMARK_DEPS + [
         ":XNNPACK",
-        ":mobilenet_v1",
-        ":mobilenet_v2",
-        ":mobilenet_v3_large",
-        ":mobilenet_v3_small",
+        ":fp32_mobilenet_v1",
+        ":fp32_mobilenet_v2",
+        ":fp32_mobilenet_v3_large",
+        ":fp32_mobilenet_v3_small",
     ],
 )
 
@@ -3697,10 +3803,10 @@ xnnpack_benchmark(
     ] + MICROKERNEL_BENCHMARK_HDRS,
     deps = MICROKERNEL_BENCHMARK_DEPS + [
         ":XNNPACK",
-        ":mobilenet_v1",
-        ":mobilenet_v2",
-        ":mobilenet_v3_large",
-        ":mobilenet_v3_small",
+        ":fp32_mobilenet_v1",
+        ":fp32_mobilenet_v2",
+        ":fp32_mobilenet_v3_large",
+        ":fp32_mobilenet_v3_small",
     ],
 )
 
@@ -3710,10 +3816,12 @@ xnnpack_benchmark(
     deps = [
         ":XNNPACK",
         ":bench_utils",
-        ":mobilenet_v1",
-        ":mobilenet_v2",
-        ":mobilenet_v3_large",
-        ":mobilenet_v3_small",
+        ":fp16_mobilenet_v1",
+        ":fp16_mobilenet_v2",
+        ":fp32_mobilenet_v1",
+        ":fp32_mobilenet_v2",
+        ":fp32_mobilenet_v3_large",
+        ":fp32_mobilenet_v3_small",
         "@pthreadpool",
     ],
 )
@@ -4519,15 +4627,6 @@ xnnpack_unit_test(
     name = "f32_vsqrdiffc_test",
     srcs = [
         "test/f32-vsqrdiffc.cc",
-        "test/vbinaryc-microkernel-tester.h",
-    ] + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
-)
-
-xnnpack_unit_test(
-    name = "f32_vrsqrdiffc_test",
-    srcs = [
-        "test/f32-vrsqrdiffc.cc",
         "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
