@@ -488,6 +488,8 @@ static inline union xnn_f32_abs_params xnn_init_f32_abs_params(void)
     for (uint32_t i = 0; i < 4; i++) {
       params.sse.nonsign_mask[i] = math_nonsign_mask_f32();
     }
+  #elif XNN_ARCH_WASMSIMD
+    params.wasmsimd.nonsign_mask = math_nonsign_mask_f32();
   #endif
   return params;
 }
@@ -505,6 +507,8 @@ static inline union xnn_f32_neg_params xnn_init_f32_neg_params(void)
     for (uint32_t i = 0; i < 4; i++) {
       params.sse.sign_mask[i] = -0.0f;
     }
+  #elif XNN_ARCH_WASMSIMD
+    params.wasmsimd.sign_mask = -0.0f;
   #endif
   return params;
 }
@@ -552,6 +556,21 @@ static inline union xnn_f32_lrelu_params xnn_init_scalar_f32_lrelu_params(float 
 {
   union xnn_f32_lrelu_params params;
   params.scalar.slope = slope;
+  return params;
+}
+
+static inline union xnn_f32_sqrt_params xnn_init_f32_sqrt_params(void)
+{
+  union xnn_f32_sqrt_params params = { 0 };
+  #if XNN_ARCH_X86 || XNN_ARCH_X86_64
+    params.fma.half = 0.5f;
+  #endif
+  return params;
+}
+
+static inline union xnn_f32_sqrt_params xnn_init_scalar_f32_sqrt_params(void)
+{
+  union xnn_f32_sqrt_params params = { 0 };
   return params;
 }
 

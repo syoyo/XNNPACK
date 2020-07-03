@@ -49,7 +49,7 @@ static void xnnpack_hardswish_f32(benchmark::State& state) {
     channels, channels /* input stride */, channels /* output stride */,
     0 /* flags */, &hardswish_op);
   if (status != xnn_status_success || hardswish_op == nullptr) {
-    state.SkipWithError("failed to create Floor operator");
+    state.SkipWithError("failed to create HardSwish operator");
     return;
   }
 
@@ -59,21 +59,21 @@ static void xnnpack_hardswish_f32(benchmark::State& state) {
     input.data(), output.data(),
     nullptr /* thread pool */);
   if (status != xnn_status_success) {
-    state.SkipWithError("failed to setup Floor operator");
+    state.SkipWithError("failed to setup HardSwish operator");
     return;
   }
 
   for (auto _ : state) {
     status = xnn_run_operator(hardswish_op, nullptr /* thread pool */);
     if (status != xnn_status_success) {
-      state.SkipWithError("failed to run Floor operator");
+      state.SkipWithError("failed to run HardSwish operator");
       return;
     }
   }
 
   status = xnn_delete_operator(hardswish_op);
   if (status != xnn_status_success) {
-    state.SkipWithError("failed to delete Floor operator");
+    state.SkipWithError("failed to delete HardSwish operator");
     return;
   }
 

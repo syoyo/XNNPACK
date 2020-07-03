@@ -62,6 +62,11 @@ union xnn_f32_abs_params {
     XNN_ALIGN(16) float nonsign_mask[4];
   } sse;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+#if XNN_ARCH_WASMSIMD
+  struct {
+    float nonsign_mask;
+  } wasmsimd;
+#endif  // XNN_ARCH_WASMSIMD
 };
 
 union xnn_f32_neg_params {
@@ -71,6 +76,11 @@ union xnn_f32_neg_params {
     XNN_ALIGN(16) float sign_mask[4];
   } sse;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+#if XNN_ARCH_WASMSIMD
+  struct {
+    float sign_mask;
+  } wasmsimd;
+#endif  // XNN_ARCH_WASMSIMD
 };
 
 union xnn_f32_rnd_params {
@@ -91,6 +101,15 @@ union xnn_f32_lrelu_params {
   struct {
     XNN_ALIGN(16) float slope[4];
   } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
+union xnn_f32_sqrt_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    float half;
+  } fma;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
@@ -1310,6 +1329,12 @@ typedef void (*xnn_q8_vadd_minmax_ukernel_function)(
     uint8_t* y,
     const union xnn_q8_add_params* params);
 
+typedef void (*xnn_f32_vsqrt_ukernel_function)(
+    size_t n,
+    const float* x,
+    float* y,
+    const union xnn_f32_sqrt_params* params);
+
 typedef void (*xnn_vbinary_ukernel_function)(
     size_t n,
     const void* a,
@@ -1736,6 +1761,7 @@ struct xnn_parameters {
     xnn_univector_ukernel_function rndd;
     xnn_univector_ukernel_function sigmoid;
     xnn_univector_ukernel_function sqr;
+    xnn_univector_ukernel_function sqrt;
     struct prelu_parameters prelu;
     struct vbinary_parameters vadd;
     struct vbinary_parameters vdiv;
