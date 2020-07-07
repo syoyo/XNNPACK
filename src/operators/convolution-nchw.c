@@ -208,8 +208,13 @@ enum xnn_status xnn_create_convolution2d_nchw_f32(
     dwconv_parameters = &xnn_params.f32.dwconv_chw_5x5s2;
   } else {
     xnn_log_error(
-      "failed to create %s operator: only selected convolution parameters are supported",
-      xnn_operator_type_to_string(xnn_operator_type_convolution_nchw_f32));
+      "failed to create %s operator with %" PRIu32 "x%" PRIu32 " kernel, %"PRIu32 "x%" PRIu32 " subsampling, %"PRIu32 "x%" PRIu32 " dilation"
+      ", %" PRIu32 "+%" PRIu32 "x%" PRIu32 "+%" PRIu32" padding, %" PRIu32 "x%zu input channels, and %" PRIu32 "x%zu output channels: "
+      "only selected convolution parameters are supported",
+      xnn_operator_type_to_string(xnn_operator_type_convolution_nchw_f32),
+      kernel_width, kernel_height, subsampling_width, subsampling_height, dilation_width, dilation_height,
+      input_padding_top, input_padding_left, input_padding_bottom, input_padding_right,
+      groups, group_input_channels, groups, group_output_channels);
     goto error;
   }
 
@@ -423,7 +428,7 @@ enum xnn_status xnn_create_convolution2d_nchw_f32(
         group_input_channels,
         xnn_params.f32.conv_hwc2chw_3x3c3s2.output_channel_tile,
         kernel_height, kernel_width,
-        kernel, bias, convolution_op->packed_weights);
+        kernel, bias, convolution_op->packed_weights, NULL);
 
       convolution_op->ukernel.conv2d = (struct xnn_ukernel_conv2d) {
         .hwc2chw_function = xnn_params.f32.conv_hwc2chw_3x3c3s2.ukernel_with_symm_padding,
@@ -451,11 +456,11 @@ enum xnn_status xnn_create_convolution2d_nchw_f32(
       if (flags & XNN_FLAG_DEPTHWISE_CONVOLUTION) {
         xnn_pack_f32_chw_dwconv_hwg_w(
           kernel_height * kernel_width, groups,
-          kernel, bias, convolution_op->packed_weights);
+          kernel, bias, convolution_op->packed_weights, NULL);
       } else {
         xnn_pack_f32_chw_dwconv_ghw_w(
           kernel_height * kernel_width, groups,
-          kernel, bias, convolution_op->packed_weights);
+          kernel, bias, convolution_op->packed_weights, NULL);
       }
 
       convolution_op->ukernel.dwconv2d = (struct xnn_ukernel_dwconv2d) {
