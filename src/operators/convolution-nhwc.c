@@ -293,6 +293,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
     {
       const uint32_t nr = xnn_params.q8.gemm.nr;
       const uint32_t kr = UINT32_C(1) << xnn_params.q8.gemm.log2_kr;
+      const uint32_t sr = UINT32_C(1) << xnn_params.q8.gemm.log2_sr;
       const size_t n_stride = round_up(group_output_channels, nr);
       const size_t k_stride = round_up_po2(group_input_channels, kr);
 
@@ -311,7 +312,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
         case xnn_ukernel_type_gemm:
           xnn_pack_q8_gemm_goi_w(
               groups, group_output_channels, group_input_channels,
-              nr, kr,
+              nr, kr, 1 /* sr */,
               kernel, bias, convolution_op->packed_weights,
               &packing_params);
           convolution_op->ukernel.gemm = (struct xnn_ukernel_gemm) {
@@ -331,7 +332,7 @@ enum xnn_status xnn_create_convolution2d_nhwc_q8(
           } else {
             xnn_pack_q8_conv_goki_w(
                 groups, group_output_channels, kernel_size, group_input_channels,
-                nr, kr,
+                nr, kr, sr,
                 kernel, bias, convolution_op->packed_weights,
                 &packing_params);
           }
