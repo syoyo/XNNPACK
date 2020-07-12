@@ -15,7 +15,7 @@
 #include <xnnpack/hswish.h>
 
 
-void xnn_f32_hswish_ukernel__neon_x4(
+void xnn_f32_hswish_ukernel__neon_x16(
     size_t n,
     const float* x,
     float* y,
@@ -29,6 +29,41 @@ void xnn_f32_hswish_ukernel__neon_x4(
   const int32x4_t vsix = vreinterpretq_s32_f32(vld1q_dup_f32(&params->scalar.six));
   const int32x4_t vzero = vdupq_n_s32(0);
 
+  for (; n >= 16 * sizeof(float); n -= 16 * sizeof(float)) {
+    float32x4_t vx0123 = vld1q_f32(x); x += 4;
+    float32x4_t vx4567 = vld1q_f32(x); x += 4;
+    float32x4_t vx89AB = vld1q_f32(x); x += 4;
+    float32x4_t vxCDEF = vld1q_f32(x); x += 4;
+
+    float32x4_t vacc0123 = vaddq_f32(vx0123, vthree);
+    vx0123 = vmulq_f32(vx0123, vsixth);
+    float32x4_t vacc4567 = vaddq_f32(vx4567, vthree);
+    vx4567 = vmulq_f32(vx4567, vsixth);
+    float32x4_t vacc89AB = vaddq_f32(vx89AB, vthree);
+    vx89AB = vmulq_f32(vx89AB, vsixth);
+    float32x4_t vaccCDEF = vaddq_f32(vxCDEF, vthree);
+    vxCDEF = vmulq_f32(vxCDEF, vsixth);
+
+    vacc0123 = vreinterpretq_f32_s32(vmaxq_s32(vreinterpretq_s32_f32(vacc0123), vzero));
+    vacc4567 = vreinterpretq_f32_s32(vmaxq_s32(vreinterpretq_s32_f32(vacc4567), vzero));
+    vacc89AB = vreinterpretq_f32_s32(vmaxq_s32(vreinterpretq_s32_f32(vacc89AB), vzero));
+    vaccCDEF = vreinterpretq_f32_s32(vmaxq_s32(vreinterpretq_s32_f32(vaccCDEF), vzero));
+
+    vacc0123 = vreinterpretq_f32_s32(vminq_s32(vreinterpretq_s32_f32(vacc0123), vsix));
+    vacc4567 = vreinterpretq_f32_s32(vminq_s32(vreinterpretq_s32_f32(vacc4567), vsix));
+    vacc89AB = vreinterpretq_f32_s32(vminq_s32(vreinterpretq_s32_f32(vacc89AB), vsix));
+    vaccCDEF = vreinterpretq_f32_s32(vminq_s32(vreinterpretq_s32_f32(vaccCDEF), vsix));
+
+    vacc0123 = vmulq_f32(vacc0123, vx0123);
+    vacc4567 = vmulq_f32(vacc4567, vx4567);
+    vacc89AB = vmulq_f32(vacc89AB, vx89AB);
+    vaccCDEF = vmulq_f32(vaccCDEF, vxCDEF);
+
+    vst1q_f32(y, vacc0123); y += 4;
+    vst1q_f32(y, vacc4567); y += 4;
+    vst1q_f32(y, vacc89AB); y += 4;
+    vst1q_f32(y, vaccCDEF); y += 4;
+  }
   for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
     float32x4_t vx = vld1q_f32(x); x += 4;
     float32x4_t vacc = vaddq_f32(vx, vthree);

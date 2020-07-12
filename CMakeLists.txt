@@ -204,6 +204,7 @@ SET(XNNPACK_SUBGRAPH_SRCS
   src/subgraph/sigmoid.c
   src/subgraph/softmax.c
   src/subgraph/static-constant-pad.c
+  src/subgraph/static-reshape.c
   src/subgraph/square.c
   src/subgraph/square-root.c
   src/subgraph/squared-difference.c
@@ -557,8 +558,6 @@ SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
   src/f32-gemm/gen-inc/6x8inc-minmax-psimd-loadsplat.c
   src/f32-gemm/gen-inc/6x8inc-minmax-psimd-splat.c
   src/f32-gemm/gen-inc/6x8s4inc-minmax-psimd.c
-  src/f32-hswish/gen/psimd-x4.c
-  src/f32-hswish/gen/psimd-x8.c
   src/f32-ibilinear/gen/psimd-c4.c
   src/f32-ibilinear/gen/psimd-c8.c
   src/f32-igemm/gen/1x8-minmax-psimd-loadsplat.c
@@ -728,6 +727,7 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-gemm/gen-inc/8x8s4inc-minmax-neon.c
   src/f32-hswish/gen/neon-x4.c
   src/f32-hswish/gen/neon-x8.c
+  src/f32-hswish/gen/neon-x16.c
   src/f32-ibilinear/gen/neon-c4.c
   src/f32-ibilinear/gen/neon-c8.c
   src/f32-igemm/gen/1x8-minmax-neon-lane-ld64.c
@@ -930,8 +930,6 @@ SET(XNNPACK_NEONFMA_MICROKERNEL_SRCS
   src/f32-gemm/gen-inc/4x8s4inc-minmax-neonfma.c
   src/f32-gemm/gen-inc/6x8s4inc-minmax-neonfma.c
   src/f32-gemm/gen-inc/8x8s4inc-minmax-neonfma.c
-  src/f32-hswish/gen/neonfma-x4.c
-  src/f32-hswish/gen/neonfma-x8.c
   src/f32-ppmm/gen/4x8-minmax-neonfma.c
   src/f32-ppmm/gen/8x8-minmax-neonfma.c
   src/f32-raddstoreexpminusmax/gen/neonfma-p5-x4.c

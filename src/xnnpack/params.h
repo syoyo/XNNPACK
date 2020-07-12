@@ -202,15 +202,15 @@ union xnn_f32_gavgpool_params {
 
 struct xnn_f16_hswish_params {
   uint16_t sixth;
-  uint16_t half;
-  uint16_t one;
+  uint16_t three;
+  uint16_t six;
 };
 
 union xnn_f32_hswish_params {
   struct {
     float sixth;
-    float half;
-    float one;
+    float three;
+    float six;
   } scalar;
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
