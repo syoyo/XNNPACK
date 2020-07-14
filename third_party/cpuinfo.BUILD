@@ -98,7 +98,9 @@ cc_library(
     srcs = select({
         ":linux_x86_64": COMMON_SRCS + X86_SRCS + LINUX_SRCS + LINUX_X86_SRCS,
         ":linux_arm": COMMON_SRCS + ARM_SRCS + LINUX_SRCS + LINUX_ARM32_SRCS,
+        ":linux_armeabi": COMMON_SRCS + ARM_SRCS + LINUX_SRCS + LINUX_ARM32_SRCS,
         ":linux_armhf": COMMON_SRCS + ARM_SRCS + LINUX_SRCS + LINUX_ARM32_SRCS,
+        ":linux_armv7a": COMMON_SRCS + ARM_SRCS + LINUX_SRCS + LINUX_ARM32_SRCS,
         ":linux_aarch64": COMMON_SRCS + ARM_SRCS + LINUX_SRCS + LINUX_ARM64_SRCS,
         ":macos_x86_64": COMMON_SRCS + X86_SRCS + MACH_SRCS + MACH_X86_SRCS,
         ":windows_x86_64": COMMON_SRCS + X86_SRCS + WINDOWS_X86_SRCS,
@@ -174,8 +176,18 @@ config_setting(
 )
 
 config_setting(
+    name = "linux_armeabi",
+    values = {"cpu": "armeabi"},
+)
+
+config_setting(
     name = "linux_armhf",
     values = {"cpu": "armhf"},
+)
+
+config_setting(
+    name = "linux_armv7a",
+    values = {"cpu": "armv7a"},
 )
 
 config_setting(

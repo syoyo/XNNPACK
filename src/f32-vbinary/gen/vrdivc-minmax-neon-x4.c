@@ -24,6 +24,9 @@ void xnn_f32_vrdivc_minmax_ukernel__neon_x4(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
   const float32x4_t vy_min = vld1q_dup_f32(&params->scalar.min);
   const float32x4_t vy_max = vld1q_dup_f32(&params->scalar.max);
@@ -39,14 +42,6 @@ void xnn_f32_vrdivc_minmax_ukernel__neon_x4(
 
     vy0123 = vminq_f32(vy0123, vy_max);
 
-    vst1q_f32(y, vy0123); y += 4;
-  }
-  for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
-    const float32x4_t va0123 = vld1q_f32(a); a += 4;
-
-    float32x4_t vy0123 = vdivq_f32(vb, va0123);
-    vy0123 = vmaxq_f32(vy0123, vy_min);
-    vy0123 = vminq_f32(vy0123, vy_max);
     vst1q_f32(y, vy0123); y += 4;
   }
   if XNN_UNLIKELY(n != 0) {

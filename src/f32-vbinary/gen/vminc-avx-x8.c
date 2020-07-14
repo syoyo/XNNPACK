@@ -26,6 +26,9 @@ void xnn_f32_vminc_ukernel__avx_x8(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
 
   const __m256 vb = _mm256_broadcast_ss(b);
@@ -38,14 +41,6 @@ void xnn_f32_vminc_ukernel__avx_x8(
 
 
     _mm256_storeu_ps(y, vy01234567);
-    y += 8;
-  }
-  for (; n >= 8 * sizeof(float); n -= 8 * sizeof(float)) {
-    const __m256 va = _mm256_loadu_ps(a);
-    a += 8;
-
-    __m256 vy = _mm256_min_ps(va, vb);
-    _mm256_storeu_ps(y, vy);
     y += 8;
   }
   if XNN_UNLIKELY(n != 0) {

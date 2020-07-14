@@ -23,6 +23,15 @@
 class VUnOpMicrokernelTester {
  public:
   enum class OpType {
+    Abs,
+    LeakyReLU,
+    Negate,
+    RoundToNearestEven,
+    RoundTowardsZero,
+    RoundUp,
+    RoundDown,
+    Square,
+    SquareRoot,
     Sigmoid,
   };
 
@@ -48,6 +57,15 @@ class VUnOpMicrokernelTester {
 
   inline bool inplace() const {
     return this->inplace_;
+  }
+
+  inline VUnOpMicrokernelTester& slope(float slope) {
+    this->slope_ = slope;
+    return *this;
+  }
+
+  inline float slope() const {
+    return this->slope_;
   }
 
   inline VUnOpMicrokernelTester& qmin(uint8_t qmin) {
@@ -80,7 +98,15 @@ class VUnOpMicrokernelTester {
   void Test(xnn_f32_vunary_ukernel_function vunary, OpType op_type, Variant variant = Variant::Native) const {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
-    auto f32rng = std::bind(std::uniform_real_distribution<float>(-125.0f, 125.0f), rng);
+    auto distribution = std::uniform_real_distribution<float>(-125.0f, 125.0f);
+    switch (op_type) {
+      case OpType::SquareRoot:
+        distribution = std::uniform_real_distribution<float>(0.0f, 10.0f);
+        break;
+      default:
+        break;
+    }
+    auto f32rng = std::bind(distribution, std::ref(rng));
 
     std::vector<float> x(batch_size() + XNN_EXTRA_BYTES / sizeof(float));
     std::vector<float> y(batch_size() + (inplace() ? XNN_EXTRA_BYTES / sizeof(float) : 0));
@@ -97,6 +123,33 @@ class VUnOpMicrokernelTester {
       // Compute reference results.
       for (size_t i = 0; i < batch_size(); i++) {
         switch (op_type) {
+          case OpType::Abs:
+            y_ref[i] = std::abs(x_data[i]);
+            break;
+          case OpType::LeakyReLU:
+            y_ref[i] = std::signbit(x_data[i]) ? x_data[i] * slope() : x_data[i];
+            break;
+          case OpType::Negate:
+            y_ref[i] = -x_data[i];
+            break;
+          case OpType::RoundToNearestEven:
+            y_ref[i] = std::nearbyint(double(x_data[i]));
+            break;
+          case OpType::RoundTowardsZero:
+            y_ref[i] = std::trunc(double(x_data[i]));
+            break;
+          case OpType::RoundUp:
+            y_ref[i] = std::ceil(double(x_data[i]));
+            break;
+          case OpType::RoundDown:
+            y_ref[i] = std::floor(double(x_data[i]));
+            break;
+          case OpType::Square:
+            y_ref[i] = double(x_data[i]) * double(x_data[i]);
+            break;
+          case OpType::SquareRoot:
+            y_ref[i] = std::sqrt(double(x_data[i]));
+            break;
           case OpType::Sigmoid:
           {
             const double e = std::exp(double(x_data[i]));
@@ -105,27 +158,71 @@ class VUnOpMicrokernelTester {
           }
         }
       }
-      const float accumulated_min = *std::min_element(y_ref.cbegin(), y_ref.cend());
-      const float accumulated_max = *std::max_element(y_ref.cbegin(), y_ref.cend());
-      const float accumulated_range = accumulated_max - accumulated_min;
-      const float y_max = accumulated_range > 0.0f ?
-        (accumulated_max - accumulated_range / 255.0f * float(255 - qmax())) :
-        +std::numeric_limits<float>::infinity();
-      const float y_min = accumulated_range > 0.0f ?
-        (accumulated_min + accumulated_range / 255.0f * float(qmin())) :
-        -std::numeric_limits<float>::infinity();
-      for (size_t i = 0; i < batch_size(); i++) {
-        y_ref[i] = std::max<float>(std::min<float>(y_ref[i], y_max), y_min);
-      }
 
       // Prepare parameters.
-      xnn_f32_minmax_params params = { };
-      switch (variant) {
-        case Variant::Native:
-          params = xnn_init_f32_minmax_params(y_min, y_max);
+      union {
+        union xnn_f32_abs_params abs;
+        union xnn_f32_lrelu_params lrelu;
+        union xnn_f32_neg_params neg;
+        union xnn_f32_rnd_params rnd;
+        union xnn_f32_sqrt_params sqrt;
+      } params;
+      switch (op_type) {
+        case OpType::Abs:
+          switch (variant) {
+            case Variant::Native:
+              params.abs = xnn_init_f32_abs_params();
+              break;
+            case Variant::Scalar:
+              params.abs = xnn_init_scalar_f32_abs_params();
+              break;
+          }
           break;
-        case Variant::Scalar:
-          params = xnn_init_scalar_f32_minmax_params(y_min, y_max);
+        case OpType::LeakyReLU:
+          switch (variant) {
+            case Variant::Native:
+              params.lrelu = xnn_init_f32_lrelu_params(slope());
+              break;
+            case Variant::Scalar:
+              params.lrelu = xnn_init_scalar_f32_lrelu_params(slope());
+              break;
+          }
+          break;
+        case OpType::Negate:
+          switch (variant) {
+            case Variant::Native:
+              params.neg = xnn_init_f32_neg_params();
+              break;
+            case Variant::Scalar:
+              params.neg = xnn_init_scalar_f32_neg_params();
+              break;
+          }
+          break;
+        case OpType::RoundToNearestEven:
+        case OpType::RoundTowardsZero:
+        case OpType::RoundUp:
+        case OpType::RoundDown:
+          switch (variant) {
+            case Variant::Native:
+              params.rnd = xnn_init_f32_rnd_params();
+              break;
+            case Variant::Scalar:
+              params.rnd = xnn_init_scalar_f32_rnd_params();
+              break;
+          }
+          break;
+        case OpType::Sigmoid:
+        case OpType::Square:
+          break;
+        case OpType::SquareRoot:
+          switch (variant) {
+            case Variant::Native:
+              params.sqrt = xnn_init_f32_sqrt_params();
+              break;
+            case Variant::Scalar:
+              params.sqrt = xnn_init_scalar_f32_sqrt_params();
+              break;
+          }
           break;
       }
 
@@ -134,7 +231,7 @@ class VUnOpMicrokernelTester {
 
       // Verify results.
       for (size_t i = 0; i < batch_size(); i++) {
-        ASSERT_NEAR(y[i], y_ref[i], 5.0e-6)
+        ASSERT_NEAR(y[i], y_ref[i], std::max(1.0e-5 * std::abs(y_ref[i]), 5.0e-6))
           << "at " << i << " / " << batch_size() << ", x[" << i << "] = " << x[i];
       }
     }
@@ -143,6 +240,7 @@ class VUnOpMicrokernelTester {
  private:
   size_t batch_size_{1};
   bool inplace_{false};
+  float slope_{0.5f};
   uint8_t qmin_{0};
   uint8_t qmax_{255};
   size_t iterations_{15};

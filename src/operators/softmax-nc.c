@@ -32,7 +32,7 @@ enum xnn_status xnn_create_softmax_nc_q8(
   xnn_operator_t softmax_op = NULL;
   enum xnn_status status = xnn_status_uninitialized;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to create %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_sigmoid_nc_q8));
     goto error;
@@ -150,7 +150,7 @@ enum xnn_status xnn_setup_softmax_nc_q8(
   }
   softmax_op->state = xnn_run_state_invalid;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to setup %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_sigmoid_nc_q8));
     return xnn_status_uninitialized;
@@ -193,7 +193,7 @@ enum xnn_status xnn_create_softmax_nc_f32(
   xnn_operator_t softmax_op = NULL;
   enum xnn_status status = xnn_status_uninitialized;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to create %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_sigmoid_nc_f32));
     goto error;
@@ -266,7 +266,7 @@ enum xnn_status xnn_setup_softmax_nc_f32(
   }
   softmax_op->state = xnn_run_state_invalid;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to setup %s operator: XNNPACK is not initialized",
       xnn_operator_type_to_string(xnn_operator_type_sigmoid_nc_f32));
     return xnn_status_uninitialized;
@@ -289,7 +289,7 @@ enum xnn_status xnn_setup_softmax_nc_f32(
     .y_stride = softmax_op->output_pixel_stride * sizeof(float),
     .rmax_ukernel = xnn_params.f32.rmax,
     .raddstoreexpminusmax_ukernel = xnn_params.f32.raddstoreexpminusmax,
-    .vmulc_ukernel = xnn_params.f32.vmul.opc_ukernel,
+    .vmulc_ukernel = xnn_params.f32.vmul.minmax.opc_ukernel,
     .params = xnn_init_f32_minmax_params(-INFINITY, INFINITY),
   };
   softmax_op->compute.type = xnn_parallelization_type_1d;

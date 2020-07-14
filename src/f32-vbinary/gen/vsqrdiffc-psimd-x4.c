@@ -24,6 +24,9 @@ void xnn_f32_vsqrdiffc_ukernel__psimd_x4(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
 
   const psimd_f32 vb = psimd_load_splat_f32(b);
@@ -36,15 +39,6 @@ void xnn_f32_vsqrdiffc_ukernel__psimd_x4(
     vy0123 = psimd_mul_f32(vy0123, vy0123);
 
 
-    psimd_store_f32(y, vy0123);
-    y += 4;
-  }
-  for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
-    const psimd_f32 va0123 = psimd_load_f32(a);
-    a += 4;
-
-    psimd_f32 vy0123 = psimd_sub_f32(va0123, vb);
-    vy0123 = psimd_mul_f32(vy0123, vy0123);
     psimd_store_f32(y, vy0123);
     y += 4;
   }

@@ -57,7 +57,7 @@ enum xnn_status xnn_create_runtime_v2(
   struct xnn_runtime* runtime = NULL;
   enum xnn_status status = xnn_status_uninitialized;
 
-  if (!xnn_params.initialized) {
+  if ((xnn_params.init_flags & XNN_INIT_FLAG_XNNPACK) == 0) {
     xnn_log_error("failed to create runtime: XNNPACK is not initialized");
     goto error;
   }
@@ -87,6 +87,20 @@ enum xnn_status xnn_create_runtime_v2(
       case xnn_node_type_invalid:
         // Node was fused
         continue;
+      case xnn_node_type_abs:
+        status = xnn_create_abs_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
       case xnn_node_type_add2:
         status = xnn_create_add_nd_f32(
           node->activation.output_min,
@@ -98,8 +112,26 @@ enum xnn_status xnn_create_runtime_v2(
         }
         runtime->opdata[i].shape1.num_dims = values[node->inputs[0]].shape.num_dims;
         runtime->opdata[i].shape2.num_dims = values[node->inputs[1]].shape.num_dims;
-        memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
-        memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        if (values[node->outputs[0]].layout == xnn_layout_type_nchw) {
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nchw);
+          assert(values[node->inputs[1]].layout == xnn_layout_type_nchw);
+          runtime->opdata[i].shape1.dim[0] = values[node->inputs[0]].shape.dim[0];
+          runtime->opdata[i].shape1.dim[1] = values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1];
+          if (values[node->inputs[0]].shape.num_dims > 2) {
+            memcpy(&runtime->opdata[i].shape1.dim[2], &values[node->inputs[0]].shape.dim[1], (values[node->inputs[0]].shape.num_dims - 2) * sizeof(size_t));
+          }
+          runtime->opdata[i].shape2.dim[0] = values[node->inputs[1]].shape.dim[0];
+          runtime->opdata[i].shape2.dim[1] = values[node->inputs[1]].shape.dim[values[node->inputs[0]].shape.num_dims - 1];
+          if (values[node->inputs[0]].shape.num_dims > 2) {
+            memcpy(&runtime->opdata[i].shape2.dim[2], &values[node->inputs[1]].shape.dim[1], (values[node->inputs[1]].shape.num_dims - 2) * sizeof(size_t));
+          }
+        } else {
+          assert(values[node->outputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->inputs[1]].layout == xnn_layout_type_nhwc);
+          memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
+          memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        }
         runtime->opdata[i].inputs[0] = node->inputs[0];
         runtime->opdata[i].inputs[1] = node->inputs[1];
         runtime->opdata[i].outputs[0] = node->outputs[0];
@@ -155,6 +187,34 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].inputs[0] = node->inputs[0];
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
+      case xnn_node_type_bankers_rounding:
+        status = xnn_create_bankers_rounding_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_ceiling:
+        status = xnn_create_ceiling_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
       case xnn_node_type_constant_pad:
         status = xnn_create_constant_pad_nd_x32(
           &node->params.static_pad.padding_value,
@@ -170,28 +230,57 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_convolution_2d:
-        status = xnn_create_convolution2d_nhwc_f32(
-          node->params.convolution_2d.input_padding_top,
-          node->params.convolution_2d.input_padding_right,
-          node->params.convolution_2d.input_padding_bottom,
-          node->params.convolution_2d.input_padding_left,
-          node->params.convolution_2d.kernel_height,
-          node->params.convolution_2d.kernel_width,
-          node->params.convolution_2d.subsampling_height,
-          node->params.convolution_2d.subsampling_width,
-          node->params.convolution_2d.dilation_height,
-          node->params.convolution_2d.dilation_width,
-          node->params.convolution_2d.groups,
-          node->params.convolution_2d.group_input_channels,
-          node->params.convolution_2d.group_output_channels,
-          node->params.convolution_2d.group_input_channels * node->params.convolution_2d.groups /* input_pixel_stride */,
-          node->params.convolution_2d.group_output_channels * node->params.convolution_2d.groups /* output_pixel_stride */,
-          values[node->inputs[1]].data,
-          values[node->inputs[2]].data,
-          node->activation.output_min,
-          node->activation.output_max,
-          node->flags,
-          &runtime->opdata[i].operator_object);
+        assert(values[node->inputs[1]].data != NULL);
+        assert(values[node->inputs[2]].data != NULL);
+        if (values[node->outputs[0]].layout == xnn_layout_type_nchw) {
+          status = xnn_create_convolution2d_nchw_f32(
+            node->params.convolution_2d.input_padding_top,
+            node->params.convolution_2d.input_padding_right,
+            node->params.convolution_2d.input_padding_bottom,
+            node->params.convolution_2d.input_padding_left,
+            node->params.convolution_2d.kernel_height,
+            node->params.convolution_2d.kernel_width,
+            node->params.convolution_2d.subsampling_height,
+            node->params.convolution_2d.subsampling_width,
+            node->params.convolution_2d.dilation_height,
+            node->params.convolution_2d.dilation_width,
+            node->params.convolution_2d.groups,
+            node->params.convolution_2d.group_input_channels,
+            node->params.convolution_2d.group_output_channels,
+            node->params.convolution_2d.group_input_channels * node->params.convolution_2d.groups /* input_pixel_stride */,
+            node->params.convolution_2d.group_output_channels * node->params.convolution_2d.groups /* output_pixel_stride */,
+            values[node->inputs[1]].data,
+            values[node->inputs[2]].data,
+            node->activation.output_min,
+            node->activation.output_max,
+            node->flags | (values[node->inputs[0]].layout == xnn_layout_type_nhwc ? XNN_FLAG_INPUT_NHWC : 0),
+            &runtime->opdata[i].operator_object);
+        } else {
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->outputs[0]].layout == xnn_layout_type_nhwc);
+          status = xnn_create_convolution2d_nhwc_f32(
+            node->params.convolution_2d.input_padding_top,
+            node->params.convolution_2d.input_padding_right,
+            node->params.convolution_2d.input_padding_bottom,
+            node->params.convolution_2d.input_padding_left,
+            node->params.convolution_2d.kernel_height,
+            node->params.convolution_2d.kernel_width,
+            node->params.convolution_2d.subsampling_height,
+            node->params.convolution_2d.subsampling_width,
+            node->params.convolution_2d.dilation_height,
+            node->params.convolution_2d.dilation_width,
+            node->params.convolution_2d.groups,
+            node->params.convolution_2d.group_input_channels,
+            node->params.convolution_2d.group_output_channels,
+            node->params.convolution_2d.group_input_channels * node->params.convolution_2d.groups /* input_pixel_stride */,
+            node->params.convolution_2d.group_output_channels * node->params.convolution_2d.groups /* output_pixel_stride */,
+            values[node->inputs[1]].data,
+            values[node->inputs[2]].data,
+            node->activation.output_min,
+            node->activation.output_max,
+            node->flags,
+            &runtime->opdata[i].operator_object);
+        }
         if (status != xnn_status_success) {
           goto error;
         }
@@ -218,6 +307,8 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_deconvolution_2d:
+        assert(values[node->inputs[1]].data != NULL);
+        assert(values[node->inputs[2]].data != NULL);
         status = xnn_create_deconvolution2d_nhwc_f32(
           node->params.deconvolution_2d.padding_top,
           node->params.deconvolution_2d.padding_right,
@@ -252,35 +343,83 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_depthwise_convolution_2d:
-        status = xnn_create_convolution2d_nhwc_f32(
-          node->params.depthwise_convolution_2d.input_padding_top,
-          node->params.depthwise_convolution_2d.input_padding_right,
-          node->params.depthwise_convolution_2d.input_padding_bottom,
-          node->params.depthwise_convolution_2d.input_padding_left,
-          node->params.depthwise_convolution_2d.kernel_height,
-          node->params.depthwise_convolution_2d.kernel_width,
-          node->params.depthwise_convolution_2d.subsampling_height,
-          node->params.depthwise_convolution_2d.subsampling_width,
-          node->params.depthwise_convolution_2d.dilation_height,
-          node->params.depthwise_convolution_2d.dilation_width,
-          node->params.depthwise_convolution_2d.input_channels /* groups */,
-          1 /* group_input_channels */,
-          node->params.depthwise_convolution_2d.depth_multiplier /* group_output_channels */,
-          node->params.depthwise_convolution_2d.input_channels /* input_pixel_stride */,
-          node->params.depthwise_convolution_2d.input_channels * node->params.depthwise_convolution_2d.depth_multiplier /* output_pixel_stride */,
-          values[node->inputs[1]].data,
-          values[node->inputs[2]].data,
-          node->activation.output_min,
-          node->activation.output_max,
-          node->flags | XNN_FLAG_DEPTHWISE_CONVOLUTION,
-          &runtime->opdata[i].operator_object);
+        assert(values[node->inputs[1]].data != NULL);
+        assert(values[node->inputs[2]].data != NULL);
+        if (values[node->outputs[0]].layout == xnn_layout_type_nchw) {
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nchw);
+          status = xnn_create_convolution2d_nchw_f32(
+            node->params.depthwise_convolution_2d.input_padding_top,
+            node->params.depthwise_convolution_2d.input_padding_right,
+            node->params.depthwise_convolution_2d.input_padding_bottom,
+            node->params.depthwise_convolution_2d.input_padding_left,
+            node->params.depthwise_convolution_2d.kernel_height,
+            node->params.depthwise_convolution_2d.kernel_width,
+            node->params.depthwise_convolution_2d.subsampling_height,
+            node->params.depthwise_convolution_2d.subsampling_width,
+            node->params.depthwise_convolution_2d.dilation_height,
+            node->params.depthwise_convolution_2d.dilation_width,
+            node->params.depthwise_convolution_2d.input_channels /* groups */,
+            1 /* group_input_channels */,
+            node->params.depthwise_convolution_2d.depth_multiplier /* group_output_channels */,
+            node->params.depthwise_convolution_2d.input_channels /* input_channel_stride */,
+            node->params.depthwise_convolution_2d.input_channels * node->params.depthwise_convolution_2d.depth_multiplier /* output_channel_stride */,
+            values[node->inputs[1]].data,
+            values[node->inputs[2]].data,
+            node->activation.output_min,
+            node->activation.output_max,
+            node->flags | XNN_FLAG_DEPTHWISE_CONVOLUTION,
+            &runtime->opdata[i].operator_object);
+        } else {
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->outputs[0]].layout == xnn_layout_type_nhwc);
+          status = xnn_create_convolution2d_nhwc_f32(
+            node->params.depthwise_convolution_2d.input_padding_top,
+            node->params.depthwise_convolution_2d.input_padding_right,
+            node->params.depthwise_convolution_2d.input_padding_bottom,
+            node->params.depthwise_convolution_2d.input_padding_left,
+            node->params.depthwise_convolution_2d.kernel_height,
+            node->params.depthwise_convolution_2d.kernel_width,
+            node->params.depthwise_convolution_2d.subsampling_height,
+            node->params.depthwise_convolution_2d.subsampling_width,
+            node->params.depthwise_convolution_2d.dilation_height,
+            node->params.depthwise_convolution_2d.dilation_width,
+            node->params.depthwise_convolution_2d.input_channels /* groups */,
+            1 /* group_input_channels */,
+            node->params.depthwise_convolution_2d.depth_multiplier /* group_output_channels */,
+            node->params.depthwise_convolution_2d.input_channels /* input_channel_stride */,
+            node->params.depthwise_convolution_2d.input_channels * node->params.depthwise_convolution_2d.depth_multiplier /* output_channel_stride */,
+            values[node->inputs[1]].data,
+            values[node->inputs[2]].data,
+            node->activation.output_min,
+            node->activation.output_max,
+            node->flags | XNN_FLAG_DEPTHWISE_CONVOLUTION,
+            &runtime->opdata[i].operator_object);
+        }
         if (status != xnn_status_success) {
           goto error;
         }
         runtime->opdata[i].batch_size = values[node->inputs[0]].shape.dim[0];
         runtime->opdata[i].input_height = values[node->inputs[0]].shape.dim[1];
         runtime->opdata[i].input_width = values[node->inputs[0]].shape.dim[2];
+
         runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_divide:
+        status = xnn_create_divide_nd_f32(
+          node->activation.output_min,
+          node->activation.output_max,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].shape1.num_dims = values[node->inputs[0]].shape.num_dims;
+        runtime->opdata[i].shape2.num_dims = values[node->inputs[1]].shape.num_dims;
+        memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
+        memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].inputs[1] = node->inputs[1];
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_fully_connected:
@@ -307,11 +446,68 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       }
+      case xnn_node_type_floor:
+        status = xnn_create_floor_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_global_average_pooling_2d:
+        if (values[node->inputs[0]].layout == xnn_layout_type_nchw) {
+          status = xnn_create_global_average_pooling_ncw_f32(
+            values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+            node->activation.output_min,
+            node->activation.output_max,
+            node->flags,
+            &runtime->opdata[i].operator_object);
+        } else {
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->outputs[0]].layout == xnn_layout_type_nhwc);
+          status = xnn_create_global_average_pooling_nwc_f32(
+            values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+            values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+            values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+            node->activation.output_min,
+            node->activation.output_max,
+            node->flags,
+            &runtime->opdata[i].operator_object);
+        }
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = values[node->inputs[0]].shape.dim[0];
+        runtime->opdata[i].input_width = values[node->inputs[0]].shape.dim[1] * values[node->inputs[0]].shape.dim[2];
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
       case xnn_node_type_hardswish:
         status = xnn_create_hardswish_nc_f32(
           values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
           values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
           values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_leaky_relu:
+        status = xnn_create_leaky_relu_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->params.leaky_relu.negative_slope,
           node->flags,
           &runtime->opdata[i].operator_object);
         if (status != xnn_status_success) {
@@ -349,10 +545,8 @@ enum xnn_status xnn_create_runtime_v2(
         runtime->opdata[i].inputs[0] = node->inputs[0];
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
-      case xnn_node_type_multiply2:
-        status = xnn_create_multiply_nd_f32(
-          node->activation.output_min,
-          node->activation.output_max,
+      case xnn_node_type_maximum2:
+        status = xnn_create_maximum_nd_f32(
           node->flags,
           &runtime->opdata[i].operator_object);
         if (status != xnn_status_success) {
@@ -364,6 +558,70 @@ enum xnn_status xnn_create_runtime_v2(
         memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
         runtime->opdata[i].inputs[0] = node->inputs[0];
         runtime->opdata[i].inputs[1] = node->inputs[1];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_minimum2:
+        status = xnn_create_minimum_nd_f32(
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].shape1.num_dims = values[node->inputs[0]].shape.num_dims;
+        runtime->opdata[i].shape2.num_dims = values[node->inputs[1]].shape.num_dims;
+        memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
+        memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].inputs[1] = node->inputs[1];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_multiply2:
+        status = xnn_create_multiply_nd_f32(
+          node->activation.output_min,
+          node->activation.output_max,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].shape1.num_dims = values[node->inputs[0]].shape.num_dims;
+        runtime->opdata[i].shape2.num_dims = values[node->inputs[1]].shape.num_dims;
+        if (values[node->outputs[0]].layout == xnn_layout_type_nchw) {
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nchw);
+          assert(values[node->inputs[1]].layout == xnn_layout_type_nchw);
+          runtime->opdata[i].shape1.dim[0] = values[node->inputs[0]].shape.dim[0];
+          runtime->opdata[i].shape1.dim[1] = values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1];
+          if (values[node->inputs[0]].shape.num_dims > 2) {
+            memcpy(&runtime->opdata[i].shape1.dim[2], &values[node->inputs[0]].shape.dim[1], (values[node->inputs[0]].shape.num_dims - 2) * sizeof(size_t));
+          }
+          runtime->opdata[i].shape2.dim[0] = values[node->inputs[1]].shape.dim[0];
+          runtime->opdata[i].shape2.dim[1] = values[node->inputs[1]].shape.dim[values[node->inputs[0]].shape.num_dims - 1];
+          if (values[node->inputs[0]].shape.num_dims > 2) {
+            memcpy(&runtime->opdata[i].shape2.dim[2], &values[node->inputs[1]].shape.dim[1], (values[node->inputs[1]].shape.num_dims - 2) * sizeof(size_t));
+          }
+        } else {
+          assert(values[node->outputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->inputs[0]].layout == xnn_layout_type_nhwc);
+          assert(values[node->inputs[1]].layout == xnn_layout_type_nhwc);
+          memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
+          memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        }
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].inputs[1] = node->inputs[1];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_negate:
+        status = xnn_create_negate_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_prelu:
@@ -407,6 +665,80 @@ enum xnn_status xnn_create_runtime_v2(
         }
         runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
         runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_static_reshape:
+        status = xnn_create_copy_nc_x32(
+          1 /* channels */,
+          1 /* input stride */,
+          1 /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_all_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_square:
+        status = xnn_create_square_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_square_root:
+        status = xnn_create_square_root_nc_f32(
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* channels */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* input stride */,
+          values[node->inputs[0]].shape.dim[values[node->inputs[0]].shape.num_dims - 1] /* output stride */,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].batch_size = product_non_channel_dims(&values[node->inputs[0]].shape);
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_squared_difference:
+        status = xnn_create_squared_difference_nd_f32(
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].shape1.num_dims = values[node->inputs[0]].shape.num_dims;
+        runtime->opdata[i].shape2.num_dims = values[node->inputs[1]].shape.num_dims;
+        memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
+        memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].inputs[1] = node->inputs[1];
+        runtime->opdata[i].outputs[0] = node->outputs[0];
+        break;
+      case xnn_node_type_subtract:
+        status = xnn_create_subtract_nd_f32(
+          node->activation.output_min,
+          node->activation.output_max,
+          node->flags,
+          &runtime->opdata[i].operator_object);
+        if (status != xnn_status_success) {
+          goto error;
+        }
+        runtime->opdata[i].shape1.num_dims = values[node->inputs[0]].shape.num_dims;
+        runtime->opdata[i].shape2.num_dims = values[node->inputs[1]].shape.num_dims;
+        memcpy(runtime->opdata[i].shape1.dim, values[node->inputs[0]].shape.dim, values[node->inputs[0]].shape.num_dims * sizeof(size_t));
+        memcpy(runtime->opdata[i].shape2.dim, values[node->inputs[1]].shape.dim, values[node->inputs[1]].shape.num_dims * sizeof(size_t));
+        runtime->opdata[i].inputs[0] = node->inputs[0];
+        runtime->opdata[i].inputs[1] = node->inputs[1];
         runtime->opdata[i].outputs[0] = node->outputs[0];
         break;
       case xnn_node_type_unpooling_2d:
@@ -533,6 +865,16 @@ enum xnn_status xnn_setup_runtime(
 
     enum xnn_status status = xnn_status_success;
     switch (opdata->operator_object->type) {
+      case xnn_operator_type_abs_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_abs_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_add_nd_f32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->inputs[1]].data != NULL);
@@ -574,6 +916,26 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
+      case xnn_operator_type_bankers_rounding_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_bankers_rounding_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_ceiling_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_ceiling_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_constant_pad_nd_x32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->outputs[0]].data != NULL);
@@ -587,6 +949,18 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
+      case xnn_operator_type_convolution_nchw_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_convolution2d_nchw_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          opdata->input_height,
+          opdata->input_width,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_convolution_nhwc_f32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->outputs[0]].data != NULL);
@@ -595,6 +969,16 @@ enum xnn_status xnn_setup_runtime(
           opdata->batch_size,
           opdata->input_height,
           opdata->input_width,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_copy_nc_x32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_copy_nc_x32(
+          opdata->operator_object,
+          opdata->batch_size,
           runtime->blobs[opdata->inputs[0]].data,
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
@@ -623,6 +1007,21 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
+      case xnn_operator_type_divide_nd_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->inputs[1]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_divide_nd_f32(
+          opdata->operator_object,
+          opdata->shape1.num_dims,
+          opdata->shape1.dim,
+          opdata->shape2.num_dims,
+          opdata->shape2.dim,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->inputs[1]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_fully_connected_nc_f32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->outputs[0]].data != NULL);
@@ -633,10 +1032,52 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
+      case xnn_operator_type_floor_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_floor_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_global_average_pooling_ncw_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_global_average_pooling_ncw_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          opdata->input_width,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_global_average_pooling_nwc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_global_average_pooling_nwc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          opdata->input_width,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_hardswish_nc_f32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->outputs[0]].data != NULL);
         status = xnn_setup_hardswish_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_leaky_relu_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_leaky_relu_nc_f32(
           opdata->operator_object,
           opdata->batch_size,
           runtime->blobs[opdata->inputs[0]].data,
@@ -655,6 +1096,36 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
+      case xnn_operator_type_maximum_nd_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->inputs[1]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_maximum_nd_f32(
+          opdata->operator_object,
+          opdata->shape1.num_dims,
+          opdata->shape1.dim,
+          opdata->shape2.num_dims,
+          opdata->shape2.dim,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->inputs[1]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_minimum_nd_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->inputs[1]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_minimum_nd_f32(
+          opdata->operator_object,
+          opdata->shape1.num_dims,
+          opdata->shape1.dim,
+          opdata->shape2.num_dims,
+          opdata->shape2.dim,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->inputs[1]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_multiply_nd_f32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->inputs[1]].data != NULL);
@@ -667,6 +1138,16 @@ enum xnn_status xnn_setup_runtime(
           opdata->shape2.dim,
           runtime->blobs[opdata->inputs[0]].data,
           runtime->blobs[opdata->inputs[1]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_negate_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_negate_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
@@ -700,6 +1181,56 @@ enum xnn_status xnn_setup_runtime(
           runtime->blobs[opdata->outputs[0]].data,
           runtime->threadpool);
         break;
+      case xnn_operator_type_square_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_square_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_square_root_nc_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_square_root_nc_f32(
+          opdata->operator_object,
+          opdata->batch_size,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_squared_difference_nd_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->inputs[1]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_squared_difference_nd_f32(
+          opdata->operator_object,
+          opdata->shape1.num_dims,
+          opdata->shape1.dim,
+          opdata->shape2.num_dims,
+          opdata->shape2.dim,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->inputs[1]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
+      case xnn_operator_type_subtract_nd_f32:
+        assert(runtime->blobs[opdata->inputs[0]].data != NULL);
+        assert(runtime->blobs[opdata->inputs[1]].data != NULL);
+        assert(runtime->blobs[opdata->outputs[0]].data != NULL);
+        status = xnn_setup_subtract_nd_f32(
+          opdata->operator_object,
+          opdata->shape1.num_dims,
+          opdata->shape1.dim,
+          opdata->shape2.num_dims,
+          opdata->shape2.dim,
+          runtime->blobs[opdata->inputs[0]].data,
+          runtime->blobs[opdata->inputs[1]].data,
+          runtime->blobs[opdata->outputs[0]].data,
+          runtime->threadpool);
+        break;
       case xnn_operator_type_unpooling_nhwc_x32:
         assert(runtime->blobs[opdata->inputs[0]].data != NULL);
         assert(runtime->blobs[opdata->inputs[1]].data != NULL);
@@ -715,7 +1246,8 @@ enum xnn_status xnn_setup_runtime(
           runtime->threadpool);
         break;
       default:
-        xnn_log_fatal("unexpected operator type %d in operator #%zu", opdata->operator_object->type, i);
+        xnn_log_fatal("unexpected operator type %s in operator #%zu",
+          xnn_operator_type_to_string(opdata->operator_object->type), i);
         XNN_UNREACHABLE;
     }
     if (status != xnn_status_success) {

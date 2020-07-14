@@ -24,6 +24,9 @@ void xnn_f16_vsqrdiff_ukernel__neonfp16arith_x8(
 {
   assert(n != 0);
   assert(n % sizeof(__fp16) == 0);
+  assert(a_ptr != NULL);
+  assert(b_ptr != NULL);
+  assert(y_ptr != NULL);
 
   const __fp16* a = (const __fp16*) a_ptr;
   const __fp16* b = (const __fp16*) b_ptr;
@@ -39,14 +42,6 @@ void xnn_f16_vsqrdiff_ukernel__neonfp16arith_x8(
     vy01234567 = vmulq_f16(vy01234567, vy01234567);
 
 
-    vst1q_f16(y, vy01234567); y += 8;
-  }
-  for (; n >= 8 * sizeof(__fp16); n -= 8 * sizeof(__fp16)) {
-    const float16x8_t va01234567 = vld1q_f16(a); a += 8;
-    const float16x8_t vb01234567 = vld1q_f16(b); b += 8;
-
-    float16x8_t vy01234567 = vsubq_f16(va01234567, vb01234567);
-    vy01234567 = vmulq_f16(vy01234567, vy01234567);
     vst1q_f16(y, vy01234567); y += 8;
   }
   if XNN_UNLIKELY(n != 0) {

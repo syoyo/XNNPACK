@@ -25,6 +25,9 @@ void xnn_f32_vmulc_minmax_ukernel__sse_x4(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
   const __m128 vy_min = _mm_load_ps(params->sse.min);
   const __m128 vy_max = _mm_load_ps(params->sse.max);
@@ -41,16 +44,6 @@ void xnn_f32_vmulc_minmax_ukernel__sse_x4(
 
     vy0123 = _mm_min_ps(vy0123, vy_max);
 
-    _mm_storeu_ps(y, vy0123);
-    y += 4;
-  }
-  for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
-    const __m128 va0123 = _mm_loadu_ps(a);
-    a += 4;
-
-    __m128 vy0123 = _mm_mul_ps(va0123, vb);
-    vy0123 = _mm_max_ps(vy0123, vy_min);
-    vy0123 = _mm_min_ps(vy0123, vy_max);
     _mm_storeu_ps(y, vy0123);
     y += 4;
   }

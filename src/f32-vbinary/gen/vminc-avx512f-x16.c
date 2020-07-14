@@ -25,6 +25,9 @@ void xnn_f32_vminc_ukernel__avx512f_x16(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
 
   const __m512 vb = _mm512_set1_ps(*b);
@@ -37,14 +40,6 @@ void xnn_f32_vminc_ukernel__avx512f_x16(
 
 
     _mm512_storeu_ps(y, vy0123456789ABCDEF);
-    y += 16;
-  }
-  for (; n >= 16 * sizeof(float); n -= 16 * sizeof(float)) {
-    const __m512 va = _mm512_loadu_ps(a);
-    a += 16;
-
-    __m512 vy = _mm512_min_ps(va, vb);
-    _mm512_storeu_ps(y, vy);
     y += 16;
   }
   if XNN_UNLIKELY(n != 0) {

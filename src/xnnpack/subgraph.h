@@ -28,6 +28,11 @@ enum xnn_value_type {
   xnn_value_type_dense_tensor = 1,
 };
 
+enum xnn_layout_type {
+  xnn_layout_type_nhwc = 0,
+  xnn_layout_type_nchw = 1,
+};
+
 /// Abstraction for a collections of elements produced and consumed by nodes.
 struct xnn_value {
   /// Unique ID for the value.
@@ -56,6 +61,8 @@ struct xnn_value {
   /// If multiple inputs in a Node refer to this Value as input, the Node is counted as consumer multiple times.
   /// If the Value is an external output, it counts as having an extra consumer.
   uint32_t num_consumers;
+  uint32_t num_nchw_compatible_consumers;
+  enum xnn_layout_type layout;
 };
 
 struct xnn_blob {
@@ -68,21 +75,36 @@ struct xnn_blob {
 
 enum xnn_node_type {
   xnn_node_type_invalid = 0,
+  xnn_node_type_abs,
   xnn_node_type_add2,
   xnn_node_type_argmax_pooling_2d,
   xnn_node_type_average_pooling_2d,
+  xnn_node_type_bankers_rounding,
+  xnn_node_type_ceiling,
   xnn_node_type_clamp,
   xnn_node_type_constant_pad,
   xnn_node_type_convolution_2d,
   xnn_node_type_deconvolution_2d,
   xnn_node_type_depthwise_convolution_2d,
+  xnn_node_type_divide,
   xnn_node_type_fully_connected,
+  xnn_node_type_floor,
+  xnn_node_type_global_average_pooling_2d,
   xnn_node_type_hardswish,
-  xnn_node_type_multiply2,
+  xnn_node_type_leaky_relu,
   xnn_node_type_max_pooling_2d,
+  xnn_node_type_maximum2,
+  xnn_node_type_minimum2,
+  xnn_node_type_multiply2,
+  xnn_node_type_negate,
   xnn_node_type_prelu,
   xnn_node_type_sigmoid,
   xnn_node_type_softmax,
+  xnn_node_type_static_reshape,
+  xnn_node_type_square,
+  xnn_node_type_square_root,
+  xnn_node_type_squared_difference,
+  xnn_node_type_subtract,
   xnn_node_type_unpooling_2d,
 };
 
@@ -150,10 +172,16 @@ struct xnn_node {
       uint32_t dilation_width;
     } pooling_2d;
     struct {
+      float negative_slope;
+    } leaky_relu;
+    struct {
       size_t pre_paddings[XNN_MAX_TENSOR_DIMS];
       size_t post_paddings[XNN_MAX_TENSOR_DIMS];
       uint32_t padding_value;
     } static_pad;
+    struct {
+      struct xnn_shape new_shape;
+    } static_reshape;
   } params;
   struct {
     float output_min;
@@ -166,6 +194,8 @@ struct xnn_node {
   uint32_t outputs[XNN_MAX_OUTPUTS];
   uint32_t num_outputs;
   uint32_t flags;
+  uint32_t layout_flags;
+  uint32_t cluster_leader;
 };
 
 struct xnn_operator_data {

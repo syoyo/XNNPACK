@@ -29,14 +29,23 @@ XNNPACK implements the following neural network operators:
 - Maximum (including broadcasting)
 - Minimum (including broadcasting)
 - Multiply (including broadcasting)
+- Squared Difference (including broadcasting)
 - Global Average Pooling
 - Channel Shuffle
 - Fully Connected
+- Abs (absolute value)
+- Bankers' Rounding (rounding to nearest, ties to even)
+- Ceiling (rounding to integer above)
 - Clamp (includes ReLU and ReLU6)
 - Copy
+- Floor (rounding to integer below)
 - HardSwish
+- Leaky ReLU
+- Negate
 - Sigmoid
 - Softmax
+- Square
+- Truncation (rounding to integer towards zero)
 - PReLU
 
 All operators in XNNPACK support NHWC layout, but additionally allow custom stride along the **C**hannel dimension. Thus, operators can consume a subset of channels in the input tensor, and produce a subset of channels in the output tensor, providing a zero-cost Channel Split and Channel Concatenation operations.
@@ -100,4 +109,4 @@ Benchmarked on May 22, 2020 with `end2end-bench --benchmark_min_time=5` on a Ras
 
 ## Acknowledgements
 
-XNNPACK is a based on [QNNPACK](https://github.com/pytorch/QNNPACK) library. Unlike QNNPACK, XNNPACK focuses entirely on floating-point operators, and its API is no longer compatible with QNNPACK.
+XNNPACK is a based on [QNNPACK](https://github.com/pytorch/QNNPACK) library. Over time its codebase diverged a lot, and XNNPACK API is no longer compatible with QNNPACK.

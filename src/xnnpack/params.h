@@ -55,8 +55,69 @@ union xnn_f32_minmax_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
+union xnn_f32_abs_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float nonsign_mask[4];
+  } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+#if XNN_ARCH_WASMSIMD
+  struct {
+    float nonsign_mask;
+  } wasmsimd;
+#endif  // XNN_ARCH_WASMSIMD
+};
+
+union xnn_f32_neg_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float sign_mask[4];
+  } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+#if XNN_ARCH_WASMSIMD
+  struct {
+    float sign_mask;
+  } wasmsimd;
+#endif  // XNN_ARCH_WASMSIMD
+};
+
+union xnn_f32_rnd_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float sign_mask[4];
+    XNN_ALIGN(16) float one[4];
+  } sse2;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
+union xnn_f32_lrelu_params {
+  struct {
+    float slope;
+  } scalar;
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    XNN_ALIGN(16) float slope[4];
+  } sse;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
+union xnn_f32_sqrt_params {
+  char _; // Dummy member variable to comply with the C standard
+#if XNN_ARCH_X86 || XNN_ARCH_X86_64
+  struct {
+    float half;
+  } fma;
+#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+};
+
 union xnn_f32_chw_params {
   struct {
+    XNN_ALIGN(16) int32_t mask_even[4]; // used by stride 2 kernels
+    XNN_ALIGN(16) int32_t mask_odd[4];  // used by stride 2 kernels
+    XNN_ALIGN(16) int32_t mask[4]; // used by stride 1 kernels
     float min;
     float max;
   } scalar;
@@ -116,6 +177,7 @@ union xnn_f32_scaleminmax_params {
 
 union xnn_f32_gavgpool_params {
   struct {
+    XNN_ALIGN(16) int32_t mask[4];
     float multiplier;
     float output_min;
     float output_max;
@@ -140,15 +202,15 @@ union xnn_f32_gavgpool_params {
 
 struct xnn_f16_hswish_params {
   uint16_t sixth;
-  uint16_t half;
-  uint16_t one;
+  uint16_t three;
+  uint16_t six;
 };
 
 union xnn_f32_hswish_params {
   struct {
     float sixth;
-    float half;
-    float one;
+    float three;
+    float six;
   } scalar;
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
@@ -1267,6 +1329,12 @@ typedef void (*xnn_q8_vadd_minmax_ukernel_function)(
     uint8_t* y,
     const union xnn_q8_add_params* params);
 
+typedef void (*xnn_f32_vsqrt_ukernel_function)(
+    size_t n,
+    const float* x,
+    float* y,
+    const union xnn_f32_sqrt_params* params);
+
 typedef void (*xnn_vbinary_ukernel_function)(
     size_t n,
     const void* a,
@@ -1479,10 +1547,15 @@ struct gemm_parameters {
   uint8_t log2_sr;
 };
 
-struct vbinary_parameters {
+struct vbinary_fused_ukernels {
   xnn_vbinary_ukernel_function op_ukernel;
   xnn_vbinary_ukernel_function opc_ukernel;
   xnn_vbinary_ukernel_function ropc_ukernel;
+};
+
+struct vbinary_parameters {
+  struct vbinary_fused_ukernels minmax;
+  struct vbinary_fused_ukernels linear;
   // Number of elements in a tile.
   // For best efficiency, micro-kernel must process a multiple of this number of elements in each call.
   uint8_t element_tile;
@@ -1620,11 +1693,31 @@ struct vmulcaddc_parameters {
 };
 
 #define XNN_MAX_Q8_DWCONV_UKERNELS 1
+#define XNN_MAX_F16_DWCONV_UKERNELS 3
 #define XNN_MAX_F32_DWCONV_UKERNELS 3
 #define XNN_MAX_F32_ARGMAXPOOL_UKERNELS 3
 
+// Indicates that XNNPACK as a whole has initialized.
+// This does not guarantee that any particular microkernels are available.
+#define XNN_INIT_FLAG_XNNPACK 0x00000001
+// Indicates that F32 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_F32     0x00000002
+// Indicates that X32 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_X32     0x00000004
+// Indicates that F16 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_F16     0x00000008
+// Indicates that X16 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_X16     0x00000010
+// Indicates that Q8 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_Q8      0x00000020
+// Indicates that U8 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_U8      0x00000040
+// Indicates that X8 XNNPACK microkernels are available for use.
+#define XNN_INIT_FLAG_X8      0x00000080
+
 struct xnn_parameters {
-  bool initialized;
+  // Bitwise combination of XNN_INIT_FLAG_* flags
+  uint32_t init_flags;
   struct xnn_allocator allocator;
   struct {
     struct gemm_parameters gemm;
@@ -1644,6 +1737,14 @@ struct xnn_parameters {
     struct zip_parameters zip;
   } x8;
   struct {
+    struct gavgpool_parameters gavgpool;
+    struct gemm_parameters gemm;
+    struct gemm_parameters gemm2;
+    struct dwconv_parameters dwconv[XNN_MAX_F16_DWCONV_UKERNELS];
+    struct vbinary_parameters vadd;
+    struct vmulcaddc_parameters vmulcaddc;
+  } f16;
+  struct {
     struct gemm_parameters gemm;
     struct gemm_parameters gemm2;
     struct dwconv_parameters dwconv[XNN_MAX_F32_DWCONV_UKERNELS];
@@ -1654,9 +1755,18 @@ struct xnn_parameters {
     struct argmaxpool_parameters argmaxpool[XNN_MAX_F32_ARGMAXPOOL_UKERNELS];
     // Bilinear interpolation (2D).
     struct ibilinear_parameters ibilinear;
+    xnn_univector_ukernel_function abs;
     xnn_univector_ukernel_function clamp;
     xnn_univector_ukernel_function hswish;
+    xnn_univector_ukernel_function lrelu;
+    xnn_univector_ukernel_function neg;
+    xnn_univector_ukernel_function rndne;
+    xnn_univector_ukernel_function rndz;
+    xnn_univector_ukernel_function rndu;
+    xnn_univector_ukernel_function rndd;
     xnn_univector_ukernel_function sigmoid;
+    xnn_univector_ukernel_function sqr;
+    xnn_univector_ukernel_function sqrt;
     struct prelu_parameters prelu;
     struct vbinary_parameters vadd;
     struct vbinary_parameters vdiv;
@@ -1664,6 +1774,7 @@ struct xnn_parameters {
     struct vbinary_parameters vmin;
     struct vbinary_parameters vmul;
     struct vbinary_parameters vsub;
+    struct vbinary_parameters vsqrdiff;
     struct vmulcaddc_parameters vmulcaddc;
     xnn_f32_raddstoreexpminusmax_ukernel_function raddstoreexpminusmax;
     xnn_f32_rmax_ukernel_function rmax;

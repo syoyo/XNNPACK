@@ -37,6 +37,9 @@ void xnn_f32_v${OP.lower()}${SUFFIX}_ukernel__sse_x${BATCH_TILE}(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
   $if ACTIVATION == "MINMAX":
     const __m128 vy_min = _mm_load_ps(params->sse.min);
@@ -72,7 +75,7 @@ void xnn_f32_v${OP.lower()}${SUFFIX}_ukernel__sse_x${BATCH_TILE}(
       _mm_storeu_ps(y + ${N}, vy${ABC[N:N+4]});
     y += ${BATCH_TILE};
   }
-  $if BATCH_TILE >= 4:
+  $if BATCH_TILE > 4:
     for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
       const __m128 va0123 = _mm_loadu_ps(a);
       a += 4;

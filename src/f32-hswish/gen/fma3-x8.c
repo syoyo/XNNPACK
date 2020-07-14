@@ -12,7 +12,7 @@
 #include <immintrin.h>
 
 #include <xnnpack/common.h>
-#include <xnnpack/vbinary.h>
+#include <xnnpack/hswish.h>
 
 
 static const int32_t mask_table[14] = {-1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0};
@@ -44,16 +44,6 @@ void xnn_f32_hswish_ukernel__fma3_x8(
     vacc01234567 = _mm256_mul_ps(vacc01234567, vx01234567);
 
     _mm256_storeu_ps(y, vacc01234567);
-    y += 8;
-  }
-  for (; n >= 8 * sizeof(float); n -= 8 * sizeof(float)) {
-    const __m256 vx = _mm256_loadu_ps(x);
-    x += 8;
-    __m256 vacc = _mm256_fmadd_ps(vx, vsixth, vhalf);
-    vacc = _mm256_max_ps(vacc, vzero);
-    vacc = _mm256_min_ps(vacc, vone);
-    vacc = _mm256_mul_ps(vacc, vx);
-    _mm256_storeu_ps(y, vacc);
     y += 8;
   }
   if XNN_UNLIKELY(n != 0) {

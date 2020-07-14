@@ -13,7 +13,7 @@
 
 #include <xnnpack/common.h>
 #include <xnnpack/intrinsics-polyfill.h>
-#include <xnnpack/vbinary.h>
+#include <xnnpack/hswish.h>
 
 
 void xnn_f32_hswish_ukernel__avx512f_x16(
@@ -43,16 +43,6 @@ void xnn_f32_hswish_ukernel__avx512f_x16(
     vacc0123456789ABCDEF = _mm512_mul_ps(vacc0123456789ABCDEF, vx0123456789ABCDEF);
 
     _mm512_storeu_ps(y, vacc0123456789ABCDEF);
-    y += 16;
-  }
-  for (; n >= 16 * sizeof(float); n -= 16 * sizeof(float)) {
-    const __m512 vx = _mm512_loadu_ps(x);
-    x += 16;
-    __m512 vacc = _mm512_fmadd_ps(vx, vsixth, vhalf);
-    vacc = _mm512_max_ps(vacc, vzero);
-    vacc = _mm512_min_ps(vacc, vone);
-    vacc = _mm512_mul_ps(vacc, vx);
-    _mm512_storeu_ps(y, vacc);
     y += 16;
   }
   if XNN_UNLIKELY(n != 0) {

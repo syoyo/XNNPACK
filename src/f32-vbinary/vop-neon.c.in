@@ -36,6 +36,9 @@ void xnn_f32_v${OP.lower()}${SUFFIX}_ukernel__neon_x${BATCH_TILE}(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
   $if ACTIVATION == "MINMAX":
     const float32x4_t vy_min = vld1q_dup_f32(&params->scalar.min);
@@ -63,7 +66,7 @@ void xnn_f32_v${OP.lower()}${SUFFIX}_ukernel__neon_x${BATCH_TILE}(
     $for N in range(0, BATCH_TILE, 4):
       vst1q_f32(y, vy${ABC[N:N+4]}); y += 4;
   }
-  $if BATCH_TILE >= 4:
+  $if BATCH_TILE > 4:
     for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
       const float32x4_t va0123 = vld1q_f32(a); a += 4;
       const float32x4_t vb0123 = vld1q_f32(b); b += 4;

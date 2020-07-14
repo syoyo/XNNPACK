@@ -16,6 +16,7 @@ OPERATOR_BENCHMARK_DEPS = [
     ":XNNPACK",
     ":bench_utils",
     "@cpuinfo",
+    "@FP16",
     "@pthreadpool",
 ]
 
@@ -53,7 +54,6 @@ OPERATOR_SRCS = [
     "src/operators/argmax-pooling-nhwc.c",
     "src/operators/average-pooling-nhwc.c",
     "src/operators/binary-elementwise-nd.c",
-    "src/operators/channel-pad-nc.c",
     "src/operators/channel-shuffle-nc.c",
     "src/operators/constant-pad-nd.c",
     "src/operators/convolution-nchw.c",
@@ -73,21 +73,36 @@ OPERATOR_SRCS = [
 ]
 
 SUBGRAPH_SRCS = [
+    "src/subgraph/abs.c",
     "src/subgraph/add2.c",
     "src/subgraph/argmax-pooling-2d.c",
     "src/subgraph/average-pooling-2d.c",
+    "src/subgraph/bankers-rounding.c",
+    "src/subgraph/ceiling.c",
     "src/subgraph/clamp.c",
     "src/subgraph/convolution-2d.c",
     "src/subgraph/deconvolution-2d.c",
     "src/subgraph/depthwise-convolution-2d.c",
+    "src/subgraph/divide.c",
     "src/subgraph/fully-connected.c",
+    "src/subgraph/floor.c",
+    "src/subgraph/global-average-pooling-2d.c",
     "src/subgraph/hardswish.c",
+    "src/subgraph/leaky-relu.c",
     "src/subgraph/max-pooling-2d.c",
+    "src/subgraph/maximum2.c",
+    "src/subgraph/minimum2.c",
     "src/subgraph/multiply2.c",
+    "src/subgraph/negate.c",
     "src/subgraph/prelu.c",
     "src/subgraph/sigmoid.c",
     "src/subgraph/softmax.c",
     "src/subgraph/static-constant-pad.c",
+    "src/subgraph/static-reshape.c",
+    "src/subgraph/square.c",
+    "src/subgraph/square-root.c",
+    "src/subgraph/squared-difference.c",
+    "src/subgraph/subtract.c",
     "src/subgraph/unpooling-2d.c",
 ]
 
@@ -216,15 +231,27 @@ SCALAR_UKERNELS = [
     "src/f32-vbinary/gen/vadd-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vadd-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vadd-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vadd-scalar-x1.c",
+    "src/f32-vbinary/gen/vadd-scalar-x2.c",
+    "src/f32-vbinary/gen/vadd-scalar-x4.c",
     "src/f32-vbinary/gen/vaddc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vaddc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vaddc-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vaddc-scalar-x1.c",
+    "src/f32-vbinary/gen/vaddc-scalar-x2.c",
+    "src/f32-vbinary/gen/vaddc-scalar-x4.c",
     "src/f32-vbinary/gen/vdiv-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vdiv-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vdiv-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vdiv-scalar-x1.c",
+    "src/f32-vbinary/gen/vdiv-scalar-x2.c",
+    "src/f32-vbinary/gen/vdiv-scalar-x4.c",
     "src/f32-vbinary/gen/vdivc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vdivc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vdivc-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vdivc-scalar-x1.c",
+    "src/f32-vbinary/gen/vdivc-scalar-x2.c",
+    "src/f32-vbinary/gen/vdivc-scalar-x4.c",
     "src/f32-vbinary/gen/vmax-scalar-x1.c",
     "src/f32-vbinary/gen/vmax-scalar-x2.c",
     "src/f32-vbinary/gen/vmax-scalar-x4.c",
@@ -240,18 +267,27 @@ SCALAR_UKERNELS = [
     "src/f32-vbinary/gen/vmul-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vmul-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vmul-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vmul-scalar-x1.c",
+    "src/f32-vbinary/gen/vmul-scalar-x2.c",
+    "src/f32-vbinary/gen/vmul-scalar-x4.c",
     "src/f32-vbinary/gen/vmulc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vmulc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vmulc-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vmulc-scalar-x1.c",
+    "src/f32-vbinary/gen/vmulc-scalar-x2.c",
+    "src/f32-vbinary/gen/vmulc-scalar-x4.c",
     "src/f32-vbinary/gen/vrdivc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vrdivc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vrdivc-minmax-scalar-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-scalar-x1.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-scalar-x2.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-scalar-x4.c",
+    "src/f32-vbinary/gen/vrdivc-scalar-x1.c",
+    "src/f32-vbinary/gen/vrdivc-scalar-x2.c",
+    "src/f32-vbinary/gen/vrdivc-scalar-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vrsubc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vrsubc-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vrsubc-scalar-x1.c",
+    "src/f32-vbinary/gen/vrsubc-scalar-x2.c",
+    "src/f32-vbinary/gen/vrsubc-scalar-x4.c",
     "src/f32-vbinary/gen/vsqrdiff-scalar-x1.c",
     "src/f32-vbinary/gen/vsqrdiff-scalar-x2.c",
     "src/f32-vbinary/gen/vsqrdiff-scalar-x4.c",
@@ -261,12 +297,45 @@ SCALAR_UKERNELS = [
     "src/f32-vbinary/gen/vsub-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vsub-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vsub-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vsub-scalar-x1.c",
+    "src/f32-vbinary/gen/vsub-scalar-x2.c",
+    "src/f32-vbinary/gen/vsub-scalar-x4.c",
     "src/f32-vbinary/gen/vsubc-minmax-scalar-x1.c",
     "src/f32-vbinary/gen/vsubc-minmax-scalar-x2.c",
     "src/f32-vbinary/gen/vsubc-minmax-scalar-x4.c",
+    "src/f32-vbinary/gen/vsubc-scalar-x1.c",
+    "src/f32-vbinary/gen/vsubc-scalar-x2.c",
+    "src/f32-vbinary/gen/vsubc-scalar-x4.c",
+    "src/f32-vlrelu/gen/scalar-x1.c",
+    "src/f32-vlrelu/gen/scalar-x2.c",
+    "src/f32-vlrelu/gen/scalar-x4.c",
     "src/f32-vmulcaddc/gen/c1-minmax-scalar-2x.c",
     "src/f32-vmulcaddc/gen/c2-minmax-scalar-2x.c",
     "src/f32-vmulcaddc/gen/c4-minmax-scalar-2x.c",
+    "src/f32-vrnd/gen/vrndne-scalar-libm-x1.c",
+    "src/f32-vrnd/gen/vrndne-scalar-libm-x2.c",
+    "src/f32-vrnd/gen/vrndne-scalar-libm-x4.c",
+    "src/f32-vrnd/gen/vrndz-scalar-libm-x1.c",
+    "src/f32-vrnd/gen/vrndz-scalar-libm-x2.c",
+    "src/f32-vrnd/gen/vrndz-scalar-libm-x4.c",
+    "src/f32-vrnd/gen/vrndu-scalar-libm-x1.c",
+    "src/f32-vrnd/gen/vrndu-scalar-libm-x2.c",
+    "src/f32-vrnd/gen/vrndu-scalar-libm-x4.c",
+    "src/f32-vrnd/gen/vrndd-scalar-libm-x1.c",
+    "src/f32-vrnd/gen/vrndd-scalar-libm-x2.c",
+    "src/f32-vrnd/gen/vrndd-scalar-libm-x4.c",
+    "src/f32-vsqrt/gen/scalar-sqrt-x1.c",
+    "src/f32-vsqrt/gen/scalar-sqrt-x2.c",
+    "src/f32-vsqrt/gen/scalar-sqrt-x4.c",
+    "src/f32-vunary/gen/vabs-scalar-x1.c",
+    "src/f32-vunary/gen/vabs-scalar-x2.c",
+    "src/f32-vunary/gen/vabs-scalar-x4.c",
+    "src/f32-vunary/gen/vneg-scalar-x1.c",
+    "src/f32-vunary/gen/vneg-scalar-x2.c",
+    "src/f32-vunary/gen/vneg-scalar-x4.c",
+    "src/f32-vunary/gen/vsqr-scalar-x1.c",
+    "src/f32-vunary/gen/vsqr-scalar-x2.c",
+    "src/f32-vunary/gen/vsqr-scalar-x4.c",
     "src/math/expminus-scalar-lut2048-p1.c",
     "src/math/expminus-scalar-lut64-p2.c",
     "src/math/expminus-scalar-p5.c",
@@ -385,6 +454,8 @@ WASM_UKERNELS = [
     "src/f32-maxpool/9p8x-minmax-wasm-c1.c",
     "src/f32-pavgpool/9p8x-minmax-wasm-c1.c",
     "src/f32-pavgpool/9x-minmax-wasm-c1.c",
+    "src/f32-prelu/gen/wasm-2x1.c",
+    "src/f32-prelu/gen/wasm-2x4.c",
     "src/f32-vbinary/gen/vadd-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vadd-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vadd-minmax-wasm-x4.c",
@@ -418,27 +489,286 @@ WASM_UKERNELS = [
     "src/f32-vbinary/gen/vrdivc-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vrdivc-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vrdivc-minmax-wasm-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-wasm-x1.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-wasm-x2.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-wasm-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vrsubc-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vrsubc-minmax-wasm-x4.c",
-    "src/f32-vbinary/gen/vsqrdiff-wasm-x1.c",
-    "src/f32-vbinary/gen/vsqrdiff-wasm-x2.c",
-    "src/f32-vbinary/gen/vsqrdiff-wasm-x4.c",
-    "src/f32-vbinary/gen/vsqrdiffc-wasm-x1.c",
-    "src/f32-vbinary/gen/vsqrdiffc-wasm-x2.c",
-    "src/f32-vbinary/gen/vsqrdiffc-wasm-x4.c",
     "src/f32-vbinary/gen/vsub-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vsub-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vsub-minmax-wasm-x4.c",
     "src/f32-vbinary/gen/vsubc-minmax-wasm-x1.c",
     "src/f32-vbinary/gen/vsubc-minmax-wasm-x2.c",
     "src/f32-vbinary/gen/vsubc-minmax-wasm-x4.c",
+    "src/f32-vlrelu/gen/wasm-x1.c",
+    "src/f32-vlrelu/gen/wasm-x2.c",
+    "src/f32-vlrelu/gen/wasm-x4.c",
     "src/f32-vmulcaddc/gen/c1-minmax-wasm-2x.c",
     "src/f32-vmulcaddc/gen/c2-minmax-wasm-2x.c",
     "src/f32-vmulcaddc/gen/c4-minmax-wasm-2x.c",
+]
+
+WASMSIMD_UKERNELS = [
+    "src/f32-clamp/gen/wasmsimd-arm-x4.c",
+    "src/f32-clamp/gen/wasmsimd-arm-x8.c",
+    "src/f32-clamp/gen/wasmsimd-x86-x4.c",
+    "src/f32-clamp/gen/wasmsimd-x86-x8.c",
+    "src/f32-dwconv/gen/up4x25-wasmsimd.c",
+    "src/f32-dwconv/gen/up4x4-wasmsimd.c",
+    "src/f32-dwconv/gen/up4x9-wasmsimd.c",
+    "src/f32-dwconv/gen/up8x25-wasmsimd.c",
+    "src/f32-dwconv/gen/up8x4-wasmsimd.c",
+    "src/f32-dwconv/gen/up8x9-wasmsimd.c",
+    "src/f32-dwconv/gen/up4x25-minmax-wasmsimd-acc2-arm.c",
+    "src/f32-dwconv/gen/up4x25-minmax-wasmsimd-arm.c",
+    "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-acc2-arm.c",
+    "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-arm.c",
+    "src/f32-dwconv/gen/up4x9-minmax-wasmsimd-acc2-arm.c",
+    "src/f32-dwconv/gen/up4x9-minmax-wasmsimd-arm.c",
+    "src/f32-dwconv/gen/up8x25-minmax-wasmsimd-acc2-arm.c",
+    "src/f32-dwconv/gen/up8x25-minmax-wasmsimd-arm.c",
+    "src/f32-dwconv/gen/up8x4-minmax-wasmsimd-acc2-arm.c",
+    "src/f32-dwconv/gen/up8x4-minmax-wasmsimd-arm.c",
+    "src/f32-dwconv/gen/up8x9-minmax-wasmsimd-acc2-arm.c",
+    "src/f32-dwconv/gen/up8x9-minmax-wasmsimd-arm.c",
+    "src/f32-dwconv/gen/up4x25-minmax-wasmsimd-acc2-x86.c",
+    "src/f32-dwconv/gen/up4x25-minmax-wasmsimd-x86.c",
+    "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-acc2-x86.c",
+    "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-x86.c",
+    "src/f32-dwconv/gen/up4x9-minmax-wasmsimd-acc2-x86.c",
+    "src/f32-dwconv/gen/up4x9-minmax-wasmsimd-x86.c",
+    "src/f32-dwconv/gen/up8x25-minmax-wasmsimd-acc2-x86.c",
+    "src/f32-dwconv/gen/up8x25-minmax-wasmsimd-x86.c",
+    "src/f32-dwconv/gen/up8x4-minmax-wasmsimd-acc2-x86.c",
+    "src/f32-dwconv/gen/up8x4-minmax-wasmsimd-x86.c",
+    "src/f32-dwconv/gen/up8x9-minmax-wasmsimd-acc2-x86.c",
+    "src/f32-dwconv/gen/up8x9-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen/1x8-wasmsimd-splat.c",
+    "src/f32-gemm/gen/4x8-wasmsimd-splat.c",
+    "src/f32-gemm/gen/5x8-wasmsimd-splat.c",
+    "src/f32-gemm/gen/4x2c4-wasmsimd.c",
+    "src/f32-gemm/gen/1x8-relu-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/5x8-relu-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/1x8-relu-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/4x8-relu-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/4x2c4-relu-wasmsimd-arm.c",
+    "src/f32-gemm/gen/4x2c4-relu-wasmsimd-x86.c",
+    "src/f32-gemm/gen/1x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen/1x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/1x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen/3x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen/3x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/3x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen/4x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen/4x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/4x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen/5x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen/5x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/5x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen/6x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen/6x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen/6x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen/1x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen/1x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/1x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen/3x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen/3x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/3x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen/4x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen/4x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/4x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen/5x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen/5x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/5x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen/6x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen/6x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen/6x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen/4x2c4-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen/4x2c4-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen-inc/1x8s4inc-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen-inc/3x8s4inc-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen-inc/4x8s4inc-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen-inc/5x8s4inc-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-splat-arm.c",
+    "src/f32-gemm/gen-inc/6x8s4inc-minmax-wasmsimd-arm.c",
+    "src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen-inc/1x8inc-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen-inc/1x8s4inc-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen-inc/3x8inc-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen-inc/3x8s4inc-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen-inc/4x8inc-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen-inc/4x8s4inc-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen-inc/5x8inc-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen-inc/5x8s4inc-minmax-wasmsimd-x86.c",
+    "src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-gemm/gen-inc/6x8inc-minmax-wasmsimd-splat-x86.c",
+    "src/f32-gemm/gen-inc/6x8s4inc-minmax-wasmsimd-x86.c",
+    "src/f32-ibilinear/gen/wasmsimd-c4.c",
+    "src/f32-ibilinear/gen/wasmsimd-c8.c",
+    "src/f32-igemm/gen/1x8-wasmsimd-splat.c",
+    "src/f32-igemm/gen/4x8-wasmsimd-splat.c",
+    "src/f32-igemm/gen/5x8-wasmsimd-splat.c",
+    "src/f32-igemm/gen/4x2c4-wasmsimd.c",
+    "src/f32-igemm/gen/1x8-relu-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/5x8-relu-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/1x8-relu-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/4x8-relu-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/4x2c4-relu-wasmsimd-arm.c",
+    "src/f32-igemm/gen/4x2c4-relu-wasmsimd-x86.c",
+    "src/f32-igemm/gen/1x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-igemm/gen/1x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/1x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-igemm/gen/3x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-igemm/gen/3x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/3x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-igemm/gen/4x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-igemm/gen/4x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/4x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-igemm/gen/5x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-igemm/gen/5x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/5x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-igemm/gen/6x8-minmax-wasmsimd-loadsplat-arm.c",
+    "src/f32-igemm/gen/6x8-minmax-wasmsimd-splat-arm.c",
+    "src/f32-igemm/gen/6x8s4-minmax-wasmsimd-arm.c",
+    "src/f32-igemm/gen/1x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-igemm/gen/1x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/1x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-igemm/gen/3x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-igemm/gen/3x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/3x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-igemm/gen/4x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-igemm/gen/4x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/4x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-igemm/gen/5x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-igemm/gen/5x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/5x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-igemm/gen/6x8-minmax-wasmsimd-loadsplat-x86.c",
+    "src/f32-igemm/gen/6x8-minmax-wasmsimd-splat-x86.c",
+    "src/f32-igemm/gen/6x8s4-minmax-wasmsimd-x86.c",
+    "src/f32-igemm/gen/4x2c4-minmax-wasmsimd-arm.c",
+    "src/f32-igemm/gen/4x2c4-minmax-wasmsimd-x86.c",
+    "src/f32-hswish/gen/wasmsimd-x4.c",
+    "src/f32-hswish/gen/wasmsimd-x8.c",
+    "src/f32-hswish/gen/wasmsimd-x16.c",
+    "src/f32-maxpool/9p8x-minmax-wasmsimd-arm-c4.c",
+    "src/f32-maxpool/9p8x-minmax-wasmsimd-x86-c4.c",
+    "src/f32-prelu/gen/wasmsimd-bitselect-2x4.c",
+    "src/f32-prelu/gen/wasmsimd-bitselect-2x8.c",
+    "src/f32-prelu/gen/wasmsimd-minmax-2x4.c",
+    "src/f32-prelu/gen/wasmsimd-minmax-2x8.c",
+    "src/f32-rmax/wasmsimd-arm.c",
+    "src/f32-rmax/wasmsimd-x86.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vadd-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vadd-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vadd-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vaddc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vaddc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vaddc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vdiv-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vdiv-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vdiv-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vdivc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vdivc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vdivc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmaxc-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmin-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vminc-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmul-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmul-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vmul-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vmulc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vmulc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vmulc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vrdivc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vrdivc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vrdivc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vrsubc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vrsubc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vrsubc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vsqrdiff-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vsqrdiff-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vsqrdiffc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vsqrdiffc-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vsub-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vsub-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vsub-wasmsimd-x8.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-arm-x4.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-arm-x8.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-x86-x4.c",
+    "src/f32-vbinary/gen/vsubc-minmax-wasmsimd-x86-x8.c",
+    "src/f32-vbinary/gen/vsubc-wasmsimd-x4.c",
+    "src/f32-vbinary/gen/vsubc-wasmsimd-x8.c",
+    "src/f32-vrnd/gen/vrndne-wasmsimd-x4.c",
+    "src/f32-vrnd/gen/vrndne-wasmsimd-x8.c",
+    "src/f32-vrnd/gen/vrndz-wasmsimd-x4.c",
+    "src/f32-vrnd/gen/vrndz-wasmsimd-x8.c",
+    "src/f32-vrnd/gen/vrndu-wasmsimd-x4.c",
+    "src/f32-vrnd/gen/vrndu-wasmsimd-x8.c",
+    "src/f32-vrnd/gen/vrndd-wasmsimd-x4.c",
+    "src/f32-vrnd/gen/vrndd-wasmsimd-x8.c",
+    "src/f32-vsqrt/gen/wasmsimd-sqrt-x4.c",
+    "src/f32-vsqrt/gen/wasmsimd-sqrt-x8.c",
+    "src/f32-vunary/gen/vabs-wasmsimd-x4.c",
+    "src/f32-vunary/gen/vabs-wasmsimd-x8.c",
+    "src/f32-vunary/gen/vneg-wasmsimd-x4.c",
+    "src/f32-vunary/gen/vneg-wasmsimd-x8.c",
+    "src/f32-vunary/gen/vsqr-wasmsimd-x4.c",
+    "src/f32-vunary/gen/vsqr-wasmsimd-x8.c",
+    "src/math/roundne-wasmsimd-addsub.c",
+    "src/math/roundd-wasmsimd-addsub.c",
+    "src/math/roundu-wasmsimd-addsub.c",
+    "src/math/roundz-wasmsimd-addsub.c",
+    "src/requantization/fp32-wasmsimd.c",
 ]
 
 PSIMD_FASTMATH_UKERNELS = [
@@ -449,6 +779,11 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-avgpool/9x-minmax-psimd-c4.c",
     "src/f32-clamp/gen/psimd-x4.c",
     "src/f32-clamp/gen/psimd-x8.c",
+    "src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c",
+    "src/f32-dwconv-chw/3x3p1-psimd.c",
+    "src/f32-dwconv-chw/3x3s2p1-psimd.c",
+    "src/f32-dwconv-chw/5x5p2-psimd.c",
+    "src/f32-dwconv-chw/5x5s2p2-psimd.c",
     "src/f32-dwconv/gen/up4x25-minmax-psimd-acc2.c",
     "src/f32-dwconv/gen/up4x25-minmax-psimd.c",
     "src/f32-dwconv/gen/up4x4-minmax-psimd-acc2.c",
@@ -461,6 +796,7 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-dwconv/gen/up8x4-minmax-psimd.c",
     "src/f32-dwconv/gen/up8x9-minmax-psimd-acc2.c",
     "src/f32-dwconv/gen/up8x9-minmax-psimd.c",
+    "src/f32-gavgpool-cw/psimd-x4.c",
     "src/f32-gavgpool/7p7x-minmax-psimd-c4.c",
     "src/f32-gavgpool/7x-minmax-psimd-c4.c",
     "src/f32-gemm/gen/1x8-minmax-psimd-loadsplat.c",
@@ -482,8 +818,6 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-gemm/gen-inc/6x8inc-minmax-psimd-loadsplat.c",
     "src/f32-gemm/gen-inc/6x8inc-minmax-psimd-splat.c",
     "src/f32-gemm/gen-inc/6x8s4inc-minmax-psimd.c",
-    "src/f32-hswish/gen/psimd-x4.c",
-    "src/f32-hswish/gen/psimd-x8.c",
     "src/f32-ibilinear/gen/psimd-c4.c",
     "src/f32-ibilinear/gen/psimd-c8.c",
     "src/f32-igemm/gen/1x8-minmax-psimd-loadsplat.c",
@@ -497,6 +831,9 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-igemm/gen/6x8-minmax-psimd-splat.c",
     "src/f32-igemm/gen/6x8s4-minmax-psimd.c",
     "src/f32-maxpool/9p8x-minmax-psimd-c4.c",
+    "src/f32-spmm/gen/4x1-minmax-psimd.c",
+    "src/f32-spmm/gen/8x1-minmax-psimd.c",
+    "src/f32-spmm/gen/16x1-minmax-psimd.c",
     "src/f32-pavgpool/9p8x-minmax-psimd-c4.c",
     "src/f32-pavgpool/9x-minmax-psimd-c4.c",
     "src/f32-ppmm/gen/4x8-minmax-psimd.c",
@@ -525,8 +862,6 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-psimd-x8.c",
     "src/f32-vbinary/gen/vrdivc-minmax-psimd-x4.c",
     "src/f32-vbinary/gen/vrdivc-minmax-psimd-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-psimd-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-psimd-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-psimd-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-psimd-x8.c",
     "src/f32-vbinary/gen/vsqrdiff-psimd-x4.c",
@@ -537,8 +872,16 @@ PSIMD_FASTMATH_UKERNELS = [
     "src/f32-vbinary/gen/vsub-minmax-psimd-x8.c",
     "src/f32-vbinary/gen/vsubc-minmax-psimd-x4.c",
     "src/f32-vbinary/gen/vsubc-minmax-psimd-x8.c",
+    "src/f32-vlrelu/gen/psimd-x4.c",
+    "src/f32-vlrelu/gen/psimd-x8.c",
     "src/f32-vmulcaddc/gen/c4-minmax-psimd-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-psimd-2x.c",
+    "src/f32-vunary/gen/vabs-psimd-x4.c",
+    "src/f32-vunary/gen/vabs-psimd-x8.c",
+    "src/f32-vunary/gen/vneg-psimd-x4.c",
+    "src/f32-vunary/gen/vneg-psimd-x8.c",
+    "src/f32-vunary/gen/vsqr-psimd-x4.c",
+    "src/f32-vunary/gen/vsqr-psimd-x8.c",
     "src/x32-fill/psimd.c",
     "src/x32-packx/x4-psimd.c",
     "src/x32-pad/psimd.c",
@@ -570,6 +913,14 @@ PSIMD_ACCMATH_UKERNELS = [
     "src/f32-sigmoid/gen/psimd-p5-div-x16.c",
     "src/f32-sigmoid/gen/psimd-p5-div-x20.c",
     "src/f32-sigmoid/gen/psimd-p5-div-x24.c",
+    "src/f32-vrnd/gen/vrndne-psimd-x4.c",
+    "src/f32-vrnd/gen/vrndne-psimd-x8.c",
+    "src/f32-vrnd/gen/vrndz-psimd-x4.c",
+    "src/f32-vrnd/gen/vrndz-psimd-x8.c",
+    "src/f32-vrnd/gen/vrndu-psimd-x4.c",
+    "src/f32-vrnd/gen/vrndu-psimd-x8.c",
+    "src/f32-vrnd/gen/vrndd-psimd-x4.c",
+    "src/f32-vrnd/gen/vrndd-psimd-x8.c",
     "src/math/roundne-psimd-addsub.c",
     "src/math/roundd-psimd-addsub.c",
     "src/math/roundu-psimd-addsub.c",
@@ -639,6 +990,7 @@ NEON_UKERNELS = [
     "src/f32-gemm/gen-inc/8x8s4inc-minmax-neon.c",
     "src/f32-hswish/gen/neon-x4.c",
     "src/f32-hswish/gen/neon-x8.c",
+    "src/f32-hswish/gen/neon-x16.c",
     "src/f32-ibilinear/gen/neon-c4.c",
     "src/f32-ibilinear/gen/neon-c8.c",
     "src/f32-igemm/gen/1x8-minmax-neon-lane-ld64.c",
@@ -724,8 +1076,6 @@ NEON_UKERNELS = [
     "src/f32-vbinary/gen/vmul-minmax-neon-x8.c",
     "src/f32-vbinary/gen/vmulc-minmax-neon-x4.c",
     "src/f32-vbinary/gen/vmulc-minmax-neon-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-neon-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-neon-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-neon-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-neon-x8.c",
     "src/f32-vbinary/gen/vsqrdiff-neon-x4.c",
@@ -736,8 +1086,24 @@ NEON_UKERNELS = [
     "src/f32-vbinary/gen/vsub-minmax-neon-x8.c",
     "src/f32-vbinary/gen/vsubc-minmax-neon-x4.c",
     "src/f32-vbinary/gen/vsubc-minmax-neon-x8.c",
+    "src/f32-vlrelu/gen/neon-x4.c",
+    "src/f32-vlrelu/gen/neon-x8.c",
     "src/f32-vmulcaddc/gen/c4-minmax-neon-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-neon-2x.c",
+    "src/f32-vrnd/gen/vrndne-neon-x4.c",
+    "src/f32-vrnd/gen/vrndne-neon-x8.c",
+    "src/f32-vrnd/gen/vrndz-neon-x4.c",
+    "src/f32-vrnd/gen/vrndz-neon-x8.c",
+    "src/f32-vrnd/gen/vrndu-neon-x4.c",
+    "src/f32-vrnd/gen/vrndu-neon-x8.c",
+    "src/f32-vrnd/gen/vrndd-neon-x4.c",
+    "src/f32-vrnd/gen/vrndd-neon-x8.c",
+    "src/f32-vunary/gen/vabs-neon-x4.c",
+    "src/f32-vunary/gen/vabs-neon-x8.c",
+    "src/f32-vunary/gen/vneg-neon-x4.c",
+    "src/f32-vunary/gen/vneg-neon-x8.c",
+    "src/f32-vunary/gen/vsqr-neon-x4.c",
+    "src/f32-vunary/gen/vsqr-neon-x8.c",
     "src/q8-avgpool/9p8x-minmax-neon-c8.c",
     "src/q8-avgpool/9x-minmax-neon-c8.c",
     "src/q8-dwconv/up8x9-minmax-neon.c",
@@ -777,6 +1143,9 @@ NEON_UKERNELS = [
     "src/math/sigmoid-neon-rr2-lut2048-p1-nr2recps.c",
     "src/math/sigmoid-neon-rr2-lut64-p2-nr2recps.c",
     "src/math/sigmoid-neon-rr2-p5-nr2recps.c",
+    "src/math/sqrt-neon-nr1rsqrts.c",
+    "src/math/sqrt-neon-nr2rsqrts.c",
+    "src/math/sqrt-neon-nr3rsqrts.c",
     "src/requantization/precise-neon.c",
     "src/requantization/fp32-neon.c",
     "src/requantization/q31-neon.c",
@@ -825,8 +1194,6 @@ NEONFMA_UKERNELS = [
     "src/f32-gemm/gen-inc/4x8s4inc-minmax-neonfma.c",
     "src/f32-gemm/gen-inc/6x8s4inc-minmax-neonfma.c",
     "src/f32-gemm/gen-inc/8x8s4inc-minmax-neonfma.c",
-    "src/f32-hswish/gen/neonfma-x4.c",
-    "src/f32-hswish/gen/neonfma-x8.c",
     "src/f32-ppmm/gen/4x8-minmax-neonfma.c",
     "src/f32-ppmm/gen/8x8-minmax-neonfma.c",
     "src/f32-raddstoreexpminusmax/gen/neonfma-p5-x4.c",
@@ -909,6 +1276,26 @@ NEONFMA_UKERNELS = [
     "src/f32-sigmoid/gen/neonfma-rr1-lut2048-p1-nr2recps-x24.c",
     "src/f32-vmulcaddc/gen/c4-minmax-neonfma-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-neonfma-2x.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x4.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x8.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x12.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x16.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x20.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x24.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x28.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x32.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x36.c",
+    "src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x40.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x4.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x8.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x12.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x16.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x20.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x24.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x28.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x32.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x36.c",
+    "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x40.c",
     "src/math/exp-neonfma-lut64-p2.c",
     "src/math/exp-neonfma-p5.c",
     "src/math/expminus-neonfma-lut2048-p1.c",
@@ -932,6 +1319,11 @@ NEONFMA_UKERNELS = [
     "src/math/sigmoid-neonfma-rr2-p5-nr1recps1fma.c",
     "src/math/sigmoid-neonfma-rr2-p5-nr2fma.c",
     "src/math/sigmoid-neonfma-rr2-p5-nr2recps.c",
+    "src/math/sqrt-neonfma-nr1fma.c",
+    "src/math/sqrt-neonfma-nr2fma.c",
+    "src/math/sqrt-neonfma-nr3fma.c",
+    "src/math/sqrt-neonfma-nr2fma1adj.c",
+    "src/math/sqrt-neonfma-nr1rsqrts1fma1adj.c",
 ]
 
 AARCH64_NEONFMA_UKERNELS = [
@@ -1010,6 +1402,8 @@ AARCH64_NEONFMA_UKERNELS = [
     "src/f32-spmm/gen/8x1-minmax-neonfma.c",
     "src/f32-spmm/gen/8x2-minmax-neonfma.c",
     "src/f32-spmm/gen/8x4-minmax-neonfma.c",
+    "src/f32-vsqrt/gen/neon-sqrt-x4.c",
+    "src/f32-vsqrt/gen/neon-sqrt-x8.c",
     "src/math/sigmoid-neonfma-rr1-lut2048-p1-div.c",
     "src/math/sigmoid-neonfma-rr1-lut64-p2-div.c",
     "src/math/sigmoid-neonfma-rr1-p5-div.c",
@@ -1019,6 +1413,14 @@ AARCH64_NEONFMA_UKERNELS = [
 ]
 
 NEONV8_UKERNELS = [
+    "src/f32-vrnd/gen/vrndne-neonv8-x4.c",
+    "src/f32-vrnd/gen/vrndne-neonv8-x8.c",
+    "src/f32-vrnd/gen/vrndz-neonv8-x4.c",
+    "src/f32-vrnd/gen/vrndz-neonv8-x8.c",
+    "src/f32-vrnd/gen/vrndu-neonv8-x4.c",
+    "src/f32-vrnd/gen/vrndu-neonv8-x8.c",
+    "src/f32-vrnd/gen/vrndd-neonv8-x4.c",
+    "src/f32-vrnd/gen/vrndd-neonv8-x8.c",
     "src/math/roundne-neonv8.c",
     "src/math/roundd-neonv8.c",
     "src/math/roundu-neonv8.c",
@@ -1115,6 +1517,8 @@ SSE_UKERNELS = [
     "src/f32-avgpool/9x-minmax-sse-c4.c",
     "src/f32-clamp/gen/sse-x4.c",
     "src/f32-clamp/gen/sse-x8.c",
+    "src/f32-conv-hwc2chw/3x3s2p1c3x4-sse-1x1.c",
+    "src/f32-conv-hwc2chw/3x3s2p1c3x4-sse-2x2.c",
     "src/f32-dwconv-chw/3x3p1-sse.c",
     "src/f32-dwconv-chw/3x3s2p1-sse.c",
     "src/f32-dwconv/gen/up4x25-minmax-sse-acc2.c",
@@ -1160,9 +1564,12 @@ SSE_UKERNELS = [
     "src/f32-pavgpool/9p8x-minmax-sse-c4.c",
     "src/f32-pavgpool/9x-minmax-sse-c4.c",
     "src/f32-ppmm/gen/4x8-minmax-sse.c",
+    "src/f32-prelu/gen/sse-2x4.c",
+    "src/f32-prelu/gen/sse-2x8.c",
     "src/f32-rmax/sse.c",
     "src/f32-spmm/gen/4x1-minmax-sse.c",
     "src/f32-spmm/gen/8x1-minmax-sse.c",
+    "src/f32-spmm/gen/16x1-minmax-sse.c",
     "src/f32-vbinary/gen/vadd-minmax-sse-x4.c",
     "src/f32-vbinary/gen/vadd-minmax-sse-x8.c",
     "src/f32-vbinary/gen/vaddc-minmax-sse-x4.c",
@@ -1185,8 +1592,6 @@ SSE_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-sse-x8.c",
     "src/f32-vbinary/gen/vrdivc-minmax-sse-x4.c",
     "src/f32-vbinary/gen/vrdivc-minmax-sse-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-sse-x4.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-sse-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-sse-x4.c",
     "src/f32-vbinary/gen/vrsubc-minmax-sse-x8.c",
     "src/f32-vbinary/gen/vsqrdiff-sse-x4.c",
@@ -1197,8 +1602,18 @@ SSE_UKERNELS = [
     "src/f32-vbinary/gen/vsub-minmax-sse-x8.c",
     "src/f32-vbinary/gen/vsubc-minmax-sse-x4.c",
     "src/f32-vbinary/gen/vsubc-minmax-sse-x8.c",
+    "src/f32-vlrelu/gen/sse-x4.c",
+    "src/f32-vlrelu/gen/sse-x8.c",
     "src/f32-vmulcaddc/gen/c4-minmax-sse-2x.c",
     "src/f32-vmulcaddc/gen/c8-minmax-sse-2x.c",
+    "src/f32-vsqrt/gen/sse-sqrt-x4.c",
+    "src/f32-vsqrt/gen/sse-sqrt-x8.c",
+    "src/f32-vunary/gen/vabs-sse-x4.c",
+    "src/f32-vunary/gen/vabs-sse-x8.c",
+    "src/f32-vunary/gen/vneg-sse-x4.c",
+    "src/f32-vunary/gen/vneg-sse-x8.c",
+    "src/f32-vunary/gen/vsqr-sse-x4.c",
+    "src/f32-vunary/gen/vsqr-sse-x8.c",
     "src/x32-fill/sse.c",
     "src/x32-packx/x4-sse.c",
     "src/x32-pad/sse.c",
@@ -1206,6 +1621,9 @@ SSE_UKERNELS = [
     "src/math/roundd-sse-addsub.c",
     "src/math/roundu-sse-addsub.c",
     "src/math/roundz-sse-addsub.c",
+    "src/math/sqrt-sse-hh1mac.c",
+    "src/math/sqrt-sse-nr1mac.c",
+    "src/math/sqrt-sse-nr2mac.c",
 ]
 
 SSE2_UKERNELS = [
@@ -1232,6 +1650,16 @@ SSE2_UKERNELS = [
     "src/f32-sigmoid/gen/sse2-p5-div-x16.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x20.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x24.c",
+    "src/f32-vlrelu/gen/sse2-x4.c",
+    "src/f32-vlrelu/gen/sse2-x8.c",
+    "src/f32-vrnd/gen/vrndne-sse2-x4.c",
+    "src/f32-vrnd/gen/vrndne-sse2-x8.c",
+    "src/f32-vrnd/gen/vrndz-sse2-x4.c",
+    "src/f32-vrnd/gen/vrndz-sse2-x8.c",
+    "src/f32-vrnd/gen/vrndu-sse2-x4.c",
+    "src/f32-vrnd/gen/vrndu-sse2-x8.c",
+    "src/f32-vrnd/gen/vrndd-sse2-x4.c",
+    "src/f32-vrnd/gen/vrndd-sse2-x8.c",
     "src/q8-avgpool/9p8x-minmax-sse2-c8.c",
     "src/q8-avgpool/9x-minmax-sse2-c8.c",
     "src/q8-igemm/4x4c2-minmax-sse2.c",
@@ -1281,6 +1709,16 @@ SSE41_UKERNELS = [
     "src/f32-sigmoid/gen/sse41-p5-div-x16.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x20.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x24.c",
+    "src/f32-vlrelu/gen/sse41-x4.c",
+    "src/f32-vlrelu/gen/sse41-x8.c",
+    "src/f32-vrnd/gen/vrndne-sse41-x4.c",
+    "src/f32-vrnd/gen/vrndne-sse41-x8.c",
+    "src/f32-vrnd/gen/vrndz-sse41-x4.c",
+    "src/f32-vrnd/gen/vrndz-sse41-x8.c",
+    "src/f32-vrnd/gen/vrndu-sse41-x4.c",
+    "src/f32-vrnd/gen/vrndu-sse41-x8.c",
+    "src/f32-vrnd/gen/vrndd-sse41-x4.c",
+    "src/f32-vrnd/gen/vrndd-sse41-x8.c",
     "src/math/roundne-sse41.c",
     "src/math/roundd-sse41.c",
     "src/math/roundu-sse41.c",
@@ -1359,8 +1797,6 @@ AVX_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-avx-x16.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx-x8.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx-x16.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx-x8.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx-x16.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx-x8.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx-x16.c",
     "src/f32-vbinary/gen/vsqrdiff-avx-x8.c",
@@ -1371,7 +1807,25 @@ AVX_UKERNELS = [
     "src/f32-vbinary/gen/vsub-minmax-avx-x16.c",
     "src/f32-vbinary/gen/vsubc-minmax-avx-x8.c",
     "src/f32-vbinary/gen/vsubc-minmax-avx-x16.c",
+    "src/f32-vlrelu/gen/avx-x8.c",
+    "src/f32-vlrelu/gen/avx-x16.c",
     "src/f32-vscale/avx-unroll32.c",
+    "src/f32-vrnd/gen/vrndne-avx-x8.c",
+    "src/f32-vrnd/gen/vrndne-avx-x16.c",
+    "src/f32-vrnd/gen/vrndz-avx-x8.c",
+    "src/f32-vrnd/gen/vrndz-avx-x16.c",
+    "src/f32-vrnd/gen/vrndu-avx-x8.c",
+    "src/f32-vrnd/gen/vrndu-avx-x16.c",
+    "src/f32-vrnd/gen/vrndd-avx-x8.c",
+    "src/f32-vrnd/gen/vrndd-avx-x16.c",
+    "src/f32-vsqrt/gen/avx-sqrt-x8.c",
+    "src/f32-vsqrt/gen/avx-sqrt-x16.c",
+    "src/f32-vunary/gen/vabs-avx-x8.c",
+    "src/f32-vunary/gen/vabs-avx-x16.c",
+    "src/f32-vunary/gen/vneg-avx-x8.c",
+    "src/f32-vunary/gen/vneg-avx-x16.c",
+    "src/f32-vunary/gen/vsqr-avx-x8.c",
+    "src/f32-vunary/gen/vsqr-avx-x16.c",
 ]
 
 FMA3_UKERNELS = [
@@ -1431,6 +1885,17 @@ FMA3_UKERNELS = [
     "src/f32-igemm/gen/3x16s4-minmax-fma3-broadcast.c",
     "src/f32-igemm/gen/4x16s4-minmax-fma3-broadcast.c",
     "src/f32-igemm/gen/5x16s4-minmax-fma3-broadcast.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x8.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x16.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x24.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x32.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x40.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x48.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x56.c",
+    "src/f32-vsqrt/gen/fma3-nr1fma1adj-x64.c",
+    "src/math/sqrt-fma3-nr1fma.c",
+    "src/math/sqrt-fma3-nr2fma.c",
+    "src/math/sqrt-fma3-nr1fma1adj.c",
 ]
 
 AVX2_UKERNELS = [
@@ -1633,8 +2098,6 @@ AVX512F_UKERNELS = [
     "src/f32-vbinary/gen/vmulc-minmax-avx512f-x32.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx512f-x16.c",
     "src/f32-vbinary/gen/vrdivc-minmax-avx512f-x32.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx512f-x16.c",
-    "src/f32-vbinary/gen/vrsqrdiffc-avx512f-x32.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx512f-x16.c",
     "src/f32-vbinary/gen/vrsubc-minmax-avx512f-x32.c",
     "src/f32-vbinary/gen/vsqrdiff-avx512f-x16.c",
@@ -1645,6 +2108,8 @@ AVX512F_UKERNELS = [
     "src/f32-vbinary/gen/vsub-minmax-avx512f-x32.c",
     "src/f32-vbinary/gen/vsubc-minmax-avx512f-x16.c",
     "src/f32-vbinary/gen/vsubc-minmax-avx512f-x32.c",
+    "src/f32-vlrelu/gen/avx512f-x16.c",
+    "src/f32-vlrelu/gen/avx512f-x32.c",
     "src/f32-vscale/avx512f-unroll64.c",
     "src/f32-vscaleexpminusmax/gen/avx512f-p5-scalef-x16.c",
     "src/f32-vscaleexpminusmax/gen/avx512f-p5-scalef-x32.c",
@@ -1670,11 +2135,36 @@ AVX512F_UKERNELS = [
     "src/f32-vscaleextexp/gen/avx512f-p5-scalef-x160.c",
     "src/f32-vscaleextexp/gen/avx512f-p5-scalef-x176.c",
     "src/f32-vscaleextexp/gen/avx512f-p5-scalef-x192.c",
+    "src/f32-vrnd/gen/vrndne-avx512f-x16.c",
+    "src/f32-vrnd/gen/vrndne-avx512f-x32.c",
+    "src/f32-vrnd/gen/vrndz-avx512f-x16.c",
+    "src/f32-vrnd/gen/vrndz-avx512f-x32.c",
+    "src/f32-vrnd/gen/vrndu-avx512f-x16.c",
+    "src/f32-vrnd/gen/vrndu-avx512f-x32.c",
+    "src/f32-vrnd/gen/vrndd-avx512f-x16.c",
+    "src/f32-vrnd/gen/vrndd-avx512f-x32.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x16.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x32.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x48.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x64.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x80.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x96.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x112.c",
+    "src/f32-vsqrt/gen/avx512f-nr1fma1adj-x128.c",
+    "src/f32-vunary/gen/vabs-avx512f-x16.c",
+    "src/f32-vunary/gen/vabs-avx512f-x32.c",
+    "src/f32-vunary/gen/vneg-avx512f-x16.c",
+    "src/f32-vunary/gen/vneg-avx512f-x32.c",
+    "src/f32-vunary/gen/vsqr-avx512f-x16.c",
+    "src/f32-vunary/gen/vsqr-avx512f-x32.c",
     "src/math/exp-avx512f-p5-scalef.c",
     "src/math/exp-avx512f-p5.c",
     "src/math/exp-avx512f-perm-p3.c",
     "src/math/exp-avx512f-perm2-p2.c",
     "src/math/extexp-avx512f-p5.c",
+    "src/math/sqrt-avx512f-nr1fma.c",
+    "src/math/sqrt-avx512f-nr2fma.c",
+    "src/math/sqrt-avx512f-nr1fma1adj.c",
 ]
 
 AARCH32_ASM_UKERNELS = [
@@ -1684,8 +2174,10 @@ AARCH32_ASM_UKERNELS = [
     "src/f32-gemm/4x8-minmax-aarch32-neon-cortex-a55.S",
     "src/f32-gemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S",
     "src/f32-gemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S",
-    "src/f32-gemm/4x8-minmax-aarch32-neon-ld64.S",
-    "src/f32-igemm/4x8-minmax-aarch32-neon-ld64.S",
+    "src/f32-gemm/gen/4x8-minmax-aarch32-neon-ld64.S",
+    "src/f32-gemm/gen/4x8-minmax-aarch32-neon-pld-ld64.S",
+    "src/f32-igemm/gen/4x8-minmax-aarch32-neon-ld64.S",
+    "src/f32-igemm/gen/4x8-minmax-aarch32-neon-pld-ld64.S",
     "src/f32-igemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S",
     "src/f32-igemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S",
     "src/f32-igemm/4x8-minmax-aarch32-neon-cortex-a53.S",
@@ -1728,7 +2220,6 @@ AARCH64_ASM_UKERNELS = [
     "src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-cortex-a73.S",
     "src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-cortex-a57.S",
     "src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-cortex-a75.S",
-    "src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-ios.S",
     "src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-ld128.S",
     "src/f32-gemm/gen/6x8-minmax-aarch64-neonfma-ld64.S",
     "src/f32-gemm/gen-inc/1x8inc-minmax-aarch64-neonfma-ld64.S",
@@ -1750,7 +2241,6 @@ AARCH64_ASM_UKERNELS = [
     "src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-cortex-a73.S",
     "src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-cortex-a57.S",
     "src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-cortex-a75.S",
-    "src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-ios.S",
     "src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-ld128.S",
     "src/f32-gemm/gen-inc/6x8inc-minmax-aarch64-neonfma-ld64.S",
     "src/f32-igemm/1x12-minmax-aarch64-neonfma-cortex-a53.S",
@@ -1769,7 +2259,6 @@ AARCH64_ASM_UKERNELS = [
     "src/f32-igemm/6x8-minmax-aarch64-neonfma-cortex-a73.S",
     "src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a57.S",
     "src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a75.S",
-    "src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-ios.S",
 ]
 
 INTERNAL_MICROKERNEL_HDRS = [
@@ -1927,6 +2416,7 @@ xnnpack_cc_library(
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     wasm_srcs = WASM_UKERNELS,
+    wasmsimd_srcs = WASM_UKERNELS + WASMSIMD_UKERNELS,
     deps = [
         ":tables",
         "@FP16",
@@ -1945,6 +2435,7 @@ xnnpack_cc_library(
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     wasm_srcs = WASM_UKERNELS,
+    wasmsimd_srcs = WASM_UKERNELS + WASMSIMD_UKERNELS,
     deps = [
         ":tables",
         "@FP16",
@@ -2103,6 +2594,10 @@ xnnpack_cc_library(
     ],
     aarch32_srcs = NEONFMA_UKERNELS,
     aarch64_srcs = NEONFMA_UKERNELS + AARCH64_NEONFMA_UKERNELS,
+    apple_aarch32_copts = [
+        "-mcpu=swift",
+        "-mtune=generic",
+    ],
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
@@ -2122,6 +2617,10 @@ xnnpack_cc_library(
     ],
     aarch32_srcs = NEONFMA_UKERNELS,
     aarch64_srcs = NEONFMA_UKERNELS + AARCH64_NEONFMA_UKERNELS,
+    apple_aarch32_copts = [
+        "-mcpu=swift",
+        "-mtune=generic",
+    ],
     copts = [
         "-UNDEBUG",
         "-DXNN_TEST_MODE=1",
@@ -2145,6 +2644,10 @@ xnnpack_cc_library(
     ],
     aarch32_srcs = NEONV8_UKERNELS,
     aarch64_srcs = NEONV8_UKERNELS,
+    apple_aarch32_copts = [
+        "-mcpu=cyclone",
+        "-mtune=generic",
+    ],
     gcc_copts = xnnpack_gcc_std_copts(),
     msvc_copts = xnnpack_msvc_std_copts(),
     deps = [
@@ -2164,6 +2667,10 @@ xnnpack_cc_library(
     ],
     aarch32_srcs = NEONV8_UKERNELS,
     aarch64_srcs = NEONV8_UKERNELS,
+    apple_aarch32_copts = [
+        "-mcpu=cyclone",
+        "-mtune=generic",
+    ],
     copts = [
         "-UNDEBUG",
         "-DXNN_TEST_MODE=1",
@@ -2572,6 +3079,47 @@ xnnpack_aggregate_library(
     ],
 )
 
+# This target must be compatible with Android NDK r17 and compile with Clang 6.
+# It is similar to :ukernels target, but excludes microkernels which require
+# NEON FP16 arithmetics, NEON Dot Product, and newer intrinsics.
+xnnpack_aggregate_library(
+    name = "ukernels_max_compatibility",
+    aarch32_deps = [
+        ":neon_ukernels",
+        ":neonfma_ukernels",
+        ":neonv8_ukernels",
+        ":asm_ukernels",
+    ],
+    aarch64_deps = [
+        ":neon_ukernels",
+        ":neonfma_ukernels",
+        ":neonv8_ukernels",
+        ":asm_ukernels",
+    ],
+    generic_deps = [
+        ":scalar_ukernels",
+    ],
+    psimd_deps = [
+        ":psimd_fastmath_ukernels",
+        ":psimd_accmath_ukernels",
+    ],
+    wasm_deps = [
+        ":wasm_ukernels",
+    ],
+    wasmsimd_deps = [
+        ":wasm_ukernels",
+    ],
+    x86_deps = [
+        ":sse2_ukernels",
+        ":ssse3_ukernels",
+        ":sse41_ukernels",
+        ":avx_ukernels",
+        ":fma3_ukernels",
+        ":avx2_ukernels",
+        ":avx512f_ukernels",
+    ],
+)
+
 xnnpack_cc_library(
     name = "im2col",
     srcs = ["src/im2col.c"],
@@ -2599,6 +3147,36 @@ xnnpack_cc_library(
 xnnpack_cc_library(
     name = "indirection_test_mode",
     srcs = ["src/indirection.c"],
+    hdrs = INTERNAL_HDRS,
+    copts = [
+        "-UNDEBUG",
+        "-DXNN_TEST_MODE=1",
+    ],
+    gcc_copts = xnnpack_gcc_std_copts(),
+    msvc_copts = xnnpack_msvc_std_copts(),
+    deps = [
+        "@FP16",
+        "@FXdiv",
+        "@pthreadpool",
+    ],
+)
+
+xnnpack_cc_library(
+    name = "packing",
+    srcs = ["src/packing.c"],
+    hdrs = INTERNAL_HDRS,
+    gcc_copts = xnnpack_gcc_std_copts(),
+    msvc_copts = xnnpack_msvc_std_copts(),
+    deps = [
+        "@FP16",
+        "@FXdiv",
+        "@pthreadpool",
+    ],
+)
+
+xnnpack_cc_library(
+    name = "packing_test_mode",
+    srcs = ["src/packing.c"],
     hdrs = INTERNAL_HDRS,
     copts = [
         "-UNDEBUG",
@@ -2701,6 +3279,15 @@ cc_library(
     }),
 )
 
+cc_library(
+    name = "enable_sparse",
+    defines = select({
+        ":xnn_enable_sparse_explicit_true": ["XNN_ENABLE_SPARSE=1"],
+        ":xnn_enable_sparse_explicit_false": ["XNN_ENABLE_SPARSE=0"],
+        "//conditions:default": ["XNN_ENABLE_SPARSE=0"],
+    }),
+)
+
 xnnpack_cc_library(
     name = "operators",
     srcs = OPERATOR_SRCS + [
@@ -2723,6 +3310,7 @@ xnnpack_cc_library(
     deps = [
         ":indirection",
         ":logging_utils",
+        ":packing",
         "@FP16",
         "@FXdiv",
         "@clog",
@@ -2754,6 +3342,7 @@ xnnpack_cc_library(
     deps = [
         ":indirection_test_mode",
         ":logging_utils",
+        ":packing_test_mode",
         "@FP16",
         "@FXdiv",
         "@clog",
@@ -2768,7 +3357,7 @@ xnnpack_cc_library(
         "src/runtime.c",
         "src/subgraph.c",
         "src/tensor.c",
-    ] + SUBGRAPH_SRCS + LOGGING_SRCS,
+    ] + SUBGRAPH_SRCS,
     hdrs = ["include/xnnpack.h"],
     copts = LOGGING_COPTS + [
         "-Isrc",
@@ -2786,6 +3375,7 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":enable_sparse",
         ":logging_utils",
         ":memory_planner",
         ":operator_run",
@@ -2807,7 +3397,7 @@ xnnpack_cc_library(
         "src/runtime.c",
         "src/subgraph.c",
         "src/tensor.c",
-    ] + SUBGRAPH_SRCS + LOGGING_SRCS,
+    ] + SUBGRAPH_SRCS,
     hdrs = ["include/xnnpack.h"],
     copts = LOGGING_COPTS + [
         "-Isrc",
@@ -2827,11 +3417,59 @@ xnnpack_cc_library(
     visibility = xnnpack_visibility(),
     deps = [
         ":enable_assembly",
+        ":enable_sparse",
         ":logging_utils",
         ":memory_planner_test_mode",
         ":operator_run_test_mode",
         ":operators_test_mode",
         ":ukernels_test_mode",
+        "@clog",
+        "@FP16",
+        "@pthreadpool",
+    ] + select({
+        ":emscripten": [],
+        "//conditions:default": ["@cpuinfo"],
+    }),
+)
+
+xnnpack_cc_library(
+    name = "xnnpack_f32",
+    srcs = [
+        "src/init.c",
+        "src/runtime.c",
+        "src/subgraph.c",
+        "src/tensor.c",
+    ] + SUBGRAPH_SRCS,
+    hdrs = ["include/xnnpack.h"],
+    copts = LOGGING_COPTS + [
+        "-Isrc",
+        "-Iinclude",
+    ] + select({
+        ":debug_build": [],
+        "//conditions:default": xnnpack_min_size_copts(),
+    }) + select({
+        ":xnn_enable_hmp_explicit_false": ["-DXNN_MAX_UARCH_TYPES=1"],
+        "//conditions:default": [],
+    }),
+    defines = [
+        "XNN_NO_Q8_OPERATORS",
+        "XNN_NO_U8_OPERATORS",
+        "XNN_NO_X8_OPERATORS",
+        "XNN_NO_F16_OPERATORS",
+        "XNN_NO_X16_OPERATORS",
+    ],
+    gcc_copts = xnnpack_gcc_std_copts(),
+    includes = ["include"],
+    msvc_copts = xnnpack_msvc_std_copts(),
+    visibility = xnnpack_visibility(),
+    deps = [
+        ":enable_assembly",
+        ":enable_sparse",
+        ":logging_utils",
+        ":memory_planner",
+        ":operator_run",
+        ":operators",
+        ":ukernels_max_compatibility",
         "@clog",
         "@FP16",
         "@pthreadpool",
@@ -2901,7 +3539,7 @@ xnnpack_benchmark(
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
     copts = xnnpack_optional_ruy_copts() + xnnpack_optional_gemmlowp_copts(),
-    deps = MICROKERNEL_BENCHMARK_DEPS + xnnpack_optional_ruy_deps() + xnnpack_optional_gemmlowp_deps(),
+    deps = MICROKERNEL_BENCHMARK_DEPS + [":packing"] + xnnpack_optional_ruy_deps() + xnnpack_optional_gemmlowp_deps(),
 )
 
 xnnpack_benchmark(
@@ -2912,7 +3550,10 @@ xnnpack_benchmark(
         "bench/google/conv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS + [":indirection"],
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":indirection",
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2922,7 +3563,9 @@ xnnpack_benchmark(
         "bench/gemm.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS,
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2942,7 +3585,10 @@ xnnpack_benchmark(
         "bench/conv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS + [":indirection"],
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":indirection",
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2952,7 +3598,9 @@ xnnpack_benchmark(
         "bench/dconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS,
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2962,7 +3610,9 @@ xnnpack_benchmark(
         "bench/dconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS,
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2973,7 +3623,10 @@ xnnpack_benchmark(
         "bench/google/dwconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS + [":indirection"],
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":indirection",
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2983,7 +3636,10 @@ xnnpack_benchmark(
         "bench/dwconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS + [":indirection"],
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":indirection",
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -2993,7 +3649,10 @@ xnnpack_benchmark(
         "bench/dwconv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS + [":indirection"],
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":indirection",
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -3004,7 +3663,16 @@ xnnpack_benchmark(
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
     copts = xnnpack_optional_ruy_copts(),
-    deps = MICROKERNEL_BENCHMARK_DEPS + xnnpack_optional_ruy_deps(),
+    deps = MICROKERNEL_BENCHMARK_DEPS + [":packing"] + xnnpack_optional_ruy_deps(),
+)
+
+xnnpack_benchmark(
+    name = "f32_hswish_bench",
+    srcs = [
+        "bench/f32-hswish.cc",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_BENCHMARK_HDRS,
+    deps = MICROKERNEL_BENCHMARK_DEPS,
 )
 
 xnnpack_benchmark(
@@ -3090,13 +3758,25 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
+    name = "f32_vsqrt_bench",
+    srcs = [
+        "bench/f32-vsqrt.cc",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + MICROKERNEL_BENCHMARK_HDRS,
+    deps = MICROKERNEL_BENCHMARK_DEPS,
+)
+
+xnnpack_benchmark(
     name = "f32_im2col_gemm_bench",
     srcs = [
         "bench/f32-im2col-gemm.cc",
         "bench/conv.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_BENCHMARK_HDRS,
-    deps = MICROKERNEL_BENCHMARK_DEPS + [":im2col"],
+    deps = MICROKERNEL_BENCHMARK_DEPS + [
+        ":im2col",
+        ":packing",
+    ],
 )
 
 xnnpack_benchmark(
@@ -3130,6 +3810,22 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
+    name = "bankers_rounding_bench",
+    srcs = ["bench/bankers-rounding.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
+    name = "ceiling_bench",
+    srcs = ["bench/ceiling.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
     name = "channel_shuffle_bench",
     srcs = ["bench/channel-shuffle.cc"],
     deps = OPERATOR_BENCHMARK_DEPS,
@@ -3152,9 +3848,25 @@ xnnpack_benchmark(
 )
 
 xnnpack_benchmark(
+    name = "floor_bench",
+    srcs = ["bench/floor.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
     name = "global_average_pooling_bench",
     srcs = ["bench/global-average-pooling.cc"],
     deps = OPERATOR_BENCHMARK_DEPS,
+)
+
+xnnpack_benchmark(
+    name = "hardswish_bench",
+    srcs = ["bench/hardswish.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
 )
 
 xnnpack_benchmark(
@@ -3187,11 +3899,25 @@ xnnpack_benchmark(
     deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
 )
 
+xnnpack_benchmark(
+    name = "square_root_bench",
+    srcs = ["bench/square-root.cc"],
+    copts = xnnpack_optional_tflite_copts(),
+    tags = ["nowin32"],
+    deps = OPERATOR_BENCHMARK_DEPS + xnnpack_optional_tflite_deps(),
+)
+
+xnnpack_benchmark(
+    name = "truncation_bench",
+    srcs = ["bench/truncation.cc"],
+    deps = OPERATOR_BENCHMARK_DEPS,
+)
+
 ############################# End-to-end benchmarks ############################
 
 cc_library(
-    name = "mobilenet_v1",
-    srcs = ["models/mobilenet-v1.cc"],
+    name = "fp32_mobilenet_v1",
+    srcs = ["models/fp32-mobilenet-v1.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3202,8 +3928,21 @@ cc_library(
 )
 
 cc_library(
-    name = "mobilenet_v2",
-    srcs = ["models/mobilenet-v2.cc"],
+    name = "fp16_mobilenet_v1",
+    srcs = ["models/fp16-mobilenet-v1.cc"],
+    hdrs = ["models/models.h"],
+    copts = xnnpack_std_cxxopts(),
+    linkstatic = True,
+    deps = [
+        ":XNNPACK",
+        "@FP16",
+        "@pthreadpool",
+    ],
+)
+
+cc_library(
+    name = "fp32_mobilenet_v2",
+    srcs = ["models/fp32-mobilenet-v2.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3214,8 +3953,21 @@ cc_library(
 )
 
 cc_library(
-    name = "mobilenet_v3_large",
-    srcs = ["models/mobilenet-v3-large.cc"],
+    name = "fp16_mobilenet_v2",
+    srcs = ["models/fp16-mobilenet-v2.cc"],
+    hdrs = ["models/models.h"],
+    copts = xnnpack_std_cxxopts(),
+    linkstatic = True,
+    deps = [
+        ":XNNPACK",
+        "@FP16",
+        "@pthreadpool",
+    ],
+)
+
+cc_library(
+    name = "fp32_mobilenet_v3_large",
+    srcs = ["models/fp32-mobilenet-v3-large.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3226,8 +3978,8 @@ cc_library(
 )
 
 cc_library(
-    name = "mobilenet_v3_small",
-    srcs = ["models/mobilenet-v3-small.cc"],
+    name = "fp32_mobilenet_v3_small",
+    srcs = ["models/fp32-mobilenet-v3-small.cc"],
     hdrs = ["models/models.h"],
     copts = xnnpack_std_cxxopts(),
     linkstatic = True,
@@ -3245,10 +3997,10 @@ xnnpack_benchmark(
     ] + MICROKERNEL_BENCHMARK_HDRS,
     deps = MICROKERNEL_BENCHMARK_DEPS + [
         ":XNNPACK",
-        ":mobilenet_v1",
-        ":mobilenet_v2",
-        ":mobilenet_v3_large",
-        ":mobilenet_v3_small",
+        ":fp32_mobilenet_v1",
+        ":fp32_mobilenet_v2",
+        ":fp32_mobilenet_v3_large",
+        ":fp32_mobilenet_v3_small",
     ],
 )
 
@@ -3260,10 +4012,10 @@ xnnpack_benchmark(
     ] + MICROKERNEL_BENCHMARK_HDRS,
     deps = MICROKERNEL_BENCHMARK_DEPS + [
         ":XNNPACK",
-        ":mobilenet_v1",
-        ":mobilenet_v2",
-        ":mobilenet_v3_large",
-        ":mobilenet_v3_small",
+        ":fp32_mobilenet_v1",
+        ":fp32_mobilenet_v2",
+        ":fp32_mobilenet_v3_large",
+        ":fp32_mobilenet_v3_small",
     ],
 )
 
@@ -3273,10 +4025,12 @@ xnnpack_benchmark(
     deps = [
         ":XNNPACK",
         ":bench_utils",
-        ":mobilenet_v1",
-        ":mobilenet_v2",
-        ":mobilenet_v3_large",
-        ":mobilenet_v3_small",
+        ":fp16_mobilenet_v1",
+        ":fp16_mobilenet_v2",
+        ":fp32_mobilenet_v1",
+        ":fp32_mobilenet_v2",
+        ":fp32_mobilenet_v3_large",
+        ":fp32_mobilenet_v3_small",
         "@pthreadpool",
     ],
 )
@@ -3363,6 +4117,17 @@ xnnpack_benchmark(
     deps = ACCURACY_EVAL_DEPS,
 )
 
+xnnpack_benchmark(
+    name = "f32_sqrt_eval",
+    srcs = [
+        "eval/f32-sqrt.cc",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + ACCURACY_EVAL_HDRS,
+    deps = ACCURACY_EVAL_DEPS + [
+        ":bench_utils",
+    ],
+)
+
 ######################### Unit tests for micro-kernels #########################
 
 xnnpack_unit_test(
@@ -3372,7 +4137,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3440,7 +4205,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3450,7 +4215,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3460,7 +4225,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3470,7 +4235,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3480,7 +4245,7 @@ xnnpack_unit_test(
         "test/conv-hwc-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3490,7 +4255,7 @@ xnnpack_unit_test(
         "test/conv-hwc2chw-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3500,7 +4265,7 @@ xnnpack_unit_test(
         "test/dwconv-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3510,7 +4275,7 @@ xnnpack_unit_test(
         "test/dwconv-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3520,7 +4285,7 @@ xnnpack_unit_test(
         "test/dwconv-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3530,7 +4295,7 @@ xnnpack_unit_test(
         "test/dwconv-chw-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3570,7 +4335,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3580,7 +4345,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3590,7 +4355,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3600,7 +4365,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3647,7 +4412,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3852,10 +4617,37 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f32_vabs_test",
+    srcs = [
+        "test/f32-vabs.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vadd_test",
+    srcs = [
+        "test/f32-vadd.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_vadd_minmax_test",
     srcs = [
         "test/f32-vadd-minmax.cc",
         "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vaddc_test",
+    srcs = [
+        "test/f32-vaddc.cc",
+        "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
@@ -3870,6 +4662,15 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f32_vdiv_test",
+    srcs = [
+        "test/f32-vdiv.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_vdiv_minmax_test",
     srcs = [
         "test/f32-vdiv-minmax.cc",
@@ -3879,9 +4680,27 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f32_vdivc_test",
+    srcs = [
+        "test/f32-vdivc.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_vdivc_minmax_test",
     srcs = [
         "test/f32-vdivc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vrdivc_test",
+    srcs = [
+        "test/f32-vrdivc.cc",
         "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
@@ -3933,10 +4752,28 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f32_vmul_test",
+    srcs = [
+        "test/f32-vmul.cc",
+        "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_vmul_minmax_test",
     srcs = [
         "test/f32-vmul-minmax.cc",
         "test/vbinary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vmulc_test",
+    srcs = [
+        "test/f32-vmulc.cc",
+        "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
@@ -3957,7 +4794,7 @@ xnnpack_unit_test(
         "test/vmulcaddc-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -3967,6 +4804,60 @@ xnnpack_unit_test(
         "test/vmulcaddc-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
+)
+
+xnnpack_unit_test(
+    name = "f32_vlrelu_test",
+    srcs = [
+        "test/f32-vlrelu.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vneg_test",
+    srcs = [
+        "test/f32-vneg.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vrndne_test",
+    srcs = [
+        "test/f32-vrndne.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vrndz_test",
+    srcs = [
+        "test/f32-vrndz.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vrndu_test",
+    srcs = [
+        "test/f32-vrndu.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vrndd_test",
+    srcs = [
+        "test/f32-vrndd.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
 
@@ -3998,6 +4889,15 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f32_vsqr_test",
+    srcs = [
+        "test/f32-vsqr.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_vsqrdiff_test",
     srcs = [
         "test/f32-vsqrdiff.cc",
@@ -4016,10 +4916,19 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "f32_vrsqrdiffc_test",
+    name = "f32_vsqrt_test",
     srcs = [
-        "test/f32-vrsqrdiffc.cc",
-        "test/vbinaryc-microkernel-tester.h",
+        "test/f32-vsqrt.cc",
+        "test/vunary-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vsub_test",
+    srcs = [
+        "test/f32-vsub.cc",
+        "test/vbinary-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )
@@ -4034,9 +4943,27 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "f32_vsubc_test",
+    srcs = [
+        "test/f32-vsubc.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "f32_vsubc_minmax_test",
     srcs = [
         "test/f32-vsubc-minmax.cc",
+        "test/vbinaryc-microkernel-tester.h",
+    ] + MICROKERNEL_TEST_HDRS,
+    deps = MICROKERNEL_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "f32_vrsubc_test",
+    srcs = [
+        "test/f32-vrsubc.cc",
         "test/vbinaryc-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
@@ -4068,7 +4995,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -4078,7 +5005,7 @@ xnnpack_unit_test(
         "test/dwconv-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -4098,7 +5025,7 @@ xnnpack_unit_test(
         "test/gemm-microkernel-tester.h",
         "src/xnnpack/AlignedAllocator.h",
     ] + WEIGHTS_PACK_HDRS + MICROKERNEL_TEST_HDRS,
-    deps = MICROKERNEL_TEST_DEPS,
+    deps = MICROKERNEL_TEST_DEPS + [":packing"],
 )
 
 xnnpack_unit_test(
@@ -4237,6 +5164,15 @@ xnnpack_binary(
 ########################### Unit tests for operators ##########################
 
 xnnpack_unit_test(
+    name = "abs_nc_test",
+    srcs = [
+        "test/abs-nc.cc",
+        "test/abs-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "add_nd_test",
     srcs = [
         "test/add-nd.cc",
@@ -4264,11 +5200,20 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "channel_pad_nc_test",
+    name = "bankers_rounding_nc_test",
     srcs = [
-        "test/channel-pad-nc.cc",
-        "test/channel-pad-operator-tester.h",
-    ] + OPERATOR_TEST_PARAMS_HDRS,
+        "test/bankers-rounding-nc.cc",
+        "test/bankers-rounding-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "ceiling_nc_test",
+    srcs = [
+        "test/ceiling-nc.cc",
+        "test/ceiling-operator-tester.h",
+    ],
     deps = OPERATOR_TEST_DEPS,
 )
 
@@ -4354,6 +5299,15 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "floor_nc_test",
+    srcs = [
+        "test/floor-nc.cc",
+        "test/floor-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "global_average_pooling_nwc_test",
     srcs = [
         "test/global-average-pooling-nwc.cc",
@@ -4426,6 +5380,15 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "negate_nc_test",
+    srcs = [
+        "test/negate-nc.cc",
+        "test/negate-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "prelu_nc_test",
     srcs = [
         "test/prelu-nc.cc",
@@ -4462,10 +5425,46 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
+    name = "square_nc_test",
+    srcs = [
+        "test/square-nc.cc",
+        "test/square-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "square_root_nc_test",
+    srcs = [
+        "test/square-root-nc.cc",
+        "test/square-root-operator-tester.h",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "squared_difference_nd_test",
+    srcs = [
+        "test/binary-elementwise-operator-tester.h",
+        "test/squared-difference-nd.cc",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
     name = "subtract_nd_test",
     srcs = [
         "test/binary-elementwise-operator-tester.h",
         "test/subtract-nd.cc",
+    ],
+    deps = OPERATOR_TEST_DEPS,
+)
+
+xnnpack_unit_test(
+    name = "truncation_nc_test",
+    srcs = [
+        "test/truncation-nc.cc",
+        "test/truncation-operator-tester.h",
     ],
     deps = OPERATOR_TEST_DEPS,
 )
@@ -4504,6 +5503,18 @@ config_setting(
 config_setting(
     name = "xnn_enable_assembly_explicit_false",
     define_values = {"xnn_enable_assembly": "false"},
+)
+
+# Enables usage of sparse inference.
+config_setting(
+    name = "xnn_enable_sparse_explicit_true",
+    define_values = {"xnn_enable_sparse": "true"},
+)
+
+# Disables usage of sparse inference.
+config_setting(
+    name = "xnn_enable_sparse_explicit_false",
+    define_values = {"xnn_enable_sparse": "false"},
 )
 
 # Disables usage of HMP-aware optimizations.
@@ -4551,8 +5562,18 @@ config_setting(
 )
 
 config_setting(
+    name = "linux_armeabi",
+    values = {"cpu": "armeabi"},
+)
+
+config_setting(
     name = "linux_armhf",
     values = {"cpu": "armhf"},
+)
+
+config_setting(
+    name = "linux_armv7a",
+    values = {"cpu": "armv7a"},
 )
 
 config_setting(

@@ -24,6 +24,9 @@ void xnn_f32_vmin_ukernel__neon_x4(
 {
   assert(n != 0);
   assert(n % sizeof(float) == 0);
+  assert(a != NULL);
+  assert(b != NULL);
+  assert(y != NULL);
 
 
   for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
@@ -34,13 +37,6 @@ void xnn_f32_vmin_ukernel__neon_x4(
 
 
 
-    vst1q_f32(y, vy0123); y += 4;
-  }
-  for (; n >= 4 * sizeof(float); n -= 4 * sizeof(float)) {
-    const float32x4_t va0123 = vld1q_f32(a); a += 4;
-    const float32x4_t vb0123 = vld1q_f32(b); b += 4;
-
-    float32x4_t vy0123 = vminq_f32(va0123, vb0123);
     vst1q_f32(y, vy0123); y += 4;
   }
   if XNN_UNLIKELY(n != 0) {

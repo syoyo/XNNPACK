@@ -70,6 +70,7 @@ struct gemm_context {
   struct xnn_hmp_gemm_ukernel ukernel;
   union {
     union xnn_q8_gemm_params q8;
+    struct xnn_f16_scaleminmax_params f16;
     union xnn_f32_minmax_params f32;
   } params;
 };
@@ -344,6 +345,7 @@ struct dwconv_context {
   const void* zero;
   union {
     union xnn_q8_gemm_params q8;
+    struct xnn_f16_minmax_params f16;
     union xnn_f32_minmax_params f32;
   } params;
   union {
@@ -561,6 +563,7 @@ struct global_average_pooling_nwc_context {
   size_t output_batch_stride;
   union {
     union xnn_q8_avgpool_params q8;
+    struct xnn_f16_scaleminmax_params f16;
     union xnn_f32_scaleminmax_params f32;
   } params;
   union {
@@ -642,6 +645,7 @@ struct elementwise_binary_context {
   size_t elements;
   union {
     union xnn_q8_add_params q8;
+    struct xnn_f16_minmax_params f16;
     union xnn_f32_minmax_params f32;
   } params;
   xnn_vbinary_ukernel_function ukernel;
@@ -775,6 +779,7 @@ struct vmulcaddc_context {
   size_t y_stride;
   xnn_vmulcaddc_ukernel_function ukernel;
   union {
+    struct xnn_f16_minmax_params f16;
     union xnn_f32_minmax_params f32;
   } params;
 };
@@ -804,25 +809,6 @@ struct pad_context {
   XNN_PRIVATE void xnn_compute_pad_5d(
       const struct pad_context context[restrict XNN_MIN_ELEMENTS(1)],
       size_t i, size_t j, size_t k, size_t l, size_t m, size_t l_range, size_t m_range);
-#endif
-
-struct channel_pad_context {
-  size_t n;
-  size_t l;
-  size_t r;
-  uint32_t c;
-  const void* x;
-  size_t x_stride;
-  void* y;
-  size_t y_stride;
-  xnn_pad_ukernel_function ukernel;
-};
-
-#ifndef __cplusplus
-  XNN_PRIVATE void xnn_compute_channel_pad(
-      const struct channel_pad_context context[restrict XNN_MIN_ELEMENTS(1)],
-      size_t batch_start,
-      size_t batch_range);
 #endif
 
 struct u8_softmax_context {
