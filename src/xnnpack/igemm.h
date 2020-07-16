@@ -189,17 +189,15 @@ DECLARE_F32_IGEMM_UKERNEL_FUNCTION(xnn_f32_igemm_ukernel_1x8__wasmsimd_splat)
 DECLARE_F32_IGEMM_UKERNEL_FUNCTION(xnn_f32_igemm_ukernel_4x8__wasmsimd_splat)
 DECLARE_F32_IGEMM_UKERNEL_FUNCTION(xnn_f32_igemm_ukernel_5x8__wasmsimd_splat)
 
-DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_1x8__wasmsimd_splat_arm)
-DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_5x8__wasmsimd_splat_arm)
+DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_1x8__wasmsimd_splat)
+DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_4x8__wasmsimd_splat)
+DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_5x8__wasmsimd_splat)
 
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_1x8__wasmsimd_loadsplat_arm)
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_3x8__wasmsimd_loadsplat_arm)
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_4x8__wasmsimd_loadsplat_arm)
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_5x8__wasmsimd_loadsplat_arm)
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_6x8__wasmsimd_loadsplat_arm)
-
-DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_1x8__wasmsimd_splat_x86)
-DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_4x8__wasmsimd_splat_x86)
 
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_1x8__wasmsimd_loadsplat_x86)
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_3x8__wasmsimd_loadsplat_x86)
@@ -233,8 +231,7 @@ DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_6x8s4__wa
 
 DECLARE_F32_IGEMM_UKERNEL_FUNCTION(xnn_f32_igemm_ukernel_4x2c4__wasmsimd)
 
-DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_4x2c4__wasmsimd_arm)
-DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_4x2c4__wasmsimd_x86)
+DECLARE_F32_IGEMM_RELU_UKERNEL_FUNCTION(xnn_f32_igemm_relu_ukernel_4x2c4__wasmsimd)
 
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_4x2c4__wasmsimd_arm)
 DECLARE_F32_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f32_igemm_minmax_ukernel_4x2c4__wasmsimd_x86)
@@ -293,27 +290,27 @@ DECLARE_F16_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f16_igemm_minmax_ukernel_4x16__neo
 DECLARE_F16_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f16_igemm_minmax_ukernel_6x16__neonfp16arith_ld64)
 DECLARE_F16_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_f16_igemm_minmax_ukernel_8x16__neonfp16arith_ld64)
 
-#define DECLARE_Q8_IGEMM_MINMAX_UKERNEL_FUNCTION(fn_name) \
-  XNN_INTERNAL void fn_name(                              \
-      size_t mr,                                          \
-      size_t nr,                                          \
-      size_t kc,                                          \
-      size_t ks,                                          \
-      const uint8_t** a,                                  \
-      const void* w,                                      \
-      uint8_t* c,                                         \
-      size_t cm_stride,                                   \
-      size_t cn_stride,                                   \
-      size_t a_offset,                                    \
-      const uint8_t* zero,                                \
-      const union xnn_q8_gemm_params* params);
+#define DECLARE_QU8_IGEMM_MINMAX_UKERNEL_FUNCTION(fn_name) \
+  XNN_INTERNAL void fn_name(                               \
+      size_t mr,                                           \
+      size_t nr,                                           \
+      size_t kc,                                           \
+      size_t ks,                                           \
+      const uint8_t** a,                                   \
+      const void* w,                                       \
+      uint8_t* c,                                          \
+      size_t cm_stride,                                    \
+      size_t cn_stride,                                    \
+      size_t a_offset,                                     \
+      const uint8_t* zero,                                 \
+      const union xnn_qu8_gemm_params* params);
 
-DECLARE_Q8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_q8_igemm_minmax_ukernel_4x8__neon)
-DECLARE_Q8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_q8_igemm_minmax_ukernel_8x8__neon)
+DECLARE_QU8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_qu8_igemm_minmax_ukernel_4x8__neon)
+DECLARE_QU8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_qu8_igemm_minmax_ukernel_8x8__neon)
 
-DECLARE_Q8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_q8_igemm_minmax_ukernel_4x4c2__sse2)
+DECLARE_QU8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_qu8_igemm_minmax_ukernel_4x4c2__sse2)
 
-DECLARE_Q8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_q8_igemm_minmax_ukernel_2x2__scalar)
+DECLARE_QU8_IGEMM_MINMAX_UKERNEL_FUNCTION(xnn_qu8_igemm_minmax_ukernel_2x2__scalar)
 
 #ifdef __cplusplus
 }  // extern "C"

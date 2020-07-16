@@ -335,6 +335,9 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-raddstoreexpminusmax/gen/scalar-p5-x4-acc2.c
   src/f32-raddstoreexpminusmax/gen/scalar-p5-x4-acc4.c
   src/f32-rmax/scalar.c
+  src/f32-relu/gen/scalar-x1.c
+  src/f32-relu/gen/scalar-x2.c
+  src/f32-relu/gen/scalar-x4.c
   src/f32-sigmoid/gen/scalar-lut2048-p1-div-x1.c
   src/f32-sigmoid/gen/scalar-lut2048-p1-div-x2.c
   src/f32-sigmoid/gen/scalar-lut2048-p1-div-x4.c
@@ -477,14 +480,14 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/math/sigmoid-scalar-lut2048-p1-div.c
   src/math/sigmoid-scalar-lut64-p2-div.c
   src/math/sigmoid-scalar-p5-div.c
-  src/q8-avgpool/9p8x-minmax-scalar-c1.c
-  src/q8-avgpool/9x-minmax-scalar-c1.c
-  src/q8-dwconv/up1x9-minmax-scalar.c
-  src/q8-gavgpool/7p7x-minmax-scalar-c1.c
-  src/q8-gavgpool/7x-minmax-scalar-c1.c
-  src/q8-gemm/2x2-minmax-scalar.c
-  src/q8-igemm/2x2-minmax-scalar.c
-  src/q8-vadd/minmax-scalar.c
+  src/qu8-avgpool/9p8x-minmax-scalar-c1.c
+  src/qu8-avgpool/9x-minmax-scalar-c1.c
+  src/qu8-dwconv/up1x9-minmax-scalar.c
+  src/qu8-gavgpool/7p7x-minmax-scalar-c1.c
+  src/qu8-gavgpool/7x-minmax-scalar-c1.c
+  src/qu8-gemm/2x2-minmax-scalar.c
+  src/qu8-igemm/2x2-minmax-scalar.c
+  src/qu8-vadd/minmax-scalar.c
   src/u8-clamp/scalar-x4.c
   src/u8-lut32norm/scalar.c
   src/u8-maxpool/9p8x-minmax-scalar-c1.c
@@ -517,8 +520,6 @@ SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
   src/f32-argmaxpool/9x-psimd-c4.c
   src/f32-avgpool/9p8x-minmax-psimd-c4.c
   src/f32-avgpool/9x-minmax-psimd-c4.c
-  src/f32-clamp/gen/psimd-x4.c
-  src/f32-clamp/gen/psimd-x8.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c
   src/f32-dwconv-chw/3x3p1-psimd.c
   src/f32-dwconv-chw/3x3s2p1-psimd.c
@@ -780,6 +781,8 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-raddstoreexpminusmax/gen/neon-lut64-p2-x20-acc2.c
   src/f32-raddstoreexpminusmax/gen/neon-lut64-p2-x20-acc5.c
   src/f32-rmax/neon.c
+  src/f32-relu/gen/neon-x4.c
+  src/f32-relu/gen/neon-x8.c
   src/f32-sigmoid/gen/neon-frac-p9-p10-nr1recps-x16.c
   src/f32-sigmoid/gen/neon-rr2-p5-nr2recps-x4.c
   src/f32-sigmoid/gen/neon-rr2-p5-nr2recps-x8.c
@@ -841,16 +844,16 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-vunary/gen/vneg-neon-x8.c
   src/f32-vunary/gen/vsqr-neon-x4.c
   src/f32-vunary/gen/vsqr-neon-x8.c
-  src/q8-avgpool/9p8x-minmax-neon-c8.c
-  src/q8-avgpool/9x-minmax-neon-c8.c
-  src/q8-dwconv/up8x9-minmax-neon.c
-  src/q8-gavgpool/7p7x-minmax-neon-c8.c
-  src/q8-gavgpool/7x-minmax-neon-c8.c
-  src/q8-gemm/4x8-minmax-neon.c
-  src/q8-gemm/8x8-minmax-neon.c
-  src/q8-igemm/4x8-minmax-neon.c
-  src/q8-igemm/8x8-minmax-neon.c
-  src/q8-vadd/minmax-neon.c
+  src/qu8-avgpool/9p8x-minmax-neon-c8.c
+  src/qu8-avgpool/9x-minmax-neon-c8.c
+  src/qu8-dwconv/up8x9-minmax-neon.c
+  src/qu8-gavgpool/7p7x-minmax-neon-c8.c
+  src/qu8-gavgpool/7x-minmax-neon-c8.c
+  src/qu8-gemm/4x8-minmax-neon.c
+  src/qu8-gemm/8x8-minmax-neon.c
+  src/qu8-igemm/4x8-minmax-neon.c
+  src/qu8-igemm/8x8-minmax-neon.c
+  src/qu8-vadd/minmax-neon.c
   src/u8-clamp/neon-x64.c
   src/u8-maxpool/9p8x-minmax-neon-c16.c
   src/u8-rmax/neon.c
@@ -1181,6 +1184,8 @@ SET(XNNPACK_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS
   src/f16-hswish/gen/neonfp16arith-x8.c
   src/f16-prelu/gen/neonfp16arith-2x16.c
   src/f16-prelu/gen/neonfp16arith-2x8.c
+  src/f16-relu/gen/neonfp16arith-x16.c
+  src/f16-relu/gen/neonfp16arith-x8.c
   src/f16-vbinary/gen/vaddc-minmax-neonfp16arith-x16.c
   src/f16-vbinary/gen/vaddc-minmax-neonfp16arith-x8.c
   src/f16-vbinary/gen/vadd-minmax-neonfp16arith-x16.c
@@ -1301,6 +1306,8 @@ SET(XNNPACK_SSE_MICROKERNEL_SRCS
   src/f32-prelu/gen/sse-2x4.c
   src/f32-prelu/gen/sse-2x8.c
   src/f32-rmax/sse.c
+  src/f32-relu/gen/sse-x4.c
+  src/f32-relu/gen/sse-x8.c
   src/f32-spmm/gen/4x1-minmax-sse.c
   src/f32-spmm/gen/8x1-minmax-sse.c
   src/f32-spmm/gen/16x1-minmax-sse.c
@@ -1391,15 +1398,15 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/f32-vrnd/gen/vrndu-sse2-x8.c
   src/f32-vrnd/gen/vrndd-sse2-x4.c
   src/f32-vrnd/gen/vrndd-sse2-x8.c
-  src/q8-avgpool/9p8x-minmax-sse2-c8.c
-  src/q8-avgpool/9x-minmax-sse2-c8.c
-  src/q8-igemm/4x4c2-minmax-sse2.c
-  src/q8-dwconv/up8x9-minmax-sse2.c
-  src/q8-gavgpool/7p7x-minmax-sse2-c8.c
-  src/q8-gavgpool/7x-minmax-sse2-c8.c
-  src/q8-gemm/2x4c8-minmax-sse2.c
-  src/q8-gemm/4x4c2-minmax-sse2.c
-  src/q8-vadd/minmax-sse2.c
+  src/qu8-avgpool/9p8x-minmax-sse2-c8.c
+  src/qu8-avgpool/9x-minmax-sse2-c8.c
+  src/qu8-igemm/4x4c2-minmax-sse2.c
+  src/qu8-dwconv/up8x9-minmax-sse2.c
+  src/qu8-gavgpool/7p7x-minmax-sse2-c8.c
+  src/qu8-gavgpool/7x-minmax-sse2-c8.c
+  src/qu8-gemm/2x4c8-minmax-sse2.c
+  src/qu8-gemm/4x4c2-minmax-sse2.c
+  src/qu8-vadd/minmax-sse2.c
   src/u8-clamp/sse2-x64.c
   src/u8-maxpool/9p8x-minmax-sse2-c16.c
   src/u8-rmax/sse2.c
@@ -1661,6 +1668,8 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/f32-raddstoreexpminusmax/gen/avx2-p5-x96-acc2.c
   src/f32-raddstoreexpminusmax/gen/avx2-p5-x96-acc3.c
   src/f32-raddstoreexpminusmax/gen/avx2-p5-x96-acc6.c
+  src/f32-relu/gen/avx-x16.c
+  src/f32-relu/gen/avx-x8.c
   src/f32-sigmoid/gen/avx2-rr1-p5-div-x8.c
   src/f32-sigmoid/gen/avx2-rr1-p5-div-x16.c
   src/f32-sigmoid/gen/avx2-rr1-p5-div-x24.c
@@ -1803,6 +1812,8 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/f32-raddstoreexpminusmax/gen/avx512f-p5-scalef-x192-acc3.c
   src/f32-raddstoreexpminusmax/gen/avx512f-p5-scalef-x192-acc6.c
   src/f32-rmax/avx512f.c
+  src/f32-relu/gen/avx512f-x16.c
+  src/f32-relu/gen/avx512f-x32.c
   src/f32-vbinary/gen/vadd-minmax-avx512f-x16.c
   src/f32-vbinary/gen/vadd-minmax-avx512f-x32.c
   src/f32-vbinary/gen/vaddc-minmax-avx512f-x16.c
@@ -2884,6 +2895,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_LINK_LIBRARIES(f32-rmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-rmax-test f32-rmax-test)
 
+  ADD_EXECUTABLE(f32-relu-test test/f32-relu.cc)
+  SET_TARGET_PROPERTIES(f32-relu-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f32-relu-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(f32-relu-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(f32-relu-test f32-relu-test)
+
   ADD_EXECUTABLE(f32-sigmoid-test test/f32-sigmoid.cc)
   SET_TARGET_PROPERTIES(f32-sigmoid-test PROPERTIES
     CXX_STANDARD 11
@@ -3379,59 +3399,59 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_LINK_LIBRARIES(f32-vrsubc-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-vrsubc-minmax-test f32-vrsubc-minmax-test)
 
-  ADD_EXECUTABLE(q8-avgpool-minmax-test test/q8-avgpool-minmax.cc)
-  SET_TARGET_PROPERTIES(q8-avgpool-minmax-test PROPERTIES
+  ADD_EXECUTABLE(qu8-avgpool-minmax-test test/qu8-avgpool-minmax.cc)
+  SET_TARGET_PROPERTIES(qu8-avgpool-minmax-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-avgpool-minmax-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(q8-avgpool-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
-  ADD_TEST(q8-avgpool-minmax-test q8-avgpool-minmax-test)
+  TARGET_INCLUDE_DIRECTORIES(qu8-avgpool-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(qu8-avgpool-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(qu8-avgpool-minmax-test qu8-avgpool-minmax-test)
 
-  ADD_EXECUTABLE(q8-dwconv-minmax-test test/q8-dwconv-minmax.cc)
-  SET_TARGET_PROPERTIES(q8-dwconv-minmax-test PROPERTIES
+  ADD_EXECUTABLE(qu8-dwconv-minmax-test test/qu8-dwconv-minmax.cc)
+  SET_TARGET_PROPERTIES(qu8-dwconv-minmax-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-dwconv-minmax-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(q8-dwconv-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
-  ADD_TEST(q8-dwconv-minmax-test q8-dwconv-minmax-test)
+  TARGET_INCLUDE_DIRECTORIES(qu8-dwconv-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(qu8-dwconv-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(qu8-dwconv-minmax-test qu8-dwconv-minmax-test)
 
-  ADD_EXECUTABLE(q8-gavgpool-minmax-test test/q8-gavgpool-minmax.cc)
-  SET_TARGET_PROPERTIES(q8-gavgpool-minmax-test PROPERTIES
+  ADD_EXECUTABLE(qu8-gavgpool-minmax-test test/qu8-gavgpool-minmax.cc)
+  SET_TARGET_PROPERTIES(qu8-gavgpool-minmax-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-gavgpool-minmax-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(q8-gavgpool-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
-  ADD_TEST(q8-gavgpool-test q8-gavgpool-minmax-test)
+  TARGET_INCLUDE_DIRECTORIES(qu8-gavgpool-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(qu8-gavgpool-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(qu8-gavgpool-test qu8-gavgpool-minmax-test)
 
-  ADD_EXECUTABLE(q8-gemm-minmax-test test/q8-gemm-minmax.cc)
-  SET_TARGET_PROPERTIES(q8-gemm-minmax-test PROPERTIES
+  ADD_EXECUTABLE(qu8-gemm-minmax-test test/qu8-gemm-minmax.cc)
+  SET_TARGET_PROPERTIES(qu8-gemm-minmax-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-gemm-minmax-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(q8-gemm-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
-  ADD_TEST(q8-gemm-minmax-test q8-gemm-minmax-test)
+  TARGET_INCLUDE_DIRECTORIES(qu8-gemm-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(qu8-gemm-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(qu8-gemm-minmax-test qu8-gemm-minmax-test)
 
-  ADD_EXECUTABLE(q8-igemm-minmax-test test/q8-igemm-minmax.cc)
-  SET_TARGET_PROPERTIES(q8-igemm-minmax-test PROPERTIES
+  ADD_EXECUTABLE(qu8-igemm-minmax-test test/qu8-igemm-minmax.cc)
+  SET_TARGET_PROPERTIES(qu8-igemm-minmax-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-igemm-minmax-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(q8-igemm-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
-  ADD_TEST(q8-igemm-minmax-test q8-igemm-minmax-test)
+  TARGET_INCLUDE_DIRECTORIES(qu8-igemm-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(qu8-igemm-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(qu8-igemm-minmax-test qu8-igemm-minmax-test)
 
-  ADD_EXECUTABLE(q8-vadd-minmax-test test/q8-vadd-minmax.cc)
-  SET_TARGET_PROPERTIES(q8-vadd-minmax-test PROPERTIES
+  ADD_EXECUTABLE(qu8-vadd-minmax-test test/qu8-vadd-minmax.cc)
+  SET_TARGET_PROPERTIES(qu8-vadd-minmax-test PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-vadd-minmax-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(q8-vadd-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
-  ADD_TEST(q8-vadd-minmax-test q8-vadd-minmax-test)
+  TARGET_INCLUDE_DIRECTORIES(qu8-vadd-minmax-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(qu8-vadd-minmax-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(qu8-vadd-minmax-test qu8-vadd-minmax-test)
 
   ADD_EXECUTABLE(u8-clamp-test test/u8-clamp.cc)
   SET_TARGET_PROPERTIES(u8-clamp-test PROPERTIES
@@ -3932,14 +3952,14 @@ IF(XNNPACK_BUILD_BENCHMARKS)
   TARGET_INCLUDE_DIRECTORIES(f32-vsqrt-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   TARGET_LINK_LIBRARIES(f32-vsqrt-bench PRIVATE XNNPACK fp16 benchmark bench-utils)
 
-  ADD_EXECUTABLE(q8-gemm-bench bench/q8-gemm.cc)
-  SET_TARGET_PROPERTIES(q8-gemm-bench PROPERTIES
+  ADD_EXECUTABLE(qu8-gemm-bench bench/qu8-gemm.cc)
+  SET_TARGET_PROPERTIES(qu8-gemm-bench PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(q8-gemm-bench PRIVATE src)
-  TARGET_INCLUDE_DIRECTORIES(q8-gemm-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-  TARGET_LINK_LIBRARIES(q8-gemm-bench PRIVATE XNNPACK cpuinfo fp16 benchmark bench-utils)
+  TARGET_INCLUDE_DIRECTORIES(qu8-gemm-bench PRIVATE src)
+  TARGET_INCLUDE_DIRECTORIES(qu8-gemm-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  TARGET_LINK_LIBRARIES(qu8-gemm-bench PRIVATE XNNPACK cpuinfo fp16 benchmark bench-utils)
 
   ADD_EXECUTABLE(requantization-bench bench/requantization.cc)
   SET_TARGET_PROPERTIES(requantization-bench PROPERTIES
