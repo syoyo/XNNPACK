@@ -177,12 +177,12 @@ DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__avx2_rr1_p5_nr2fma_
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__avx2_rr1_p5_nr2fma_x72)
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__avx2_rr1_p5_nr2fma_x80)
 
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__psimd_p5_div_x4)
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__psimd_p5_div_x8)
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__psimd_p5_div_x12)
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__psimd_p5_div_x16)
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__psimd_p5_div_x20)
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__psimd_p5_div_x24)
+DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__wasmsimd_p5_div_x4)
+DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__wasmsimd_p5_div_x8)
+DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__wasmsimd_p5_div_x12)
+DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__wasmsimd_p5_div_x16)
+DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__wasmsimd_p5_div_x20)
+DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__wasmsimd_p5_div_x24)
 
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__scalar_lut2048_p1_div_x1)
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_sigmoid_ukernel__scalar_lut2048_p1_div_x2)
@@ -207,9 +207,6 @@ DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__avx_x16)
 
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__avx512f_x16)
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__avx512f_x32)
-
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__psimd_x4)
-DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__psimd_x8)
 
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__wasmsimd_x4)
 DECLARE_F32_VUNARY_UKERNEL_FUNCTION(xnn_f32_vsqr_ukernel__wasmsimd_x8)
@@ -303,9 +300,6 @@ DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__avx_x16)
 DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__avx512f_x16)
 DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__avx512f_x32)
 
-DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__psimd_x4)
-DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__psimd_x8)
-
 DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__wasmsimd_x4)
 DECLARE_F32_VABS_UKERNEL_FUNCTION(xnn_f32_vabs_ukernel__wasmsimd_x8)
 
@@ -339,9 +333,6 @@ DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__avx_x16)
 
 DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__avx512f_x16)
 DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__avx512f_x32)
-
-DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__psimd_x4)
-DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__psimd_x8)
 
 DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__wasmsimd_bitselect_x4)
 DECLARE_F32_VLRELU_UKERNEL_FUNCTION(xnn_f32_vlrelu_ukernel__wasmsimd_bitselect_x8)
@@ -378,9 +369,6 @@ DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__avx_x16)
 DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__avx512f_x16)
 DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__avx512f_x32)
 
-DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__psimd_x4)
-DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__psimd_x8)
-
 DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__wasmsimd_x4)
 DECLARE_F32_VNEG_UKERNEL_FUNCTION(xnn_f32_vneg_ukernel__wasmsimd_x8)
 
@@ -408,10 +396,8 @@ DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__avx_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__avx_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__avx512f_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__avx512f_x32)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__psimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__psimd_x8)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__wasmsimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__wasmsimd_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__wasmsimd_addsub_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__wasmsimd_addsub_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__scalar_libm_x1)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__scalar_libm_x2)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndne_ukernel__scalar_libm_x4)
@@ -428,10 +414,10 @@ DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__avx_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__avx_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__avx512f_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__avx512f_x32)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__psimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__psimd_x8)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__wasmsimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__wasmsimd_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__wasmsimd_addsub_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__wasmsimd_addsub_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__wasmsimd_cvt_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__wasmsimd_cvt_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__scalar_libm_x1)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__scalar_libm_x2)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndz_ukernel__scalar_libm_x4)
@@ -448,10 +434,10 @@ DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__avx_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__avx_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__avx512f_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__avx512f_x32)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__psimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__psimd_x8)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__wasmsimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__wasmsimd_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__wasmsimd_addsub_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__wasmsimd_addsub_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__wasmsimd_cvt_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__wasmsimd_cvt_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__scalar_libm_x1)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__scalar_libm_x2)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndu_ukernel__scalar_libm_x4)
@@ -468,29 +454,29 @@ DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__avx_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__avx_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__avx512f_x16)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__avx512f_x32)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__psimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__psimd_x8)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__wasmsimd_x4)
-DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__wasmsimd_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__wasmsimd_addsub_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__wasmsimd_addsub_x8)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__wasmsimd_cvt_x4)
+DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__wasmsimd_cvt_x8)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__scalar_libm_x1)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__scalar_libm_x2)
 DECLARE_F32_VRND_UKERNEL_FUNCTION(xnn_f32_vrndd_ukernel__scalar_libm_x4)
 
-#define DECLARE_F16_RELU_UKERNEL_FUNCTION(fn_name)   \
-  XNN_INTERNAL void fn_name(                         \
-      size_t n,                                      \
-      const void* x,                                 \
-      void* y,                                       \
+#define DECLARE_F16_RELU_UKERNEL_FUNCTION(fn_name) \
+  XNN_INTERNAL void fn_name(                       \
+      size_t n,                                    \
+      const void* x,                               \
+      void* y,                                     \
       const struct xnn_f16_relu_params* params);
 
 DECLARE_F16_RELU_UKERNEL_FUNCTION(xnn_f16_relu_ukernel__neonfp16arith_x8)
 DECLARE_F16_RELU_UKERNEL_FUNCTION(xnn_f16_relu_ukernel__neonfp16arith_x16)
 
-#define DECLARE_F32_RELU_UKERNEL_FUNCTION(fn_name)   \
-  XNN_INTERNAL void fn_name(                         \
-      size_t n,                                      \
-      const float* x,                                \
-      float* y,                                      \
+#define DECLARE_F32_RELU_UKERNEL_FUNCTION(fn_name) \
+  XNN_INTERNAL void fn_name(                       \
+      size_t n,                                    \
+      const float* x,                              \
+      float* y,                                    \
       const union xnn_f32_relu_params* params);
 
 DECLARE_F32_RELU_UKERNEL_FUNCTION(xnn_f32_relu_ukernel__neon_x4)

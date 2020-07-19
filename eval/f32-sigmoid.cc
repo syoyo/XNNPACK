@@ -247,13 +247,17 @@ static void SigmoidError(benchmark::State& state,
   BENCHMARK(f32_sigmoid__sse2_p5_div)->Unit(benchmark::kMillisecond)->Iterations(1);
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 
-#if !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
-  static void f32_sigmoid__psimd_p5_div(benchmark::State& state) {
-    SigmoidError(state, xnn_math_f32_sigmoid__psimd_p5_div, 4);
+#if XNN_ARCH_WASMSIMD
+  static void f32_sigmoid__wasmsimd_rr2_lut64_p2_div(benchmark::State& state) {
+    SigmoidError(state, xnn_math_f32_sigmoid__wasmsimd_rr2_lut64_p2_div, 4);
+  }
+  static void f32_sigmoid__wasmsimd_rr2_p5_div(benchmark::State& state) {
+    SigmoidError(state, xnn_math_f32_sigmoid__wasmsimd_rr2_p5_div, 4);
   }
 
-  BENCHMARK(f32_sigmoid__psimd_p5_div)->Unit(benchmark::kMillisecond)->Iterations(1);
-#endif  // !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
+  BENCHMARK(f32_sigmoid__wasmsimd_rr2_lut64_p2_div)->Unit(benchmark::kMillisecond)->Iterations(1);
+  BENCHMARK(f32_sigmoid__wasmsimd_rr2_p5_div)->Unit(benchmark::kMillisecond)->Iterations(1);
+#endif  // XNN_ARCH_WASMSIMD
 
 static void f32_sigmoid__scalar_lut2048_p1_div(benchmark::State& state) {
   SigmoidError(state, xnn_math_f32_sigmoid__scalar_lut2048_p1_div, 1);

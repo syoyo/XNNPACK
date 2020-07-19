@@ -1220,8 +1220,7 @@ typedef void (*xnn_argmaxpool_unipass_ukernel_function)(
     void* output,
     uint32_t* index,
     size_t input_increment,
-    size_t output_increment,
-    const void* params);
+    size_t output_increment);
 
 typedef void (*xnn_f32_argmaxpool_unipass_ukernel_function)(
     size_t output_pixels,
@@ -1232,8 +1231,7 @@ typedef void (*xnn_f32_argmaxpool_unipass_ukernel_function)(
     float* output,
     uint32_t* index,
     size_t input_increment,
-    size_t output_increment,
-    const union xnn_f32_minmax_params* params);
+    size_t output_increment);
 
 typedef void (*xnn_argmaxpool_multipass_ukernel_function)(
     size_t output_pixels,
@@ -1246,8 +1244,7 @@ typedef void (*xnn_argmaxpool_multipass_ukernel_function)(
     void* output,
     uint32_t* index,
     size_t input_increment,
-    size_t output_increment,
-    const void* params);
+    size_t output_increment);
 
 typedef void (*xnn_f32_argmaxpool_multipass_ukernel_function)(
     size_t output_pixels,
@@ -1260,8 +1257,7 @@ typedef void (*xnn_f32_argmaxpool_multipass_ukernel_function)(
     float* output,
     uint32_t* index,
     size_t input_increment,
-    size_t output_increment,
-    const union xnn_f32_minmax_params* params);
+    size_t output_increment);
 
 typedef void (*xnn_univector_ukernel_function)(
     size_t n,
@@ -1295,7 +1291,8 @@ typedef void (*xnn_f16_relu_ukernel_function)(
 typedef void (*xnn_f32_relu_ukernel_function)(
     size_t n,
     const float* x,
-    float* y);
+    float* y,
+    const union xnn_f32_relu_params* params);
 
 typedef void (*xnn_f16_hswish_ukernel_function)(
     size_t n,

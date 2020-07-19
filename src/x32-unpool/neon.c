@@ -7,35 +7,35 @@
 
 #include <arm_neon.h>
 
-#include <xnnpack/pad.h>
+#include <xnnpack/unpool.h>
 
 
 void xnn_x32_unpool_ukernel__neon(
-    size_t p,
-    size_t c,
-    uint32_t f,
+    size_t kernel_elements,
+    size_t channels,
+    uint32_t fill,
     const uint32_t* input,
     const uint32_t* index,
     uint32_t** output)
 {
   // Pre-initialize outputs with constant.
-  const uint32x4_t vf = vdupq_n_u32(f);
+  const uint32x4_t vfill = vdupq_n_u32(fill);
   uint32_t** os = output;
   do {
     uint32_t* o = *os++;
-    size_t k = c;
-    for (; k >= 4; k -= 4) {
-      vst1q_u32(o, vf); o += 4;
+    size_t c = channels;
+    for (; c >= 4; c -= 4) {
+      vst1q_u32(o, vfill); o += 4;
     }
-    if (k != 0) {
-      if (k & 2) {
-        vst1_u32(o, vget_low_u32(vf)); o += 2;
+    if (c != 0) {
+      if (c & 2) {
+        vst1_u32(o, vget_low_u32(vfill)); o += 2;
       }
-      if (k & 1) {
-        vst1q_lane_u32(o, vf, 0);
+      if (c & 1) {
+        vst1q_lane_u32(o, vfill, 0);
       }
     }
-  } while (--p != 0);
+  } while (--kernel_elements != 0);
 
   // Copy indexed elements to output.
   size_t offset = 0;
@@ -43,5 +43,5 @@ void xnn_x32_unpool_ukernel__neon(
     const uint32_t i = *index++;
     *((uint32_t*) ((uintptr_t) output[i] + offset)) = *input++;
     offset += sizeof(uint32_t);
-  } while (--c != 0);
+  } while (--channels != 0);
 }

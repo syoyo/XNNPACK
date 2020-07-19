@@ -18,7 +18,7 @@ extern "C" {
 
 #define DECLARE_FILL_UKERNEL_FUNCTION(fn_name) \
   XNN_INTERNAL void fn_name(                   \
-    size_t rows,                               \
+    size_t kernel_elements,                    \
     size_t channels,                           \
     uint32_t* output,                          \
     size_t output_stride,                      \
@@ -27,6 +27,7 @@ extern "C" {
 DECLARE_FILL_UKERNEL_FUNCTION(xnn_x32_fill_ukernel__sse)
 DECLARE_FILL_UKERNEL_FUNCTION(xnn_x32_fill_ukernel__neon)
 DECLARE_FILL_UKERNEL_FUNCTION(xnn_x32_fill_ukernel__psimd)
+DECLARE_FILL_UKERNEL_FUNCTION(xnn_x32_fill_ukernel__wasmsimd)
 DECLARE_FILL_UKERNEL_FUNCTION(xnn_x32_fill_ukernel__scalar_float)
 DECLARE_FILL_UKERNEL_FUNCTION(xnn_x32_fill_ukernel__scalar_int)
 
