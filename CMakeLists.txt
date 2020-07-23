@@ -518,33 +518,17 @@ SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
   src/f32-argmaxpool/4x-psimd-c4.c
   src/f32-argmaxpool/9p8x-psimd-c4.c
   src/f32-argmaxpool/9x-psimd-c4.c
-  src/f32-avgpool/9p8x-minmax-psimd-c4.c
-  src/f32-avgpool/9x-minmax-psimd-c4.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c
   src/f32-dwconv-chw/3x3p1-psimd.c
   src/f32-dwconv-chw/3x3s2p1-psimd.c
   src/f32-dwconv-chw/5x5p2-psimd.c
   src/f32-dwconv-chw/5x5s2p2-psimd.c
   src/f32-gavgpool-cw/psimd-x4.c
-  src/f32-gavgpool/7p7x-minmax-psimd-c4.c
-  src/f32-gavgpool/7x-minmax-psimd-c4.c
-  src/f32-ibilinear/gen/psimd-c4.c
-  src/f32-ibilinear/gen/psimd-c8.c
-  src/f32-maxpool/9p8x-minmax-psimd-c4.c
-  src/f32-pavgpool/9p8x-minmax-psimd-c4.c
-  src/f32-pavgpool/9x-minmax-psimd-c4.c
   src/f32-ppmm/gen/4x8-minmax-psimd.c
   src/f32-spmm/gen/4x1-minmax-psimd.c
   src/f32-spmm/gen/8x1-minmax-psimd.c
   src/f32-spmm/gen/16x1-minmax-psimd.c
-  src/x32-fill/psimd.c
-  src/x32-packx/x4-psimd.c
-  src/x32-pad/psimd.c
-  src/x32-unpool/psimd.c
-  src/x32-zip/x2-psimd.c
-  src/x32-zip/x3-psimd.c
-  src/x32-zip/x4-psimd.c
-  src/x32-zip/xm-psimd.c
+  src/x32-packx/x4-psimd.c)
 
 SET(XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS
   src/requantization/precise-psimd.c
@@ -1795,11 +1779,11 @@ SET(XNNPACK_AARCH32_ASM_MICROKERNEL_SRCS
   src/f32-gemm/gen/4x8-minmax-aarch32-neon-ld64.S
   src/f32-gemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S
   src/f32-igemm/4x8-minmax-aarch32-neon-cortex-a53.S
-  src/f32-igemm/4x8-minmax-aarch32-neon-cortex-a55.S)
+  src/f32-igemm/4x8-minmax-aarch32-neon-cortex-a55.S
   src/f32-igemm/gen/4x8-minmax-aarch32-neon-cortex-a7.S
   src/f32-igemm/gen/4x8-minmax-aarch32-neon-cortex-a75.S
   src/f32-igemm/gen/4x8-minmax-aarch32-neon-ld64.S
-  src/f32-igemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S
+  src/f32-igemm/gen/4x8-minmax-aarch32-neon-pld-cortex-a75.S)
 
 SET(XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS
   src/f16-gemm/gen/1x16-minmax-aarch64-neonfp16arith-ld32.S
