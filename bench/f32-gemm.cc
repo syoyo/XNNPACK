@@ -841,6 +841,20 @@ static void ruy_st(benchmark::State& state, const char* net)
     GEMMBenchmark(state, xnn_f32_gemm_minmax_ukernel_6x8s4__wasmsimd_x86, 6, 8, 1, 4);
   }
 
+  static void f32_ppmm_4x8_unipass__wasmsimd_splat_arm(benchmark::State& state, const char* net) {
+    PPMM1PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__wasmsimd_splat_arm, xnn_x32_packx_ukernel_4x__wasmsimd, 4, 8);
+  }
+  static void f32_ppmm_4x8_unipass__wasmsimd_splat_x86(benchmark::State& state, const char* net) {
+    PPMM1PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__wasmsimd_splat_x86, xnn_x32_packx_ukernel_4x__wasmsimd, 4, 8);
+  }
+
+  static void f32_ppmm_4x8_twopass__wasmsimd_splat_arm(benchmark::State& state, const char* net) {
+    PPMM2PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__wasmsimd_splat_arm, xnn_x32_packx_ukernel_4x__wasmsimd, 4, 8);
+  }
+  static void f32_ppmm_4x8_twopass__wasmsimd_splat_x86(benchmark::State& state, const char* net) {
+    PPMM2PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__wasmsimd_splat_x86, xnn_x32_packx_ukernel_4x__wasmsimd, 4, 8);
+  }
+
   BENCHMARK_GEMM(f32_gemm_3x8__wasmsimd_loadsplat_arm)
   BENCHMARK_GEMM(f32_gemm_4x8__wasmsimd_loadsplat_arm)
   BENCHMARK_GEMM(f32_gemm_5x8__wasmsimd_loadsplat_arm)
@@ -865,20 +879,11 @@ static void ruy_st(benchmark::State& state, const char* net)
   BENCHMARK_GEMM(f32_gemm_4x8s4__wasmsimd_x86)
   BENCHMARK_GEMM(f32_gemm_5x8s4__wasmsimd_x86)
   BENCHMARK_GEMM(f32_gemm_6x8s4__wasmsimd_x86)
+  BENCHMARK_GEMM(f32_ppmm_4x8_unipass__wasmsimd_splat_arm)
+  BENCHMARK_GEMM(f32_ppmm_4x8_unipass__wasmsimd_splat_x86)
+  BENCHMARK_GEMM(f32_ppmm_4x8_twopass__wasmsimd_splat_arm)
+  BENCHMARK_GEMM(f32_ppmm_4x8_twopass__wasmsimd_splat_x86)
 #endif  // XNN_ARCH_WASMSIMD
-
-#if !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
-  static void f32_ppmm_4x8_unipass__psimd(benchmark::State& state, const char* net) {
-    PPMM1PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__psimd, xnn_x32_packx_ukernel_4x__psimd, 4, 8);
-  }
-
-  static void f32_ppmm_4x8_twopass__psimd(benchmark::State& state, const char* net) {
-    PPMM2PBenchmark(state, xnn_f32_ppmm_minmax_ukernel_4x8__psimd, xnn_x32_packx_ukernel_4x__psimd, 4, 8);
-  }
-
-  BENCHMARK_GEMM(f32_ppmm_4x8_unipass__psimd)
-  BENCHMARK_GEMM(f32_ppmm_4x8_twopass__psimd)
-#endif  // !XNN_ARCH_ASMJS && !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
 
 static void f32_gemm_1x4__scalar(benchmark::State& state, const char* net) {
   GEMMBenchmark(state, xnn_f32_gemm_minmax_ukernel_1x4__scalar, 1, 4, 1, 1);
