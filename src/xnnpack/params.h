@@ -229,7 +229,6 @@ union xnn_f32_hswish_params {
 union xnn_qu8_gemm_params {
   struct {
     int32_t kernel_zero_point;
-    int32_t input_zero_point;
     int32_t multiplier;
     int32_t remainder_mask;
     int32_t remainder_threshold;
@@ -240,8 +239,7 @@ union xnn_qu8_gemm_params {
   } scalar;
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   struct {
-    int16_t kernel_zero_point;
-    int16_t input_zero_point;
+    int32_t kernel_zero_point;
     int32_t multiplier;
     int32_t right_shift;
     int16_t output_zero_point;
@@ -252,7 +250,6 @@ union xnn_qu8_gemm_params {
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
   struct {
     XNN_ALIGN(16) int16_t kernel_zero_point[8];
-    XNN_ALIGN(16) int16_t input_zero_point[8];
     XNN_ALIGN(16) uint32_t multiplier[4];
     XNN_ALIGN(16) uint64_t rounding[2];
     XNN_ALIGN(16) int32_t remainder_mask[4];
@@ -341,70 +338,7 @@ union xnn_qu8_avgpool_params {
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
 };
 
-union xnn_fp32_requantization_params {
-  struct {
-    float scale;
-    float min_less_zero_point;
-    float max_less_zero_point;
-    float magic;
-    int32_t magic_less_zero_point;
-  } scalar;
-  struct {
-    float scale;
-    float min;
-    float max;
-    float magic;
-    int32_t magic_less_zero_point;
-  } neon;
-  struct {
-    float scale;
-    int16_t zero_point;
-    uint8_t min;
-    uint8_t max;
-  } neonv8;
-  struct {
-    XNN_ALIGN(16) float scale[4];
-    XNN_ALIGN(16) int16_t zero_point[8];
-    XNN_ALIGN(16) uint8_t min[16];
-    XNN_ALIGN(16) uint8_t max[16];
-  } sse2;
-  struct {
-    XNN_ALIGN(16) float scale[4];
-    XNN_ALIGN(16) float min_less_zero_point[4];
-    XNN_ALIGN(16) float max_less_zero_point[4];
-    XNN_ALIGN(16) float magic[4];
-    XNN_ALIGN(16) int32_t magic_less_zero_point[4];
-  } psimd;
-};
-
-union xnn_precise_requantization_params {
-  struct {
-    uint32_t multiplier;
-    uint32_t rounding_lo;
-    uint32_t rounding_hi;
-    uint32_t shift_less_32;
-    int32_t min_less_zero_point;
-    int32_t max_less_zero_point;
-    int32_t zero_point;
-  } scalar;
-  struct {
-    int32_t multiplier;
-    int32_t right_shift;
-    int16_t zero_point;
-    uint8_t min;
-    uint8_t max;
-  } neon;
-  struct {
-    XNN_ALIGN(16) uint32_t multiplier[4];
-    XNN_ALIGN(16) uint64_t rounding[2];
-    XNN_ALIGN(16) uint32_t shift[4];
-    XNN_ALIGN(16) int16_t zero_point[8];
-    XNN_ALIGN(16) uint8_t min[16];
-    XNN_ALIGN(16) uint8_t max[16];
-  } sse2;
-};
-
-union xnn_q31_requantization_params {
+union xnn_qu8_requantization_params {
   struct {
     int32_t multiplier;
     int32_t remainder_mask;
@@ -413,34 +347,7 @@ union xnn_q31_requantization_params {
     int32_t min_less_zero_point;
     int32_t max_less_zero_point;
     int32_t zero_point;
-  } scalar;
-#if XNN_ARCH_ARM || XNN_ARCH_ARM64
-  struct {
-    int32_t multiplier;
-    int32_t right_shift;
-    int16_t zero_point;
-    uint8_t min;
-    uint8_t max;
-  } neon;
-#endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
-#if XNN_ARCH_X86 || XNN_ARCH_X86_64
-  struct {
-    XNN_ALIGN(16) uint32_t multiplier[4];
-    XNN_ALIGN(16) uint64_t rounding[2];
-    XNN_ALIGN(16) int32_t remainder_mask[4];
-    XNN_ALIGN(16) int32_t remainder_threshold[4];
-    XNN_ALIGN(16) uint64_t shift[2];
-    XNN_ALIGN(16) int16_t zero_point[8];
-    XNN_ALIGN(16) uint8_t min[16];
-    XNN_ALIGN(16) uint8_t max[16];
-  } sse2;
-#endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
-};
-
-union xnn_requantization_params {
-  union xnn_precise_requantization_params precise;
-  union xnn_fp32_requantization_params fp32;
-  union xnn_q31_requantization_params q31;
+  } q31;
 };
 
 typedef void (*xnn_ppmm_ukernel_function)(

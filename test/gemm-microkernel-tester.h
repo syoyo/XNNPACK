@@ -268,18 +268,15 @@ class GemmMicrokernelTester {
       switch (variant) {
         case Variant::Native:
           quantization_params = xnn_init_qu8_gemm_params(
-            a_zero_point(), b_zero_point(),
-            requantization_scale, c_zero_point, qmin(), qmax());
+            b_zero_point(), requantization_scale, c_zero_point, qmin(), qmax());
           break;
         case Variant::Scalar:
           quantization_params = xnn_init_scalar_qu8_gemm_params(
-            a_zero_point(), b_zero_point(),
-            requantization_scale, c_zero_point, qmin(), qmax());
+            b_zero_point(), requantization_scale, c_zero_point, qmin(), qmax());
           break;
       }
-      const union xnn_q31_requantization_params scalar_requantization_params =
-        xnn_init_scalar_requantization_params(
-          requantization_scale, c_zero_point, qmin(), qmax());
+      const union xnn_qu8_requantization_params scalar_requantization_params =
+        xnn_init_scalar_qu8_requantization_params(requantization_scale, c_zero_point, qmin(), qmax());
 
       gemm(
         m(), n(), k(),
@@ -396,18 +393,15 @@ class GemmMicrokernelTester {
       switch (variant) {
         case Variant::Native:
           quantization_params = xnn_init_qu8_gemm_params(
-            a_zero_point(), b_zero_point(),
-            requantization_scale, c_zero_point, qmin(), qmax());
+            b_zero_point(), requantization_scale, c_zero_point, qmin(), qmax());
           break;
         case Variant::Scalar:
           quantization_params = xnn_init_scalar_qu8_gemm_params(
-            a_zero_point(), b_zero_point(),
-            requantization_scale, c_zero_point, qmin(), qmax());
+            b_zero_point(), requantization_scale, c_zero_point, qmin(), qmax());
           break;
       }
-      const union xnn_q31_requantization_params scalar_requantization_params =
-        xnn_init_scalar_requantization_params(
-          requantization_scale, c_zero_point, qmin(), qmax());
+      const union xnn_qu8_requantization_params scalar_requantization_params =
+        xnn_init_scalar_qu8_requantization_params(requantization_scale, c_zero_point, qmin(), qmax());
 
       const uint8_t* zero_pointer = (zero_index() != SIZE_MAX) ? a.data() : NULL;
 
