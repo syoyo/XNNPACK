@@ -1,0 +1,52 @@
+# Copyright 2020 Google LLC
+#
+# This source code is licensed under the BSD-style license found in the
+# LICENSE file in the root directory of this source tree.
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c2__sse2_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_4x4c2__sse2_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c2__ssse3_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_4x4c2__ssse3_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c2__sse41_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_4x4c2__sse41_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c2__sse2_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_4x4c2__sse2_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c2__ssse3_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_4x4c2__ssse3_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c2__sse41_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_4x4c2__sse41_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c8__sse2_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_2x4c8__sse2_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c8__ssse3_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_2x4c8__ssse3_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c8__sse41_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_2x4c8__sse41_ld64
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c8__sse2_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_2x4c8__sse2_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c8__ssse3_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_2x4c8__ssse3_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_1x4c8__sse41_ld128
+  k-block: 8
+- name: xnn_qs8_igemm_minmax_ukernel_2x4c8__sse41_ld128
+  k-block: 8
