@@ -11,7 +11,7 @@
 
 #include <emmintrin.h>
 
-#include <xnnpack/gemm.h>
+#include <xnnpack/igemm.h>
 
 
 void xnn_qs8_igemm_minmax_ukernel_2x4c8__sse2_ld64(
@@ -32,7 +32,9 @@ void xnn_qs8_igemm_minmax_ukernel_2x4c8__sse2_ld64(
   assert(mr <= 2);
   assert(nc != 0);
   assert(kc != 0);
-  assert(kc % sizeof(int8_t) == 0);
+  assert(ks != 0);
+  assert(ks % (2 * sizeof(void*)) == 0);
+  assert(a_offset % sizeof(int8_t) == 0);
   assert(a != NULL);
   assert(w != NULL);
   assert(c != NULL);
