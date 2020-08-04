@@ -110,7 +110,7 @@ class RequantizationTester {
     for (int32_t i = 0; i <= std::numeric_limits<uint8_t>::max(); i++) {
       const int32_t clamped_i = std::max(min_i, std::min(max_i, i));
       ASSERT_EQ(uint32_t(clamped_i), uint32_t(outputs[i]))
-        << "i = " << i << ", clamped i = " << clamped_i
+        << "i = " << i << ", clamped i = " << clamped_i << ", input = " << inputs[i]
         << ", min i = " << min_i << ", max i = " << max_i
         << ", s = " << s() << ", zero point = " << zero_point();
     }
@@ -151,6 +151,7 @@ class RequantizationTester {
       const int32_t clamped_i = std::max(min_i, std::min(max_i, i));
       ASSERT_EQ(clamped_i, int32_t(outputs[i - std::numeric_limits<int8_t>::min()]))
         << "i = " << i << ", clamped i = " << clamped_i
+        << ", input = " << inputs[i - std::numeric_limits<int8_t>::min()]
         << ", min i = " << min_i << ", max i = " << max_i
         << ", s = " << s() << ", zero point = " << zero_point();
     }
@@ -540,7 +541,7 @@ class RequantizationTester {
     std::random_device random_device;
     std::mt19937 rng(random_device());
     for (size_t iteration = 0; iteration < iterations(); iteration++) {
-      auto s8rng = std::bind(
+      auto i8rng = std::bind(
         std::uniform_int_distribution<int32_t>(std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max()), std::ref(rng));
 
       std::vector<int32_t> inputs(4096);
@@ -549,7 +550,7 @@ class RequantizationTester {
       std::uniform_real_distribution<float> scale_distribution(0x1.000000p-23f, 0x1.FFFFFEp-1f);
       const float scale = scale_distribution(rng);
       for (size_t i = 0; i < inputs.size(); i++) {
-        const int8_t approximate_output = std::min(std::max(int8_t(s8rng()), int8_t(qmin())), int8_t(qmax()));
+        const int8_t approximate_output = std::min(std::max(int8_t(i8rng()), int8_t(qmin())), int8_t(qmax()));
         const int32_t input = int32_t(double(approximate_output) / double(scale));
         inputs[i] = input;
       }
@@ -628,7 +629,7 @@ class RequantizationTester {
     std::random_device random_device;
     std::mt19937 rng(random_device());
     for (size_t iteration = 0; iteration < iterations(); iteration++) {
-      auto s8rng = std::bind(
+      auto i8rng = std::bind(
         std::uniform_int_distribution<int32_t>(std::numeric_limits<int8_t>::min(), std::numeric_limits<int8_t>::max()), std::ref(rng));
 
       std::vector<int32_t> inputs(4096);
@@ -637,7 +638,7 @@ class RequantizationTester {
       std::uniform_real_distribution<float> scale_distribution(0x1.000000p-23f, 0x1.FFFFFEp-1f);
       const float scale = scale_distribution(rng);
       for (size_t i = 0; i < inputs.size(); i++) {
-        const int8_t approximate_output = std::min(std::max(int8_t(s8rng()), int8_t(qmin())), int8_t(qmax()));
+        const int8_t approximate_output = std::min(std::max(int8_t(i8rng()), int8_t(qmin())), int8_t(qmax()));
         const int32_t input = int32_t(double(approximate_output) / double(scale));
         inputs[i] = input;
       }

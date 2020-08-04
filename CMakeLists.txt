@@ -1286,18 +1286,32 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/qs8-gemm/gen/4x4c2-minmax-sse2-ld64.c
   src/qs8-gemm/gen/1x4c2-minmax-sse2-ld128.c
   src/qs8-gemm/gen/4x4c2-minmax-sse2-ld128.c
+  src/qs8-gemm/gen/1x4c2-xw-minmax-sse2.c
+  src/qs8-gemm/gen/4x4c2-xw-minmax-sse2.c
   src/qs8-gemm/gen/1x4c8-minmax-sse2-ld64.c
   src/qs8-gemm/gen/2x4c8-minmax-sse2-ld64.c
+  src/qs8-gemm/gen/3x4c8-minmax-sse2-ld64.c
   src/qs8-gemm/gen/1x4c8-minmax-sse2-ld128.c
   src/qs8-gemm/gen/2x4c8-minmax-sse2-ld128.c
+  src/qs8-gemm/gen/3x4c8-minmax-sse2-ld128.c
+  src/qs8-gemm/gen/1x4c8-xw-minmax-sse2.c
+  src/qs8-gemm/gen/2x4c8-xw-minmax-sse2.c
+  src/qs8-gemm/gen/3x4c8-xw-minmax-sse2.c
   src/qs8-igemm/gen/1x4c2-minmax-sse2-ld64.c
   src/qs8-igemm/gen/4x4c2-minmax-sse2-ld64.c
   src/qs8-igemm/gen/1x4c2-minmax-sse2-ld128.c
   src/qs8-igemm/gen/4x4c2-minmax-sse2-ld128.c
+  src/qs8-igemm/gen/1x4c2-xw-minmax-sse2.c
+  src/qs8-igemm/gen/4x4c2-xw-minmax-sse2.c
   src/qs8-igemm/gen/1x4c8-minmax-sse2-ld64.c
   src/qs8-igemm/gen/2x4c8-minmax-sse2-ld64.c
+  src/qs8-igemm/gen/3x4c8-minmax-sse2-ld64.c
   src/qs8-igemm/gen/1x4c8-minmax-sse2-ld128.c
   src/qs8-igemm/gen/2x4c8-minmax-sse2-ld128.c
+  src/qs8-igemm/gen/3x4c8-minmax-sse2-ld128.c
+  src/qs8-igemm/gen/1x4c8-xw-minmax-sse2.c
+  src/qs8-igemm/gen/2x4c8-xw-minmax-sse2.c
+  src/qs8-igemm/gen/3x4c8-xw-minmax-sse2.c
   src/qs8-requantization/fp32-sse2.c
   src/qs8-requantization/precise-sse2.c
   src/qs8-requantization/q31-sse2.c
@@ -1338,18 +1352,27 @@ SET(XNNPACK_SSSE3_MICROKERNEL_SRCS
   src/qs8-gemm/gen/4x4c2-minmax-ssse3-ld64.c
   src/qs8-gemm/gen/1x4c2-minmax-ssse3-ld128.c
   src/qs8-gemm/gen/4x4c2-minmax-ssse3-ld128.c
+  src/qs8-gemm/gen/1x4c2-xw-minmax-ssse3.c
+  src/qs8-gemm/gen/4x4c2-xw-minmax-ssse3.c
   src/qs8-gemm/gen/1x4c8-minmax-ssse3-ld64.c
   src/qs8-gemm/gen/2x4c8-minmax-ssse3-ld64.c
+  src/qs8-gemm/gen/3x4c8-minmax-ssse3-ld64.c
   src/qs8-gemm/gen/1x4c8-minmax-ssse3-ld128.c
   src/qs8-gemm/gen/2x4c8-minmax-ssse3-ld128.c
+  src/qs8-gemm/gen/3x4c8-minmax-ssse3-ld128.c
+  src/qs8-gemm/gen/1x4c8-xw-minmax-ssse3.c
+  src/qs8-gemm/gen/2x4c8-xw-minmax-ssse3.c
+  src/qs8-gemm/gen/3x4c8-xw-minmax-ssse3.c
   src/qs8-igemm/gen/1x4c2-minmax-ssse3-ld64.c
   src/qs8-igemm/gen/4x4c2-minmax-ssse3-ld64.c
   src/qs8-igemm/gen/1x4c2-minmax-ssse3-ld128.c
   src/qs8-igemm/gen/4x4c2-minmax-ssse3-ld128.c
   src/qs8-igemm/gen/1x4c8-minmax-ssse3-ld64.c
   src/qs8-igemm/gen/2x4c8-minmax-ssse3-ld64.c
+  src/qs8-igemm/gen/3x4c8-minmax-ssse3-ld64.c
   src/qs8-igemm/gen/1x4c8-minmax-ssse3-ld128.c
   src/qs8-igemm/gen/2x4c8-minmax-ssse3-ld128.c
+  src/qs8-igemm/gen/3x4c8-minmax-ssse3-ld128.c
   src/qs8-requantization/precise-ssse3.c
   src/qs8-requantization/q31-ssse3.c
   src/qu8-requantization/precise-ssse3.c
@@ -1378,18 +1401,27 @@ SET(XNNPACK_SSE41_MICROKERNEL_SRCS
   src/qs8-gemm/gen/4x4c2-minmax-sse41-ld64.c
   src/qs8-gemm/gen/1x4c2-minmax-sse41-ld128.c
   src/qs8-gemm/gen/4x4c2-minmax-sse41-ld128.c
+  src/qs8-gemm/gen/1x4c2-xw-minmax-sse41.c
+  src/qs8-gemm/gen/4x4c2-xw-minmax-sse41.c
   src/qs8-gemm/gen/1x4c8-minmax-sse41-ld64.c
   src/qs8-gemm/gen/2x4c8-minmax-sse41-ld64.c
+  src/qs8-gemm/gen/3x4c8-minmax-sse41-ld64.c
   src/qs8-gemm/gen/1x4c8-minmax-sse41-ld128.c
   src/qs8-gemm/gen/2x4c8-minmax-sse41-ld128.c
+  src/qs8-gemm/gen/3x4c8-minmax-sse41-ld128.c
+  src/qs8-gemm/gen/1x4c8-xw-minmax-sse41.c
+  src/qs8-gemm/gen/2x4c8-xw-minmax-sse41.c
+  src/qs8-gemm/gen/3x4c8-xw-minmax-sse41.c
   src/qs8-igemm/gen/1x4c2-minmax-sse41-ld64.c
   src/qs8-igemm/gen/4x4c2-minmax-sse41-ld64.c
   src/qs8-igemm/gen/1x4c2-minmax-sse41-ld128.c
   src/qs8-igemm/gen/4x4c2-minmax-sse41-ld128.c
   src/qs8-igemm/gen/1x4c8-minmax-sse41-ld64.c
   src/qs8-igemm/gen/2x4c8-minmax-sse41-ld64.c
+  src/qs8-igemm/gen/3x4c8-minmax-sse41-ld64.c
   src/qs8-igemm/gen/1x4c8-minmax-sse41-ld128.c
   src/qs8-igemm/gen/2x4c8-minmax-sse41-ld128.c
+  src/qs8-igemm/gen/3x4c8-minmax-sse41-ld128.c
   src/qs8-requantization/fp32-sse4.c
   src/qs8-requantization/precise-sse4.c
   src/qs8-requantization/q31-sse4.c
@@ -1504,18 +1536,27 @@ SET(XNNPACK_XOP_MICROKERNEL_SRCS
   src/qs8-gemm/gen/4x4c2-minmax-xop-ld64.c
   src/qs8-gemm/gen/1x4c2-minmax-xop-ld128.c
   src/qs8-gemm/gen/4x4c2-minmax-xop-ld128.c
+  src/qs8-gemm/gen/1x4c2-xw-minmax-xop.c
+  src/qs8-gemm/gen/4x4c2-xw-minmax-xop.c
   src/qs8-gemm/gen/1x4c8-minmax-xop-ld64.c
   src/qs8-gemm/gen/2x4c8-minmax-xop-ld64.c
+  src/qs8-gemm/gen/3x4c8-minmax-xop-ld64.c
   src/qs8-gemm/gen/1x4c8-minmax-xop-ld128.c
   src/qs8-gemm/gen/2x4c8-minmax-xop-ld128.c
+  src/qs8-gemm/gen/3x4c8-minmax-xop-ld128.c
+  src/qs8-gemm/gen/1x4c8-xw-minmax-xop.c
+  src/qs8-gemm/gen/2x4c8-xw-minmax-xop.c
+  src/qs8-gemm/gen/3x4c8-xw-minmax-xop.c
   src/qs8-igemm/gen/1x4c2-minmax-xop-ld64.c
   src/qs8-igemm/gen/4x4c2-minmax-xop-ld64.c
   src/qs8-igemm/gen/1x4c2-minmax-xop-ld128.c
   src/qs8-igemm/gen/4x4c2-minmax-xop-ld128.c
   src/qs8-igemm/gen/1x4c8-minmax-xop-ld64.c
   src/qs8-igemm/gen/2x4c8-minmax-xop-ld64.c
+  src/qs8-igemm/gen/3x4c8-minmax-xop-ld64.c
   src/qs8-igemm/gen/1x4c8-minmax-xop-ld128.c
   src/qs8-igemm/gen/2x4c8-minmax-xop-ld128.c)
+  src/qs8-igemm/gen/3x4c8-minmax-xop-ld128.c)
 
 SET(XNNPACK_FMA3_MICROKERNEL_SRCS
   src/f32-dwconv/gen/up16x4-minmax-fma3-acc2.c
@@ -1682,6 +1723,9 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/qs8-gemm/gen/1x8c8-minmax-avx2.c
   src/qs8-gemm/gen/2x8c8-minmax-avx2.c
   src/qs8-gemm/gen/3x8c8-minmax-avx2.c
+  src/qs8-gemm/gen/1x8c8-xw-minmax-avx2.c
+  src/qs8-gemm/gen/2x8c8-xw-minmax-avx2.c
+  src/qs8-gemm/gen/3x8c8-xw-minmax-avx2.c
   src/qs8-igemm/gen/1x8c8-minmax-avx2.c
   src/qs8-igemm/gen/2x8c8-minmax-avx2.c
   src/qs8-igemm/gen/3x8c8-minmax-avx2.c
@@ -3960,6 +4004,15 @@ IF(XNNPACK_BUILD_BENCHMARKS)
   TARGET_INCLUDE_DIRECTORIES(qs8-gemm-bench PRIVATE src)
   TARGET_INCLUDE_DIRECTORIES(qs8-gemm-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   TARGET_LINK_LIBRARIES(qs8-gemm-bench PRIVATE XNNPACK cpuinfo fp16 benchmark bench-utils)
+
+  ADD_EXECUTABLE(qs8-requantization-bench bench/qs8-requantization.cc)
+  SET_TARGET_PROPERTIES(qs8-requantization-bench PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(qs8-requantization-bench PRIVATE src)
+  TARGET_INCLUDE_DIRECTORIES(qs8-requantization-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  TARGET_LINK_LIBRARIES(qs8-requantization-bench PRIVATE XNNPACK cpuinfo fp16 benchmark bench-utils)
 
   ADD_EXECUTABLE(qu8-gemm-bench bench/qu8-gemm.cc)
   SET_TARGET_PROPERTIES(qu8-gemm-bench PROPERTIES

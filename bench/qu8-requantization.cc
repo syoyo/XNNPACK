@@ -22,18 +22,6 @@
 #include <xnnpack/requantization-stubs.h>
 
 
-inline uint32_t divide_round_up(uint32_t x, uint32_t q) {
-  return x / q + uint32_t(x % q != 0);
-}
-
-inline uint32_t round_up(uint32_t x, uint32_t q) {
-  return q * divide_round_up(x, q);
-}
-
-inline uint32_t min(uint32_t a, uint32_t b) {
-  return a < b ? a : b;
-}
-
 class Requantization : public benchmark::Fixture {
  public:
   inline Requantization()
@@ -49,10 +37,10 @@ class Requantization : public benchmark::Fixture {
   {
     std::random_device random_device;
     auto rng = std::mt19937(random_device());
-    auto s32rng = std::bind(std::uniform_int_distribution<int32_t>(), std::ref(rng));
+    auto i32rng = std::bind(std::uniform_int_distribution<int32_t>(), std::ref(rng));
 
     input_.resize(n());
-    std::generate(input_.begin(), input_.end(), std::ref(s32rng));
+    std::generate(input_.begin(), input_.end(), std::ref(i32rng));
     output_.resize(n());
     std::fill(output_.begin(), output_.end(), 0xA5);
   }
@@ -121,6 +109,13 @@ BENCHMARK_F(Requantization, fp32__scalar_magic)(benchmark::State& state) {
   }
 }
 
+BENCHMARK_F(Requantization, q31__scalar)(benchmark::State& state) {
+  for (auto _ : state) {
+    xnn_qu8_requantize_q31__scalar(
+        n(), input(), 0x1.0p-12f /* scale */, 128 /* zero point */, 1 /* qmin */, 254 /* qmax */, output());
+  }
+}
+
 #if !XNN_ARCH_WASM && !XNN_COMPILER_MSVC && !XNN_COMPILER_ICC
   BENCHMARK_F(Requantization, precise__psimd)(benchmark::State& state) {
     for (auto _ : state) {
@@ -142,6 +137,13 @@ BENCHMARK_F(Requantization, fp32__scalar_magic)(benchmark::State& state) {
   BENCHMARK_F(Requantization, fp32__wasmsimd)(benchmark::State& state) {
     for (auto _ : state) {
       xnn_qu8_requantize_fp32__wasmsimd(
+          n(), input(), 0x1.0p-12f /* scale */, 128 /* zero point */, 1 /* qmin */, 254 /* qmax */, output());
+    }
+  }
+
+  BENCHMARK_F(Requantization, q31__wasmsimd)(benchmark::State& state) {
+    for (auto _ : state) {
+      xnn_qu8_requantize_q31__wasmsimd(
           n(), input(), 0x1.0p-12f /* scale */, 128 /* zero point */, 1 /* qmin */, 254 /* qmax */, output());
     }
   }
