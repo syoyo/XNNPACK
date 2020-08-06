@@ -221,6 +221,30 @@ static inline union xnn_qs8_gemm_params xnn_init_qs8_gemm_params(
     params.neon.output_zero_point = (int16_t) output_zero_point;
     params.neon.output_min = output_min;
     params.neon.output_max = output_max;
+  #elif XNN_ARCH_WASMSIMD
+    const int64_t twice_multiplier = INT64_C(2) * (int64_t) multiplier;
+    const uint32_t remainder_mask = (UINT32_C(1) << shift) - UINT32_C(1);
+    const uint32_t remainder_threshold = remainder_mask >> 1;
+    params.wasmsimd.multiplier[0] = twice_multiplier;
+    params.wasmsimd.multiplier[1] = twice_multiplier;
+    params.wasmsimd.rounding[0] = INT64_C(0x80000000);
+    params.wasmsimd.rounding[1] = INT64_C(0x80000000);
+    params.wasmsimd.remainder_mask[0] = (int32_t) remainder_mask;
+    params.wasmsimd.remainder_mask[1] = (int32_t) remainder_mask;
+    params.wasmsimd.remainder_mask[2] = (int32_t) remainder_mask;
+    params.wasmsimd.remainder_mask[3] = (int32_t) remainder_mask;
+    params.wasmsimd.remainder_threshold[0] = (int32_t) remainder_threshold;
+    params.wasmsimd.remainder_threshold[1] = (int32_t) remainder_threshold;
+    params.wasmsimd.remainder_threshold[2] = (int32_t) remainder_threshold;
+    params.wasmsimd.remainder_threshold[3] = (int32_t) remainder_threshold;
+    params.wasmsimd.shift = shift;
+    for (uint32_t i = 0; i < 8; i++) {
+      params.wasmsimd.output_zero_point[i] = (int16_t) output_zero_point;
+    }
+    for (uint32_t i = 0; i < 16; i++) {
+      params.wasmsimd.output_min[i] = output_min;
+      params.wasmsimd.output_max[i] = output_max;
+    }
   #else
     const uint32_t remainder_mask = (UINT32_C(1) << shift) - UINT32_C(1);
     const uint32_t remainder_threshold = remainder_mask >> 1;
@@ -368,6 +392,105 @@ static inline union xnn_qu8_avgpool_params xnn_init_scalar_qu8_avgpool_params(
   return params;
 }
 
+static inline union xnn_qs8_avgpool_params xnn_init_qs8_avgpool_params(
+  int32_t bias,
+  float scale,
+  int8_t output_zero_point,
+  int8_t output_min,
+  int8_t output_max)
+{
+  // Compute requantization parameters.
+  assert(scale >= 0x1.0p-32f);
+  assert(scale < 256.0f);
+  const uint32_t scale_bits = fp32_to_bits(scale);
+
+  // Multiplier is in [0x00800000, 0x00FFFFFF] range.
+  const int32_t multiplier = ((int32_t) scale_bits & INT32_C(0x007FFFFF)) | INT32_C(0x00800000);
+  assert(multiplier >= INT32_C(0x00800000));
+  assert(multiplier <= INT32_C(0x00FFFFFF));
+
+  // Shift is in [16, 55] range.
+  const int32_t shift = 127 + 23 - (scale_bits >> 23);
+  assert(shift >= 16);
+  assert(shift < 64);
+
+  union xnn_qs8_avgpool_params params;
+  #if XNN_ARCH_X86 || XNN_ARCH_X86_64
+    const uint32_t right_shift = (uint32_t) shift;
+    const uint64_t rounding = UINT64_C(1) << (right_shift - 1);
+    params.sse2.bias[0] = bias;
+    params.sse2.bias[1] = bias;
+    params.sse2.bias[2] = bias;
+    params.sse2.bias[3] = bias;
+    params.sse2.multiplier[0] = (uint32_t) multiplier;
+    params.sse2.multiplier[1] = (uint32_t) multiplier;
+    params.sse2.multiplier[2] = (uint32_t) multiplier;
+    params.sse2.multiplier[3] = (uint32_t) multiplier;
+    params.sse2.rounding[0] = rounding;
+    params.sse2.rounding[1] = rounding;
+    params.sse2.right_shift[0] = (uint64_t) right_shift;
+    params.sse2.right_shift[1] = (uint64_t) right_shift;
+    for (uint32_t i = 0; i < 8; i++) {
+      params.sse2.output_zero_point[i] = (int16_t) output_zero_point;
+      params.sse2.output_min[i] = (int16_t) output_min;
+      params.sse2.output_max[i] = (int16_t) output_max;
+    }
+  #elif XNN_ARCH_ARM || XNN_ARCH_ARM64
+    params.neon.bias = bias;
+    params.neon.multiplier = multiplier;
+    params.neon.left_shift = (int64_t) -shift;
+    params.neon.output_zero_point = (int16_t) output_zero_point;
+    params.neon.output_min = output_min;
+    params.neon.output_max = output_max;
+  #else
+    const uint32_t right_shift = (uint32_t) shift;
+    const int64_t rounding = INT64_C(1) << (right_shift - 1);
+    params.scalar.bias = bias;
+    params.scalar.multiplier = multiplier;
+    params.scalar.rounding = rounding;
+    params.scalar.right_shift = right_shift;
+    params.scalar.output_min_less_zero_point = (int32_t) output_min - (int32_t) output_zero_point;
+    params.scalar.output_max_less_zero_point = (int32_t) output_max - (int32_t) output_zero_point;
+    params.scalar.output_zero_point = (int32_t) output_zero_point;
+  #endif
+  return params;
+}
+
+static inline union xnn_qs8_avgpool_params xnn_init_scalar_qs8_avgpool_params(
+  int32_t bias,
+  float scale,
+  int8_t output_zero_point,
+  int8_t output_min,
+  int8_t output_max)
+{
+  // Compute requantization parameters.
+  assert(scale >= 0x1.0p-32f);
+  assert(scale < 256.0f);
+  const uint32_t scale_bits = fp32_to_bits(scale);
+
+  // Multiplier is in [0x00800000, 0x00FFFFFF] range.
+  const int32_t multiplier = ((int32_t) scale_bits & INT32_C(0x007FFFFF)) | INT32_C(0x00800000);
+  assert(multiplier >= INT32_C(0x00800000));
+  assert(multiplier <= INT32_C(0x00FFFFFF));
+
+  // Shift is in [16, 55] range.
+  const int32_t shift = 127 + 23 - (scale_bits >> 23);
+  assert(shift >= 16);
+  assert(shift < 64);
+
+  union xnn_qs8_avgpool_params params;
+  const uint32_t right_shift = (uint32_t) shift;
+  const int64_t rounding = INT64_C(1) << (right_shift - 1);
+  params.scalar.bias = bias;
+  params.scalar.rounding = rounding;
+  params.scalar.multiplier = multiplier;
+  params.scalar.right_shift = right_shift;
+  params.scalar.output_min_less_zero_point = (int32_t) output_min - (int32_t) output_zero_point;
+  params.scalar.output_max_less_zero_point = (int32_t) output_max - (int32_t) output_zero_point;
+  params.scalar.output_zero_point = (int32_t) output_zero_point;
+  return params;
+}
+
 static inline void xnn_update_f16_scaleminmax_params(
   struct xnn_f16_scaleminmax_params* params,
   uint16_t scale)
@@ -491,9 +614,9 @@ static inline void xnn_update_f32_gavgpool_params(
 
     const uint32_t w = (width - 1) & 3;
     params->scalar.mask[0] = UINT32_C(0xFFFFFFFF);
-    params->scalar.mask[1] = (int32_t) (w >= 1);
-    params->scalar.mask[2] = (int32_t) (w >= 2);
-    params->scalar.mask[3] = (int32_t) (w >= 3);
+    params->scalar.mask[1] = -(int32_t) (w >= 1);
+    params->scalar.mask[2] = -(int32_t) (w >= 2);
+    params->scalar.mask[3] = -(int32_t) (w >= 3);
   #endif
 }
 
