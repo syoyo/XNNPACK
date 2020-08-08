@@ -147,12 +147,13 @@ void xnn_qs8_dwconv_minmax_ukernel_up${CHANNEL_TILE}x${KERNEL_TILE}__avx2_mul32(
               const __m256i vk${K}x${ABC[0:8]} = _mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i*) (k + ${K * CHANNEL_TILE})));
           $else:
             const __m256i vk${K}x${ABC[0:8]} = _mm256_cvtepi8_epi32(_mm_loadl_epi64((const __m128i*) ((uintptr_t) w + ${CHANNEL_TILE} * sizeof(int32_t) + ${K * CHANNEL_TILE} * sizeof(int8_t))));
-          i${K} += 8;
+          $if CHANNEL_TILE > 8:
+            i${K} += 8;
 
           vacc${ABC[0:8]} = _mm256_add_epi32(vacc${ABC[0:8]}, _mm256_mullo_epi32(vi${K}x${ABC[0:8]}, vk${K}x${ABC[0:8]}));
 
-        w = (const void*) ((uintptr_t) w + 8 * sizeof(int32_t));
         $if CHANNEL_TILE > 8:
+          w = (const void*) ((uintptr_t) w + 8 * sizeof(int32_t));
           k += 8;
 
         const __m256i vmultiplier = _mm256_broadcastsi128_si256(_mm_load_si128((const __m128i*) params->sse2.multiplier));

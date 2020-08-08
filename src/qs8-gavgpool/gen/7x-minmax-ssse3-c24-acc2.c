@@ -29,34 +29,34 @@ void xnn_qs8_gavgpool_minmax_ukernel_7x__ssse3_c24_acc2(
 
   const int8_t* i0 = input;
   const int8_t* i1 = (const int8_t*) ((uintptr_t) i0 + input_stride);
-  if (rows < 2) {
+  if XNN_UNPREDICTABLE(rows < 2) {
     i1 = zero;
   }
   const int8_t* i2 = (const int8_t*) ((uintptr_t) i1 + input_stride);
-  if (rows <= 2) {
+  if XNN_UNPREDICTABLE(rows <= 2) {
     i2 = zero;
   }
   const int8_t* i3 = (const int8_t*) ((uintptr_t) i2 + input_stride);
-  if (rows < 4) {
+  if XNN_UNPREDICTABLE(rows < 4) {
     i3 = zero;
   }
   const int8_t* i4 = (const int8_t*) ((uintptr_t) i3 + input_stride);
-  if (rows <= 4) {
+  if XNN_UNPREDICTABLE(rows <= 4) {
     i4 = zero;
   }
   const int8_t* i5 = (const int8_t*) ((uintptr_t) i4 + input_stride);
-  if (rows < 6) {
+  if XNN_UNPREDICTABLE(rows < 6) {
     i5 = zero;
   }
   const int8_t* i6 = (const int8_t*) ((uintptr_t) i5 + input_stride);
-  if (rows <= 6) {
+  if XNN_UNPREDICTABLE(rows <= 6) {
     i6 = zero;
   }
 
-  const __m128i vbias = _mm_load_si128((const __m128i*) &params->sse2.bias);
+  const __m128i vbias = _mm_load_si128((const __m128i*) params->sse2.bias);
   const __m128i vmultiplier = _mm_load_si128((const __m128i*) params->sse2.multiplier);
   const __m128i vrounding = _mm_load_si128((const __m128i*) params->sse2.rounding);
-  const __m128i vright_shift = _mm_loadl_epi64((const __m128i*) params->sse2.right_shift);
+  const __m128i vshift = _mm_loadl_epi64((const __m128i*) params->sse2.shift);
   while (channels >= 24) {
     const __m128i vi0x01234567 = _mm_loadl_epi64((const __m128i*) i0);
     const __m128i vi0x89ABCDEF = _mm_loadl_epi64((const __m128i*) (i0 + 8));
@@ -132,14 +132,14 @@ void xnn_qs8_gavgpool_minmax_ukernel_7x__ssse3_c24_acc2(
     vacc0xGHIJKLMN = _mm_add_epi16(vacc0xGHIJKLMN, vacc1xGHIJKLMN);
 
     const __m128i vsgnacc0x01234567 = _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x01234567);
-    __m128i vacc0123 = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x01234567, vsgnacc0x01234567));
-    __m128i vacc4567 = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x01234567, vsgnacc0x01234567));
+    const __m128i vacc0123 = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x01234567, vsgnacc0x01234567));
+    const __m128i vacc4567 = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x01234567, vsgnacc0x01234567));
     const __m128i vsgnacc0x89ABCDEF = _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x89ABCDEF);
-    __m128i vacc89AB = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x89ABCDEF, vsgnacc0x89ABCDEF));
-    __m128i vaccCDEF = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x89ABCDEF, vsgnacc0x89ABCDEF));
+    const __m128i vacc89AB = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x89ABCDEF, vsgnacc0x89ABCDEF));
+    const __m128i vaccCDEF = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x89ABCDEF, vsgnacc0x89ABCDEF));
     const __m128i vsgnacc0xGHIJKLMN = _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0xGHIJKLMN);
-    __m128i vaccGHIJ = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0xGHIJKLMN, vsgnacc0xGHIJKLMN));
-    __m128i vaccKLMN = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0xGHIJKLMN, vsgnacc0xGHIJKLMN));
+    const __m128i vaccGHIJ = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0xGHIJKLMN, vsgnacc0xGHIJKLMN));
+    const __m128i vaccKLMN = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0xGHIJKLMN, vsgnacc0xGHIJKLMN));
 
     const __m128i vabsacc0123 = _mm_abs_epi32(vacc0123);
     const __m128i vabsacc4567 = _mm_abs_epi32(vacc4567);
@@ -168,18 +168,18 @@ void xnn_qs8_gavgpool_minmax_ukernel_7x__ssse3_c24_acc2(
     const __m128i vabsprodKM = _mm_mul_epu32(vabsaccKLMN, vmultiplier);
     const __m128i vabsprodLN = _mm_mul_epu32(vabsaccLN, vmultiplier);
 
-    const __m128i vabsout02 = _mm_srl_epi64(_mm_add_epi64(vabsprod02, vrounding), vright_shift);
-    const __m128i vabsout13 = _mm_srl_epi64(_mm_add_epi64(vabsprod13, vrounding), vright_shift);
-    const __m128i vabsout46 = _mm_srl_epi64(_mm_add_epi64(vabsprod46, vrounding), vright_shift);
-    const __m128i vabsout57 = _mm_srl_epi64(_mm_add_epi64(vabsprod57, vrounding), vright_shift);
-    const __m128i vabsout8A = _mm_srl_epi64(_mm_add_epi64(vabsprod8A, vrounding), vright_shift);
-    const __m128i vabsout9B = _mm_srl_epi64(_mm_add_epi64(vabsprod9B, vrounding), vright_shift);
-    const __m128i vabsoutCE = _mm_srl_epi64(_mm_add_epi64(vabsprodCE, vrounding), vright_shift);
-    const __m128i vabsoutDF = _mm_srl_epi64(_mm_add_epi64(vabsprodDF, vrounding), vright_shift);
-    const __m128i vabsoutGI = _mm_srl_epi64(_mm_add_epi64(vabsprodGI, vrounding), vright_shift);
-    const __m128i vabsoutHJ = _mm_srl_epi64(_mm_add_epi64(vabsprodHJ, vrounding), vright_shift);
-    const __m128i vabsoutKM = _mm_srl_epi64(_mm_add_epi64(vabsprodKM, vrounding), vright_shift);
-    const __m128i vabsoutLN = _mm_srl_epi64(_mm_add_epi64(vabsprodLN, vrounding), vright_shift);
+    const __m128i vabsout02 = _mm_srl_epi64(_mm_add_epi64(vabsprod02, vrounding), vshift);
+    const __m128i vabsout13 = _mm_srl_epi64(_mm_add_epi64(vabsprod13, vrounding), vshift);
+    const __m128i vabsout46 = _mm_srl_epi64(_mm_add_epi64(vabsprod46, vrounding), vshift);
+    const __m128i vabsout57 = _mm_srl_epi64(_mm_add_epi64(vabsprod57, vrounding), vshift);
+    const __m128i vabsout8A = _mm_srl_epi64(_mm_add_epi64(vabsprod8A, vrounding), vshift);
+    const __m128i vabsout9B = _mm_srl_epi64(_mm_add_epi64(vabsprod9B, vrounding), vshift);
+    const __m128i vabsoutCE = _mm_srl_epi64(_mm_add_epi64(vabsprodCE, vrounding), vshift);
+    const __m128i vabsoutDF = _mm_srl_epi64(_mm_add_epi64(vabsprodDF, vrounding), vshift);
+    const __m128i vabsoutGI = _mm_srl_epi64(_mm_add_epi64(vabsprodGI, vrounding), vshift);
+    const __m128i vabsoutHJ = _mm_srl_epi64(_mm_add_epi64(vabsprodHJ, vrounding), vshift);
+    const __m128i vabsoutKM = _mm_srl_epi64(_mm_add_epi64(vabsprodKM, vrounding), vshift);
+    const __m128i vabsoutLN = _mm_srl_epi64(_mm_add_epi64(vabsprodLN, vrounding), vshift);
 
     const __m128i vabsout0213 = _mm_castps_si128(
         _mm_shuffle_ps(_mm_castsi128_ps(vabsout02), _mm_castsi128_ps(vabsout13), _MM_SHUFFLE(2, 0, 2, 0)));
@@ -260,12 +260,12 @@ void xnn_qs8_gavgpool_minmax_ukernel_7x__ssse3_c24_acc2(
       vacc1x01234567 = _mm_add_epi16(vacc1x01234567, vxi5x01234567);
       vacc0x01234567 = _mm_add_epi16(vacc0x01234567, vxi6x01234567);
 
-      // Add up all accumulators to vacc0x0123456789ABCDEFGHIJKLMN
+      // Add up all accumulators to vacc0x01234567
       vacc0x01234567 = _mm_add_epi16(vacc0x01234567, vacc1x01234567);
 
       const __m128i vsgnacc0x01234567 = _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x01234567);
-      __m128i vacc0123 = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x01234567, vsgnacc0x01234567));
-      __m128i vacc4567 = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x01234567, vsgnacc0x01234567));
+      const __m128i vacc0123 = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x01234567, vsgnacc0x01234567));
+      const __m128i vacc4567 = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x01234567, vsgnacc0x01234567));
 
       const __m128i vabsacc0123 = _mm_abs_epi32(vacc0123);
       const __m128i vabsacc4567 = _mm_abs_epi32(vacc4567);
@@ -278,10 +278,10 @@ void xnn_qs8_gavgpool_minmax_ukernel_7x__ssse3_c24_acc2(
       const __m128i vabsprod46 = _mm_mul_epu32(vabsacc4567, vmultiplier);
       const __m128i vabsprod57 = _mm_mul_epu32(vabsacc57, vmultiplier);
 
-      const __m128i vabsout02 = _mm_srl_epi64(_mm_add_epi64(vabsprod02, vrounding), vright_shift);
-      const __m128i vabsout13 = _mm_srl_epi64(_mm_add_epi64(vabsprod13, vrounding), vright_shift);
-      const __m128i vabsout46 = _mm_srl_epi64(_mm_add_epi64(vabsprod46, vrounding), vright_shift);
-      const __m128i vabsout57 = _mm_srl_epi64(_mm_add_epi64(vabsprod57, vrounding), vright_shift);
+      const __m128i vabsout02 = _mm_srl_epi64(_mm_add_epi64(vabsprod02, vrounding), vshift);
+      const __m128i vabsout13 = _mm_srl_epi64(_mm_add_epi64(vabsprod13, vrounding), vshift);
+      const __m128i vabsout46 = _mm_srl_epi64(_mm_add_epi64(vabsprod46, vrounding), vshift);
+      const __m128i vabsout57 = _mm_srl_epi64(_mm_add_epi64(vabsprod57, vrounding), vshift);
 
       const __m128i vabsout0213 = _mm_castps_si128(
           _mm_shuffle_ps(_mm_castsi128_ps(vabsout02), _mm_castsi128_ps(vabsout13), _MM_SHUFFLE(2, 0, 2, 0)));

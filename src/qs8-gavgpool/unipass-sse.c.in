@@ -28,39 +28,25 @@ void xnn_qs8_gavgpool_minmax_ukernel_${ROW_TILE}x__${ISA}_c${CHANNEL_TILE}${"" i
     const union xnn_qs8_avgpool_params params[restrict XNN_MIN_ELEMENTS(1)]) XNN_DISABLE_TSAN
 {
   assert(rows != 0);
-  assert(rows <= 7);
+  assert(rows <= ${ROW_TILE});
   assert(channels != 0);
 
   const int8_t* i0 = input;
-  const int8_t* i1 = (const int8_t*) ((uintptr_t) i0 + input_stride);
-  if (rows < 2) {
-    i1 = zero;
-  }
-  const int8_t* i2 = (const int8_t*) ((uintptr_t) i1 + input_stride);
-  if (rows <= 2) {
-    i2 = zero;
-  }
-  const int8_t* i3 = (const int8_t*) ((uintptr_t) i2 + input_stride);
-  if (rows < 4) {
-    i3 = zero;
-  }
-  const int8_t* i4 = (const int8_t*) ((uintptr_t) i3 + input_stride);
-  if (rows <= 4) {
-    i4 = zero;
-  }
-  const int8_t* i5 = (const int8_t*) ((uintptr_t) i4 + input_stride);
-  if (rows < 6) {
-    i5 = zero;
-  }
-  const int8_t* i6 = (const int8_t*) ((uintptr_t) i5 + input_stride);
-  if (rows <= 6) {
-    i6 = zero;
-  }
+  $for M in range(1, ROW_TILE):
+    const int8_t* i${M} = (const int8_t*) ((uintptr_t) i${M-1} + input_stride);
+    $if M % 2 == 1:
+      if XNN_UNPREDICTABLE(rows < ${M+1}) {
+        i${M} = zero;
+      }
+    $else:
+      if XNN_UNPREDICTABLE(rows <= ${M}) {
+        i${M} = zero;
+      }
 
-  const __m128i vbias = _mm_load_si128((const __m128i*) &params->sse2.bias);
+  const __m128i vbias = _mm_load_si128((const __m128i*) params->sse2.bias);
   const __m128i vmultiplier = _mm_load_si128((const __m128i*) params->sse2.multiplier);
   const __m128i vrounding = _mm_load_si128((const __m128i*) params->sse2.rounding);
-  const __m128i vright_shift = _mm_loadl_epi64((const __m128i*) params->sse2.right_shift);
+  const __m128i vshift = _mm_loadl_epi64((const __m128i*) params->sse2.shift);
   while (channels >= ${CHANNEL_TILE}) {
     $for M in range(ROW_TILE):
       $if SSE >= 4:
@@ -98,12 +84,12 @@ void xnn_qs8_gavgpool_minmax_ukernel_${ROW_TILE}x__${ISA}_c${CHANNEL_TILE}${"" i
 
     $for C in range(0, CHANNEL_TILE, 8):
       $if SSE >= 4:
-        __m128i vacc${ABC[C:C+4]} = _mm_add_epi32(vbias, _mm_cvtepi16_epi32(vacc0x${ABC[C:C+8]}));
-        __m128i vacc${ABC[C+4:C+8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[C:C+8]}, _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x${ABC[C:C+8]})));
+        const __m128i vacc${ABC[C:C+4]} = _mm_add_epi32(vbias, _mm_cvtepi16_epi32(vacc0x${ABC[C:C+8]}));
+        const __m128i vacc${ABC[C+4:C+8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[C:C+8]}, _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x${ABC[C:C+8]})));
       $else:
         const __m128i vsgnacc0x${ABC[C:C+8]} = _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x${ABC[C:C+8]});
-        __m128i vacc${ABC[C:C+4]} = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x${ABC[C:C+8]}, vsgnacc0x${ABC[C:C+8]}));
-        __m128i vacc${ABC[C+4:C+8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[C:C+8]}, vsgnacc0x${ABC[C:C+8]}));
+        const __m128i vacc${ABC[C:C+4]} = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x${ABC[C:C+8]}, vsgnacc0x${ABC[C:C+8]}));
+        const __m128i vacc${ABC[C+4:C+8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[C:C+8]}, vsgnacc0x${ABC[C:C+8]}));
 
     $if SSE >= 3:
       $for C in range(0, CHANNEL_TILE, 4):
@@ -123,8 +109,8 @@ void xnn_qs8_gavgpool_minmax_ukernel_${ROW_TILE}x__${ISA}_c${CHANNEL_TILE}${"" i
       const __m128i vabsprod${ABC[C+1:C+4:2]} = _mm_mul_epu32(vabsacc${ABC[C+1:C+4:2]}, vmultiplier);
 
     $for C in range(0, CHANNEL_TILE, 4):
-      const __m128i vabsout${ABC[C:C+4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[C:C+4:2]}, vrounding), vright_shift);
-      const __m128i vabsout${ABC[C+1:C+4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[C+1:C+4:2]}, vrounding), vright_shift);
+      const __m128i vabsout${ABC[C:C+4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[C:C+4:2]}, vrounding), vshift);
+      const __m128i vabsout${ABC[C+1:C+4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[C+1:C+4:2]}, vrounding), vshift);
 
     $if SSE >= 4:
       $for C in range(0, CHANNEL_TILE, 4):
@@ -192,7 +178,7 @@ void xnn_qs8_gavgpool_minmax_ukernel_${ROW_TILE}x__${ISA}_c${CHANNEL_TILE}${"" i
         vacc${M % ACCUMULATORS}x${ABC[0:8]} = _mm_add_epi16(vacc${M % ACCUMULATORS}x${ABC[0:8]}, vxi${M}x${ABC[0:8]});
 
       $if ACCUMULATORS > 1:
-        // Add up all accumulators to vacc0x${ABC[0:CHANNEL_TILE]}
+        // Add up all accumulators to vacc0x${ABC[0:8]}
         $ACC_SLICE = 1
         $while ACC_SLICE < ACCUMULATORS:
           $for A in range(0, ACCUMULATORS, ACC_SLICE * 2):
@@ -201,12 +187,12 @@ void xnn_qs8_gavgpool_minmax_ukernel_${ROW_TILE}x__${ISA}_c${CHANNEL_TILE}${"" i
           $ACC_SLICE *= 2
 
       $if SSE >= 4:
-        __m128i vacc${ABC[0:4]} = _mm_add_epi32(vbias, _mm_cvtepi16_epi32(vacc0x${ABC[0:8]}));
-        __m128i vacc${ABC[4:8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[0:8]}, _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x${ABC[0:8]})));
+        const __m128i vacc${ABC[0:4]} = _mm_add_epi32(vbias, _mm_cvtepi16_epi32(vacc0x${ABC[0:8]}));
+        const __m128i vacc${ABC[4:8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[0:8]}, _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x${ABC[0:8]})));
       $else:
         const __m128i vsgnacc0x${ABC[0:8]} = _mm_cmpgt_epi16(_mm_setzero_si128(), vacc0x${ABC[0:8]});
-        __m128i vacc${ABC[0:4]} = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x${ABC[0:8]}, vsgnacc0x${ABC[0:8]}));
-        __m128i vacc${ABC[4:8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[0:8]}, vsgnacc0x${ABC[0:8]}));
+        const __m128i vacc${ABC[0:4]} = _mm_add_epi32(vbias, _mm_unpacklo_epi16(vacc0x${ABC[0:8]}, vsgnacc0x${ABC[0:8]}));
+        const __m128i vacc${ABC[4:8]} = _mm_add_epi32(vbias, _mm_unpackhi_epi16(vacc0x${ABC[0:8]}, vsgnacc0x${ABC[0:8]}));
 
       $if SSE >= 3:
         const __m128i vabsacc${ABC[0:4]} = _mm_abs_epi32(vacc${ABC[0:4]});
@@ -226,10 +212,10 @@ void xnn_qs8_gavgpool_minmax_ukernel_${ROW_TILE}x__${ISA}_c${CHANNEL_TILE}${"" i
       const __m128i vabsprod${ABC[4:8:2]} = _mm_mul_epu32(vabsacc${ABC[4:8]}, vmultiplier);
       const __m128i vabsprod${ABC[5:8:2]} = _mm_mul_epu32(vabsacc${ABC[5:8:2]}, vmultiplier);
 
-      const __m128i vabsout${ABC[0:4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[0:4:2]}, vrounding), vright_shift);
-      const __m128i vabsout${ABC[1:4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[1:4:2]}, vrounding), vright_shift);
-      const __m128i vabsout${ABC[4:8:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[4:8:2]}, vrounding), vright_shift);
-      const __m128i vabsout${ABC[5:8:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[5:8:2]}, vrounding), vright_shift);
+      const __m128i vabsout${ABC[0:4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[0:4:2]}, vrounding), vshift);
+      const __m128i vabsout${ABC[1:4:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[1:4:2]}, vrounding), vshift);
+      const __m128i vabsout${ABC[4:8:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[4:8:2]}, vrounding), vshift);
+      const __m128i vabsout${ABC[5:8:2]} = _mm_srl_epi64(_mm_add_epi64(vabsprod${ABC[5:8:2]}, vrounding), vshift);
 
       $if SSE >= 4:
         const __m128i vabsout${ABC[0:4]} = _mm_blend_epi16(vabsout${ABC[0:4:2]}, _mm_shuffle_epi32(vabsout${ABC[1:4:2]}, _MM_SHUFFLE(2, 2, 0, 0)), 0xCC);
