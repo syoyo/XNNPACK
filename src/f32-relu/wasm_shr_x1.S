@@ -3,6 +3,8 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
+#include <xnnpack/assembly.h>
+
 # void xnn_f32_relu_ukernel__wasm32_shr_x1(
 #     size_t n,             0
 #     const float* x,       1
@@ -13,21 +15,19 @@
 #     float v               4
 #     float mask            5
 
-    .text
-    .section    .text.xnn_f32_relu_ukernel__wasm32_shr_x1,"",@
-    .hidden     xnn_f32_relu_ukernel__wasm32_shr_x1
-    .globl      xnn_f32_relu_ukernel__wasm32_shr_x1
-    .type       xnn_f32_relu_ukernel__wasm32_shr_x1,@function
-
-xnn_f32_relu_ukernel__wasm32_shr_x1:
+BEGIN_FUNCTION  xnn_f32_relu_ukernel__wasm32_shr_x1
     .functype   xnn_f32_relu_ukernel__wasm32_shr_x1 (i32, i32, i32, i32) -> ()
     .local      i32, i32  # 4 - value, 5 - mask
 
     loop
-
       local.get    1        # src
       i32.load     0        # load float from src
       local.set    4
+
+      local.get    1        # src += 4
+      i32.const    4
+      i32.add
+      local.set    1
 
       local.get    4        # (v >> 31) - 1) & v
       i32.const    31
@@ -53,11 +53,6 @@ xnn_f32_relu_ukernel__wasm32_shr_x1:
       i32.add
       local.set    2
 
-      local.get    1        # src += 4
-      i32.const    4
-      i32.add
-      local.set    1
-
       local.get    0
       i32.const    -4
       i32.add              # count -= 4
@@ -65,8 +60,7 @@ xnn_f32_relu_ukernel__wasm32_shr_x1:
 
       local.get    0
       i32.const    0       # count > 0
-      i32.gt_u
+      i32.gt_s
       br_if        0       # loop
-
     end_loop
-    end_function
+END_FUNCTION xnn_f32_relu_ukernel__wasm32_shr_x1
