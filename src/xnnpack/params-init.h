@@ -1313,8 +1313,9 @@ static inline union xnn_qs8_add_params xnn_init_qs8_add_params(
       params.sse2.y_multiplier_hi[i] = y_multiplier_hi;
     }
     params.sse2.shift = shift;
-    params.sse2.y_multiplier = y_multiplier;
     for (uint32_t i = 0; i < 4; i++) {
+      params.sse2.x_multiplier[i] = x_multiplier;
+      params.sse2.y_multiplier[i] = y_multiplier;
       params.sse2.remainder_mask[i] = remainder_mask;
       params.sse2.remainder_threshold[i] = remainder_threshold;
     }
@@ -1326,12 +1327,32 @@ static inline union xnn_qs8_add_params xnn_init_qs8_add_params(
   #elif XNN_ARCH_ARM || XNN_ARCH_ARM64
     params.neon.x_zero_point = x_zero_point;
     params.neon.y_zero_point = y_zero_point;
-    params.neon.output_zero_point = (int16_t) output_zero_point;
     params.neon.x_multiplier = (int32_t) x_multiplier;
     params.neon.y_multiplier = (int32_t) y_multiplier;
     params.neon.right_shift = (int32_t) -shift;
+    params.neon.output_zero_point = (int16_t) output_zero_point;
     params.neon.output_min = output_min;
     params.neon.output_max = output_max;
+  #elif XNN_ARCH_WASMSIMD
+    const int32_t remainder_mask = (INT32_C(1) << shift) - INT32_C(1);
+    const int32_t remainder_threshold = (int32_t) ((uint32_t) remainder_mask >> 1);
+    const int32_t zero_point_product =
+      (int32_t) -(x_multiplier * (int32_t) x_zero_point + y_multiplier * (int32_t) y_zero_point);
+    for (uint32_t i = 0; i < 4; i++) {
+      params.wasmsimd.zero_point_product[i] = zero_point_product;
+      params.wasmsimd.x_multiplier[i] = x_multiplier;
+      params.wasmsimd.y_multiplier[i] = y_multiplier;
+      params.wasmsimd.remainder_mask[i] = remainder_mask;
+      params.wasmsimd.remainder_threshold[i] = remainder_threshold;
+    }
+    params.wasmsimd.shift = shift;
+    for (uint32_t i = 0; i < 8; i++) {
+      params.wasmsimd.output_zero_point[i] = (int16_t) output_zero_point;
+    }
+    for (uint32_t i = 0; i < 16; i++) {
+      params.wasmsimd.output_min[i] = output_min;
+      params.wasmsimd.output_max[i] = output_max;
+    }
   #else
     const int32_t remainder_mask = (INT32_C(1) << shift) - INT32_C(1);
     const int32_t remainder_threshold = (int32_t) ((uint32_t) remainder_mask >> 1);
@@ -1341,7 +1362,7 @@ static inline union xnn_qs8_add_params xnn_init_qs8_add_params(
     params.scalar.y_multiplier = y_multiplier;
     params.scalar.remainder_mask = (int32_t) remainder_mask;
     params.scalar.remainder_threshold = (int32_t) remainder_threshold;
-    params.scalar.shift = shift;
+    params.scalar.shift = (int32_t) shift;
     params.scalar.output_zero_point = (int32_t) output_zero_point;
     params.scalar.output_min = (int32_t) output_min;
     params.scalar.output_max = (int32_t) output_max;

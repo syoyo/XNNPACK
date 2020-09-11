@@ -47,6 +47,7 @@ enum xnn_operator_type {
   xnn_operator_type_abs_nc_f32,
   xnn_operator_type_add_nd_f16,
   xnn_operator_type_add_nd_f32,
+  xnn_operator_type_add_nd_qs8,
   xnn_operator_type_argmax_pooling_nhwc_f32,
   xnn_operator_type_average_pooling_nhwc_f32,
   xnn_operator_type_average_pooling_nhwc_qu8,
@@ -81,6 +82,7 @@ enum xnn_operator_type {
   xnn_operator_type_max_pooling_nhwc_u8,
   xnn_operator_type_maximum_nd_f32,
   xnn_operator_type_minimum_nd_f32,
+  xnn_operator_type_multiply_nd_f16,
   xnn_operator_type_multiply_nd_f32,
   xnn_operator_type_negate_nc_f32,
   xnn_operator_type_prelu_nc_f32,
@@ -287,6 +289,11 @@ struct xnn_operator {
     struct {
       union xnn_qs8_avgpool_params qs8_avgpool;
       union xnn_qs8_avgpool_params qs8_gavgpool;
+    };
+    // Quantized Add parameters are sensitive to order of inputs, so we initialize an extra copy with the reversed order.
+    struct {
+      union xnn_qs8_add_params qs8_add;
+      union xnn_qs8_add_params qs8_radd;
     };
     union xnn_qu8_add_params qu8_add;
     union xnn_qu8_gemm_params qu8_gemm;

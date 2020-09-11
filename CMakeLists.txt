@@ -820,6 +820,14 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/qs8-requantization/precise-neon.c
   src/qs8-requantization/fp32-neon.c
   src/qs8-requantization/q31-neon.c
+  src/qs8-vadd/gen/minmax-neon-ld64-x8.c
+  src/qs8-vadd/gen/minmax-neon-ld64-x16.c
+  src/qs8-vadd/gen/minmax-neon-ld64-x24.c
+  src/qs8-vadd/gen/minmax-neon-ld64-x32.c
+  src/qs8-vaddc/gen/minmax-neon-ld64-x8.c
+  src/qs8-vaddc/gen/minmax-neon-ld64-x16.c
+  src/qs8-vaddc/gen/minmax-neon-ld64-x24.c
+  src/qs8-vaddc/gen/minmax-neon-ld64-x32.c
   src/qu8-avgpool/9p8x-minmax-neon-c8.c
   src/qu8-avgpool/9x-minmax-neon-c8.c
   src/qu8-dwconv/up8x9-minmax-neon.c
@@ -1225,13 +1233,16 @@ SET(XNNPACK_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS
   src/f16-spmm/gen/32x1-minmax-neonfp16arith-unroll2.c)
 
 SET(XNNPACK_NEONDOT_MICROKERNEL_SRCS
+  src/qs8-gemm/gen/1x8c4-minmax-neondot.c
   src/qs8-gemm/gen/8x8c4-minmax-neondot.c
   src/qs8-gemm/gen/12x8c4-minmax-neondot.c
+  src/qs8-gemm/gen/1x16c4-minmax-neondot.c
   src/qs8-gemm/gen/4x16c4-minmax-neondot.c
+  src/qs8-igemm/gen/1x8c4-minmax-neondot.c
   src/qs8-igemm/gen/8x8c4-minmax-neondot.c
   src/qs8-igemm/gen/12x8c4-minmax-neondot.c
-  src/qs8-igemm/gen/4x16c4-minmax-neondot.c
-)
+  src/qs8-igemm/gen/1x16c4-minmax-neondot.c
+  src/qs8-igemm/gen/4x16c4-minmax-neondot.c)
 
 SET(XNNPACK_SSE_MICROKERNEL_SRCS
   src/f32-avgpool/9p8x-minmax-sse-c4.c
@@ -1559,10 +1570,18 @@ SET(XNNPACK_SSE41_MICROKERNEL_SRCS
   src/qs8-vadd/gen/minmax-sse41-mul16-ld64-x16.c
   src/qs8-vadd/gen/minmax-sse41-mul16-ld64-x24.c
   src/qs8-vadd/gen/minmax-sse41-mul16-ld64-x32.c
+  src/qs8-vadd/gen/minmax-sse41-mul32-ld32-x8.c
+  src/qs8-vadd/gen/minmax-sse41-mul32-ld32-x16.c
+  src/qs8-vadd/gen/minmax-sse41-mul32-ld32-x24.c
+  src/qs8-vadd/gen/minmax-sse41-mul32-ld32-x32.c
   src/qs8-vaddc/gen/minmax-sse41-mul16-ld64-x8.c
   src/qs8-vaddc/gen/minmax-sse41-mul16-ld64-x16.c
   src/qs8-vaddc/gen/minmax-sse41-mul16-ld64-x24.c
   src/qs8-vaddc/gen/minmax-sse41-mul16-ld64-x32.c
+  src/qs8-vaddc/gen/minmax-sse41-mul32-ld32-x8.c
+  src/qs8-vaddc/gen/minmax-sse41-mul32-ld32-x16.c
+  src/qs8-vaddc/gen/minmax-sse41-mul32-ld32-x24.c
+  src/qs8-vaddc/gen/minmax-sse41-mul32-ld32-x32.c
   src/qu8-requantization/precise-sse4.c
   src/qu8-requantization/q31-sse4.c
   src/math/roundne-sse41.c
@@ -1694,7 +1713,15 @@ SET(XNNPACK_XOP_MICROKERNEL_SRCS
   src/qs8-igemm/gen/3x4c8-minmax-xop-ld64.c
   src/qs8-igemm/gen/1x4c8-minmax-xop-ld128.c
   src/qs8-igemm/gen/2x4c8-minmax-xop-ld128.c
-  src/qs8-igemm/gen/3x4c8-minmax-xop-ld128.c)
+  src/qs8-igemm/gen/3x4c8-minmax-xop-ld128.c
+  src/qs8-vadd/gen/minmax-xop-mul32-ld32-x8.c
+  src/qs8-vadd/gen/minmax-xop-mul32-ld32-x16.c
+  src/qs8-vadd/gen/minmax-xop-mul32-ld32-x24.c
+  src/qs8-vadd/gen/minmax-xop-mul32-ld32-x32.c
+  src/qs8-vaddc/gen/minmax-xop-mul32-ld32-x8.c
+  src/qs8-vaddc/gen/minmax-xop-mul32-ld32-x16.c
+  src/qs8-vaddc/gen/minmax-xop-mul32-ld32-x24.c
+  src/qs8-vaddc/gen/minmax-xop-mul32-ld32-x32.c)
 
 SET(XNNPACK_FMA3_MICROKERNEL_SRCS
   src/f32-dwconv/gen/up16x4-minmax-fma3-acc2.c
@@ -1873,6 +1900,14 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/qs8-igemm/gen/1x8c8-minmax-avx2.c
   src/qs8-igemm/gen/2x8c8-minmax-avx2.c
   src/qs8-igemm/gen/3x8c8-minmax-avx2.c
+  src/qs8-vadd/gen/minmax-avx2-mul32-ld64-x8.c
+  src/qs8-vadd/gen/minmax-avx2-mul32-ld64-x16.c
+  src/qs8-vadd/gen/minmax-avx2-mul32-ld64-x24.c
+  src/qs8-vadd/gen/minmax-avx2-mul32-ld64-x32.c
+  src/qs8-vaddc/gen/minmax-avx2-mul32-ld64-x8.c
+  src/qs8-vaddc/gen/minmax-avx2-mul32-ld64-x16.c
+  src/qs8-vaddc/gen/minmax-avx2-mul32-ld64-x24.c
+  src/qs8-vaddc/gen/minmax-avx2-mul32-ld64-x32.c
   src/math/exp-avx2-p5.c
   src/math/exp-avx2-perm-p3.c
   src/math/exp-avx2-perm-p4.c
@@ -2052,6 +2087,8 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/math/sqrt-avx512f-nr1fma1adj.c)
 
 SET(XNNPACK_AVX512SKX_MICROKERNEL_SRCS
+  src/qs8-dwconv/gen/up16x9-minmax-avx512skx-mul32.c
+  src/qs8-dwconv/gen/up32x9-minmax-avx512skx-mul32.c
   src/qs8-gemm/gen/1x16c8-minmax-avx512skx.c
   src/qs8-gemm/gen/2x16c8-minmax-avx512skx.c
   src/qs8-gemm/gen/3x16c8-minmax-avx512skx.c
@@ -3972,6 +4009,7 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     models/fp16-mobilenet-v1.cc
     models/fp32-mobilenet-v1.cc
     models/qs8-mobilenet-v1.cc
+    models/qs8-mobilenet-v2.cc
     models/fp16-mobilenet-v2.cc
     models/fp32-mobilenet-v2.cc
     models/fp32-mobilenet-v3-large.cc

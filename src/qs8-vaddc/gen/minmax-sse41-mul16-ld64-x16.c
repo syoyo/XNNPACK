@@ -21,8 +21,8 @@ void xnn_qs8_vaddc_minmax_ukernel__sse41_mul16_ld64_x16(
     int8_t* output,
     const union xnn_qs8_add_params params[restrict XNN_MIN_ELEMENTS(1)]) XNN_DISABLE_TSAN
 {
-  const __m128i vx_multiplier_lo = _mm_load_si128((const __m128i*) &params->sse2.x_multiplier_lo);
-  const __m128i vx_multiplier_hi = _mm_load_si128((const __m128i*) &params->sse2.x_multiplier_hi);
+  const __m128i vx_multiplier_lo = _mm_load_si128((const __m128i*) params->sse2.x_multiplier_lo);
+  const __m128i vx_multiplier_hi = _mm_load_si128((const __m128i*) params->sse2.x_multiplier_hi);
   const __m128i vremainder_mask = _mm_load_si128((const __m128i*) params->sse2.remainder_mask);
   const __m128i vremainder_threshold = _mm_load_si128((const __m128i*) params->sse2.remainder_threshold);
   const __m128i vshift = _mm_cvtsi32_si128((int) params->sse2.shift);
@@ -30,9 +30,9 @@ void xnn_qs8_vaddc_minmax_ukernel__sse41_mul16_ld64_x16(
   const __m128i voutput_min = _mm_load_si128((const __m128i*) params->sse2.output_min);
   const __m128i voutput_max = _mm_load_si128((const __m128i*) params->sse2.output_max);
 
-  __m128i vzero_point_product = _mm_cvtsi32_si128(params->sse2.y_multiplier * (int32_t) *input_y);
+  __m128i vzero_point_product = _mm_cvtsi32_si128(params->sse2.y_multiplier[0] * (int32_t) *input_y);
   vzero_point_product = _mm_shuffle_epi32(vzero_point_product, _MM_SHUFFLE(0, 0, 0, 0));
-  vzero_point_product = _mm_add_epi32(vzero_point_product, _mm_load_si128((const __m128i*) &params->sse2.zero_point_product));
+  vzero_point_product = _mm_add_epi32(vzero_point_product, _mm_load_si128((const __m128i*) params->sse2.zero_point_product));
   for (; n >= 16 * sizeof(int8_t); n -= 16 * sizeof(int8_t)) {
     const __m128i vx01234567 = _mm_cvtepi8_epi16(_mm_loadl_epi64((const __m128i*) input_x));
     const __m128i vx89ABCDEF = _mm_cvtepi8_epi16(_mm_loadl_epi64((const __m128i*) (input_x + 8)));
@@ -110,7 +110,7 @@ void xnn_qs8_vaddc_minmax_ukernel__sse41_mul16_ld64_x16(
       if XNN_LIKELY(n >= (8 * sizeof(int8_t))) {
         _mm_storel_epi64((__m128i*) output, vout0123456701234567);
         output += 8;
-        n -= 8;
+        n -= 8 * sizeof(int8_t);
       } else {
         if (n & (4 * sizeof(int8_t))) {
           *((uint32_t*) output) = (uint32_t) _mm_cvtsi128_si32(vout0123456701234567);
@@ -124,7 +124,6 @@ void xnn_qs8_vaddc_minmax_ukernel__sse41_mul16_ld64_x16(
         }
         if (n & (1 * sizeof(int8_t))) {
           *output = (int8_t) _mm_extract_epi8(vout0123456701234567, 0);
-          output += 1;
         }
         n = 0;
       }

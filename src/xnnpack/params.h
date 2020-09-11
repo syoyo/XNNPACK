@@ -409,14 +409,14 @@ union xnn_qs8_add_params {
   } scalar;
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   struct {
-    uint8_t x_zero_point;
-    uint8_t y_zero_point;
+    int8_t x_zero_point;
+    int8_t y_zero_point;
     int16_t output_zero_point;
     int32_t x_multiplier;
     int32_t y_multiplier;
     int32_t right_shift;
-    uint8_t output_min;
-    uint8_t output_max;
+    int8_t output_min;
+    int8_t output_max;
   } neon;
 #endif  // XNN_ARCH_ARM || XNN_ARCH_ARM64
 #if XNN_ARCH_X86 || XNN_ARCH_X86_64
@@ -426,15 +426,29 @@ union xnn_qs8_add_params {
     XNN_ALIGN(16) uint16_t x_multiplier_hi[8];
     XNN_ALIGN(16) uint16_t y_multiplier_lo[8];
     XNN_ALIGN(16) uint16_t y_multiplier_hi[8];
+    XNN_ALIGN(16) int32_t x_multiplier[4];
+    XNN_ALIGN(16) int32_t y_multiplier[4];
     XNN_ALIGN(16) int32_t remainder_mask[4];
     XNN_ALIGN(16) int32_t remainder_threshold[4];
     uint32_t shift;
-    int32_t y_multiplier;
     XNN_ALIGN(16) int16_t output_zero_point[8];
     XNN_ALIGN(16) int16_t output_min[8];
     XNN_ALIGN(16) int16_t output_max[8];
   } sse2;
 #endif  // XNN_ARCH_X86 || XNN_ARCH_X86_64
+#if XNN_ARCH_WASMSIMD
+  struct {
+    XNN_ALIGN(16) int32_t zero_point_product[4];
+    XNN_ALIGN(16) int32_t x_multiplier[4];
+    XNN_ALIGN(16) int32_t y_multiplier[4];
+    XNN_ALIGN(16) int32_t remainder_mask[4];
+    XNN_ALIGN(16) int32_t remainder_threshold[4];
+    int32_t shift;
+    XNN_ALIGN(16) int16_t output_zero_point[8];
+    XNN_ALIGN(16) int8_t output_min[16];
+    XNN_ALIGN(16) int8_t output_max[16];
+  } wasmsimd;
+#endif  // XNN_ARCH_WASMSIMD
 };
 
 union xnn_qu8_avgpool_params {
@@ -1917,6 +1931,7 @@ struct xnn_parameters {
     struct gemm_parameters gemm;
     struct dwconv_parameters dwconv[XNN_MAX_QS8_DWCONV_UKERNELS];
     struct gavgpool_parameters gavgpool;
+    struct vbinary_parameters vadd;
   } qs8;
   struct {
     struct gemm_parameters gemm;
@@ -1941,6 +1956,7 @@ struct xnn_parameters {
     struct gemm_parameters gemm2;
     struct dwconv_parameters dwconv[XNN_MAX_F16_DWCONV_UKERNELS];
     struct vbinary_parameters vadd;
+    struct vbinary_parameters vmul;
     struct vmulcaddc_parameters vmulcaddc;
   } f16;
   struct {
