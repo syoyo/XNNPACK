@@ -422,9 +422,9 @@ SCALAR_UKERNELS = [
     "src/math/roundz-scalar-addsub.c",
     "src/math/roundz-scalar-cvt.c",
     "src/math/roundz-scalar-trunc.c",
-    "src/math/sigmoid-scalar-lut2048-p1-div.c",
-    "src/math/sigmoid-scalar-lut64-p2-div.c",
-    "src/math/sigmoid-scalar-p5-div.c",
+    "src/math/sigmoid-scalar-rr2-lut2048-p1-div.c",
+    "src/math/sigmoid-scalar-rr2-lut64-p2-div.c",
+    "src/math/sigmoid-scalar-rr2-p5-div.c",
     "src/qs8-gemm/gen/8x8c4-minmax-scalar.c",
     "src/qs8-gemm/gen/12x4c4-minmax-scalar.c",
     "src/qs8-requantization/fp32-scalar-lrintf.c",
@@ -1893,6 +1893,12 @@ SSE2_UKERNELS = [
     "src/f32-raddstoreexpminusmax/gen/sse2-p5-x20.c",
     "src/f32-raddstoreexpminusmax/gen/sse2-p5-x20-acc2.c",
     "src/f32-raddstoreexpminusmax/gen/sse2-p5-x20-acc5.c",
+    "src/f32-sigmoid/gen/sse2-lut64-p2-div-x4.c",
+    "src/f32-sigmoid/gen/sse2-lut64-p2-div-x8.c",
+    "src/f32-sigmoid/gen/sse2-lut64-p2-div-x12.c",
+    "src/f32-sigmoid/gen/sse2-lut64-p2-div-x16.c",
+    "src/f32-sigmoid/gen/sse2-lut64-p2-div-x20.c",
+    "src/f32-sigmoid/gen/sse2-lut64-p2-div-x24.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x4.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x8.c",
     "src/f32-sigmoid/gen/sse2-p5-div-x12.c",
@@ -1984,7 +1990,8 @@ SSE2_UKERNELS = [
     "src/math/roundd-sse2-cvt.c",
     "src/math/roundu-sse2-cvt.c",
     "src/math/roundz-sse2-cvt.c",
-    "src/math/sigmoid-sse2-p5-div.c",
+    "src/math/sigmoid-sse2-rr2-p5-div.c",
+    "src/math/sigmoid-sse2-rr2-lut64-p2-div.c",
 ]
 
 SSSE3_UKERNELS = [
@@ -2031,6 +2038,12 @@ SSSE3_UKERNELS = [
 SSE41_UKERNELS = [
     "src/f32-prelu/gen/sse41-2x4.c",
     "src/f32-prelu/gen/sse41-2x8.c",
+    "src/f32-sigmoid/gen/sse41-lut64-p2-div-x4.c",
+    "src/f32-sigmoid/gen/sse41-lut64-p2-div-x8.c",
+    "src/f32-sigmoid/gen/sse41-lut64-p2-div-x12.c",
+    "src/f32-sigmoid/gen/sse41-lut64-p2-div-x16.c",
+    "src/f32-sigmoid/gen/sse41-lut64-p2-div-x20.c",
+    "src/f32-sigmoid/gen/sse41-lut64-p2-div-x24.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x4.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x8.c",
     "src/f32-sigmoid/gen/sse41-p5-div-x12.c",
@@ -4651,6 +4664,19 @@ cc_library(
 )
 
 cc_library(
+    name = "fp16_mobilenet_v3_large",
+    srcs = ["models/fp16-mobilenet-v3-large.cc"],
+    hdrs = ["models/models.h"],
+    copts = xnnpack_std_cxxopts(),
+    linkstatic = True,
+    deps = [
+        ":XNNPACK",
+        "@FP16",
+        "@pthreadpool",
+    ],
+)
+
+cc_library(
     name = "fp32_mobilenet_v3_small",
     srcs = ["models/fp32-mobilenet-v3-small.cc"],
     hdrs = ["models/models.h"],
@@ -4658,6 +4684,19 @@ cc_library(
     linkstatic = True,
     deps = [
         ":XNNPACK",
+        "@pthreadpool",
+    ],
+)
+
+cc_library(
+    name = "fp16_mobilenet_v3_small",
+    srcs = ["models/fp16-mobilenet-v3-small.cc"],
+    hdrs = ["models/models.h"],
+    copts = xnnpack_std_cxxopts(),
+    linkstatic = True,
+    deps = [
+        ":XNNPACK",
+        "@FP16",
         "@pthreadpool",
     ],
 )
@@ -4700,6 +4739,8 @@ xnnpack_benchmark(
         ":bench_utils",
         ":fp16_mobilenet_v1",
         ":fp16_mobilenet_v2",
+        ":fp16_mobilenet_v3_large",
+        ":fp16_mobilenet_v3_small",
         ":fp32_mobilenet_v1",
         ":fp32_mobilenet_v2",
         ":fp32_mobilenet_v3_large",
