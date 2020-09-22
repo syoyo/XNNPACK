@@ -1469,6 +1469,7 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/x8-zip/x4-sse2.c
   src/x8-zip/xm-sse2.c
   src/math/exp-sse2-p5.c
+  src/math/exp-sse2-lut64-p2.c
   src/math/expminus-sse2-p5.c
   src/math/roundne-sse2-cvt.c
   src/math/roundd-sse2-cvt.c
@@ -1699,7 +1700,8 @@ SET(XNNPACK_AVX_MICROKERNEL_SRCS
   src/f32-vunary/gen/vneg-avx-x8.c
   src/f32-vunary/gen/vneg-avx-x16.c
   src/f32-vunary/gen/vsqr-avx-x8.c
-  src/f32-vunary/gen/vsqr-avx-x16.c)
+  src/f32-vunary/gen/vsqr-avx-x16.c
+  src/math/exp-avx-p5.c)
 
 SET(XNNPACK_XOP_MICROKERNEL_SRCS
   src/qs8-gemm/gen/1x4c2-minmax-xop-ld64.c
@@ -1922,8 +1924,8 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/qs8-vaddc/gen/minmax-avx2-mul32-ld64-x24.c
   src/qs8-vaddc/gen/minmax-avx2-mul32-ld64-x32.c
   src/math/exp-avx2-p5.c
-  src/math/exp-avx2-perm-p3.c
-  src/math/exp-avx2-perm-p4.c
+  src/math/exp-avx2-lut8-p3-perm.c
+  src/math/exp-avx2-lut8-p4-perm.c
   src/math/expminus-avx2-p5.c
   src/math/extexp-avx2-p5.c
   src/math/sigmoid-avx2-rr2-p5-div.c
@@ -2090,11 +2092,25 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/f32-vunary/gen/vneg-avx512f-x32.c
   src/f32-vunary/gen/vsqr-avx512f-x16.c
   src/f32-vunary/gen/vsqr-avx512f-x32.c
-  src/math/exp-avx512f-p5-scalef.c
   src/math/exp-avx512f-p5.c
-  src/math/exp-avx512f-perm-p3.c
-  src/math/exp-avx512f-perm2-p2.c
+  src/math/exp-avx512f-p5-scalef.c
+  src/math/exp-avx512f-lut16-p3-perm.c
+  src/math/exp-avx512f-lut16-p3-perm-scalef.c
+  src/math/exp-avx512f-lut32-p2-perm2.c
+  src/math/exp-avx512f-lut32-p2-perm2-scalef.c
   src/math/extexp-avx512f-p5.c
+  src/math/sigmoid-avx512f-rr1-p5-div.c
+  src/math/sigmoid-avx512f-rr1-p5-nr1fma.c
+  src/math/sigmoid-avx512f-rr1-p5-nr2fma.c
+  src/math/sigmoid-avx512f-rr2-p5-div.c
+  src/math/sigmoid-avx512f-rr2-p5-nr1fma.c
+  src/math/sigmoid-avx512f-rr2-p5-nr2fma.c
+  src/math/sigmoid-avx512f-rr1-p5-scalef-div.c
+  src/math/sigmoid-avx512f-rr1-p5-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr1-p5-scalef-nr2fma.c
+  src/math/sigmoid-avx512f-rr2-p5-scalef-div.c
+  src/math/sigmoid-avx512f-rr2-p5-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr2-p5-scalef-nr2fma.c
   src/math/sqrt-avx512f-nr1fma.c
   src/math/sqrt-avx512f-nr2fma.c
   src/math/sqrt-avx512f-nr1fma1adj.c)
