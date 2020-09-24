@@ -2101,18 +2101,24 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/math/exp-avx512f-lut32-p2-perm2.c
   src/math/exp-avx512f-lut32-p2-perm2-scalef.c
   src/math/extexp-avx512f-p5.c
-  src/math/sigmoid-avx512f-rr1-p5-div.c
-  src/math/sigmoid-avx512f-rr1-p5-nr1fma.c
-  src/math/sigmoid-avx512f-rr1-p5-nr2fma.c
-  src/math/sigmoid-avx512f-rr2-p5-div.c
-  src/math/sigmoid-avx512f-rr2-p5-nr1fma.c
-  src/math/sigmoid-avx512f-rr2-p5-nr2fma.c
   src/math/sigmoid-avx512f-rr1-p5-scalef-div.c
+  src/math/sigmoid-avx512f-rr1-p5-scalef-nr1fma1adj.c
   src/math/sigmoid-avx512f-rr1-p5-scalef-nr1fma.c
-  src/math/sigmoid-avx512f-rr1-p5-scalef-nr2fma.c
   src/math/sigmoid-avx512f-rr2-p5-scalef-div.c
+  src/math/sigmoid-avx512f-rr2-p5-scalef-nr1fma1adj.c
   src/math/sigmoid-avx512f-rr2-p5-scalef-nr1fma.c
-  src/math/sigmoid-avx512f-rr2-p5-scalef-nr2fma.c
+  src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-div.c
+  src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-nr1fma1adj.c
+  src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr2-lut16-p3-perm-scalef-div.c
+  src/math/sigmoid-avx512f-rr2-lut16-p3-perm-scalef-nr1fma1adj.c
+  src/math/sigmoid-avx512f-rr2-lut16-p3-perm-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr1-lut32-p2-perm2-scalef-div.c
+  src/math/sigmoid-avx512f-rr1-lut32-p2-perm2-scalef-nr1fma1adj.c
+  src/math/sigmoid-avx512f-rr1-lut32-p2-perm2-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr2-lut32-p2-perm2-scalef-div.c
+  src/math/sigmoid-avx512f-rr2-lut32-p2-perm2-scalef-nr1fma1adj.c
+  src/math/sigmoid-avx512f-rr2-lut32-p2-perm2-scalef-nr1fma.c
   src/math/sqrt-avx512f-nr1fma.c
   src/math/sqrt-avx512f-nr2fma.c
   src/math/sqrt-avx512f-nr1fma1adj.c)
@@ -2666,7 +2672,7 @@ IF(XNNPACK_BUILD_TESTS)
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
   TARGET_INCLUDE_DIRECTORIES(hardswish-nc-test PRIVATE src test)
-  TARGET_LINK_LIBRARIES(hardswish-nc-test PRIVATE XNNPACK gtest gtest_main)
+  TARGET_LINK_LIBRARIES(hardswish-nc-test PRIVATE XNNPACK fp16 gtest gtest_main)
   ADD_TEST(hardswish-nc-test hardswish-nc-test)
 
   ADD_EXECUTABLE(leaky-relu-nc-test test/leaky-relu-nc.cc)
@@ -4149,7 +4155,7 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
   TARGET_INCLUDE_DIRECTORIES(hardswish-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
-  TARGET_LINK_LIBRARIES(hardswish-bench PRIVATE XNNPACK benchmark bench-utils)
+  TARGET_LINK_LIBRARIES(hardswish-bench PRIVATE XNNPACK fp16 benchmark bench-utils)
 
   ADD_EXECUTABLE(max-pooling-bench bench/max-pooling.cc)
   SET_TARGET_PROPERTIES(max-pooling-bench PROPERTIES
