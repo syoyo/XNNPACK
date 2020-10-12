@@ -2816,6 +2816,8 @@ AARCH64_ASM_UKERNELS = [
     "src/f32-igemm/6x8-minmax-aarch64-neonfma-cortex-a73.S",
     "src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a57.S",
     "src/f32-igemm/gen/6x8-minmax-aarch64-neonfma-cortex-a75.S",
+    "src/qs8-gemm/1x16c4-aarch64-neondot-ld64.S",
+    "src/qs8-gemm/4x16c4-aarch64-neondot-ld64.S",
 ]
 
 INTERNAL_MICROKERNEL_HDRS = [
@@ -3664,7 +3666,7 @@ xnnpack_cc_library(
     name = "asm_ukernels",
     hdrs = ["src/xnnpack/assembly.h"],
     aarch32_srcs = AARCH32_ASM_UKERNELS,
-    aarch64_copts = ["-march=armv8.2-a+fp16"],
+    aarch64_copts = ["-march=armv8.2-a+fp16+dotprod"],
     aarch64_srcs = AARCH64_ASM_UKERNELS,
     wasm_srcs = WASM32_ASM_UKERNELS,
     wasmsimd_srcs = WASM32_ASM_UKERNELS,
@@ -6453,6 +6455,18 @@ xnnpack_unit_test(
     deps = [
         ":XNNPACK",
         ":memory_planner",
+    ],
+)
+
+xnnpack_unit_test(
+    name = "subgraph_nchw_test",
+    srcs = [
+        "src/xnnpack/subgraph.h",
+        "test/subgraph-nchw.cc",
+        "test/subgraph-tester.h",
+    ],
+    deps = [
+        ":XNNPACK",
     ],
 )
 
