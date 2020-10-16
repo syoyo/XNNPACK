@@ -812,11 +812,11 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/qs8-dwconv/gen/up24x9-minmax-neon-mul16.c
   src/qs8-dwconv/gen/up32x9-minmax-neon-mul16.c
   src/qs8-gemm/gen/1x8-minmax-neon-mlal-lane.c
-  src/qs8-gemm/gen/4x8-minmax-neon-mlal-lane.c
+  src/qs8-gemm/gen/2x8-minmax-neon-mlal-lane.c
   src/qs8-gemm/gen/1x16-minmax-neon-mlal-lane.c
   src/qs8-gemm/gen/2x16-minmax-neon-mlal-lane.c
   src/qs8-igemm/gen/1x8-minmax-neon-mlal-lane.c
-  src/qs8-igemm/gen/4x8-minmax-neon-mlal-lane.c
+  src/qs8-igemm/gen/2x8-minmax-neon-mlal-lane.c
   src/qs8-igemm/gen/1x16-minmax-neon-mlal-lane.c
   src/qs8-igemm/gen/2x16-minmax-neon-mlal-lane.c
   src/qs8-requantization/precise-neon.c
@@ -1486,7 +1486,11 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/math/roundu-sse2-cvt.c
   src/math/roundz-sse2-cvt.c
   src/math/sigmoid-sse2-rr2-p5-div.c
-  src/math/sigmoid-sse2-rr2-lut64-p2-div.c)
+  src/math/sigmoid-sse2-rr2-p5-nr1.c
+  src/math/sigmoid-sse2-rr2-p5-nr2.c
+  src/math/sigmoid-sse2-rr2-lut64-p2-div.c
+  src/math/sigmoid-sse2-rr2-lut64-p2-nr1.c
+  src/math/sigmoid-sse2-rr2-lut64-p2-nr2.c)
 
 SET(XNNPACK_SSSE3_MICROKERNEL_SRCS
   src/qs8-dwconv/gen/up8x9-minmax-ssse3-mul16.c
@@ -1662,6 +1666,26 @@ SET(XNNPACK_AVX_MICROKERNEL_SRCS
   src/f32-prelu/gen/avx-2x8.c
   src/f32-prelu/gen/avx-2x16.c
   src/f32-rmax/avx.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x8.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x16.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x24.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x32.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x40.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x48.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x56.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x64.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x72.c
+  src/f32-sigmoid/gen/avx-rr2-p5-div-x80.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x8.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x16.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x24.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x32.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x40.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x48.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x56.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x64.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x72.c
+  src/f32-sigmoid/gen/avx-rr2-p5-nr2-x80.c
   src/f32-vbinary/gen/vadd-minmax-avx-x8.c
   src/f32-vbinary/gen/vadd-minmax-avx-x16.c
   src/f32-vbinary/gen/vaddc-minmax-avx-x8.c
@@ -1712,6 +1736,7 @@ SET(XNNPACK_AVX_MICROKERNEL_SRCS
   src/f32-vunary/gen/vsqr-avx-x8.c
   src/f32-vunary/gen/vsqr-avx-x16.c
   src/math/exp-avx-p5.c
+  src/math/sigmoid-avx-rr2-p5-nr2.c
   src/math/sigmoid-avx-rr2-p5-div.c
   src/math/sigmoid-avx-rr2-lut64-p2-div.c)
 
@@ -1945,7 +1970,15 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/math/sigmoid-avx2-rr2-p5-nr2fma.c
   src/math/sigmoid-avx2-rr1-p5-nr2fma.c
   src/math/sigmoid-avx2-rr2-p5-nr1fma.c
-  src/math/sigmoid-avx2-rr1-p5-nr1fma.c)
+  src/math/sigmoid-avx2-rr1-p5-nr1fma.c
+  src/math/sigmoid-avx2-rr1-lut64-p2-gather-div.c
+  src/math/sigmoid-avx2-rr2-lut64-p2-gather-div.c
+  src/math/sigmoid-avx2-rr1-lut64-p2-gather-nr2fma1adj.c
+  src/math/sigmoid-avx2-rr2-lut64-p2-gather-nr2fma1adj.c
+  src/math/sigmoid-avx2-rr1-lut64-p2-gather-nr2fma.c
+  src/math/sigmoid-avx2-rr2-lut64-p2-gather-nr2fma.c
+  src/math/sigmoid-avx2-rr1-lut64-p2-gather-nr1fma.c
+  src/math/sigmoid-avx2-rr2-lut64-p2-gather-nr1fma.c)
 
 SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/f32-clamp/gen/avx512f-x16.c
@@ -2177,6 +2210,12 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/math/sigmoid-avx512f-rr2-lut32-p2-perm2-scalef-div.c
   src/math/sigmoid-avx512f-rr2-lut32-p2-perm2-scalef-nr1fma1adj.c
   src/math/sigmoid-avx512f-rr2-lut32-p2-perm2-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr1-lut64-p2-gather-scalef-div.c
+  src/math/sigmoid-avx512f-rr1-lut64-p2-gather-scalef-nr1fma1adj.c
+  src/math/sigmoid-avx512f-rr1-lut64-p2-gather-scalef-nr1fma.c
+  src/math/sigmoid-avx512f-rr2-lut64-p2-gather-scalef-div.c
+  src/math/sigmoid-avx512f-rr2-lut64-p2-gather-scalef-nr1fma1adj.c
+  src/math/sigmoid-avx512f-rr2-lut64-p2-gather-scalef-nr1fma.c
   src/math/sqrt-avx512f-nr1fma.c
   src/math/sqrt-avx512f-nr2fma.c
   src/math/sqrt-avx512f-nr1fma1adj.c)
