@@ -34,7 +34,7 @@ PSIMD_INTRINSIC psimd_f32 movess_f32(psimd_f32 a, psimd_f32 b) {
   #endif  // defined(__clang__)
 }
 
-void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd(
+void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd_1x4_acc3(
     size_t input_height,
     size_t input_width,
     const float* input,
@@ -42,34 +42,16 @@ void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd(
     const float* zero,
     float* output,
     uint32_t padding_top,
-    size_t input_tuple_stride,
-    size_t output_tuple_stride,
-    size_t input_width_stride,
-    size_t output_width_stride,
     const union xnn_f32_chw_params params[restrict XNN_MIN_ELEMENTS(1)])
 {
-  assert(input_width != 0);
   assert(input_height != 0);
+  assert(input_width != 0);
+  assert(input_width % sizeof(float) == 0);
   assert(padding_top == 1);
-
-  const size_t padded_input_height = input_height + padding_top + 1 /* padding_bottom */;
-  const size_t output_height = padded_input_height - 3 + 1;
 
   const psimd_s32 vmask = psimd_load_s32(params->scalar.mask);
   const psimd_f32 vmax = psimd_load_splat_f32(&params->scalar.max);
   const psimd_f32 vmin = psimd_load_splat_f32(&params->scalar.min);
-
-  const size_t input_width_decrement = round_up_po2(input_width, 4) / 4 * input_tuple_stride;
-  const size_t input_width_increment = input_width_stride - input_width_decrement;
-  const size_t output_width_increment = output_width_stride - (input_width - 1) / 4 * output_tuple_stride;
-
-  const float* i0 = zero;
-  const float* i1 = input;
-  const float* i2 = (const float*) ((uintptr_t) i1 + input_width_stride);
-
-  if (input_height == 1) {
-    i2 = zero;
-  }
 
   const psimd_f32 vbias = psimd_load_splat_f32(weights);
   const psimd_f32 vk00 = psimd_load_splat_f32(weights + 1);
@@ -82,8 +64,18 @@ void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd(
   const psimd_f32 vk21 = psimd_load_splat_f32(weights + 8);
   const psimd_f32 vk22 = psimd_load_splat_f32(weights + 9);
 
-  size_t m = output_height;
+  const size_t input_decrement = round_up_po2(input_width, 4 * sizeof(float));
+
+  const float* i0 = zero;
+  const float* i1 = input;
+  const float* i2 = (const float*) ((uintptr_t) i1 + input_width);
+
+  size_t output_height = input_height;
   do {
+    if XNN_UNPREDICTABLE(output_height == 1) {
+      i2 = zero;
+    }
+
     // vi0x3012 = ( vi02, vi01, vi00, vi03 )
     psimd_f32 vi0x3012 = psimd_zero_f32();
     // vi1x3012 = ( vi12, vi11, vi10, vi13 )
@@ -92,27 +84,27 @@ void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd(
     psimd_f32 vi2x3012 = psimd_zero_f32();
     // vi0x4567 = ( vi07, vi06, vi05, vi04 )
     psimd_f32 vi0x4567 = psimd_load_f32(i0);
-    i0 = (const float*) ((uintptr_t) i0 + input_tuple_stride);
+    i0 += 4;
     // vi1x4567 = ( vi17, vi16, vi15, vi14 )
     psimd_f32 vi1x4567 = psimd_load_f32(i1);
-    i1 = (const float*) ((uintptr_t) i1 + input_tuple_stride);
+    i1 += 4;
     // vi2x4567 = ( vi27, vi26, vi25, vi24 )
     psimd_f32 vi2x4567 = psimd_load_f32(i2);
-    i2 = (const float*) ((uintptr_t) i2 + input_tuple_stride);
+    i2 += 4;
 
-    size_t k = input_width;
-    for (; k > 4; k -= 4) {
+    size_t w = input_width;
+    for (; w > 4 * sizeof(float); w -= 4 * sizeof(float)) {
       psimd_f32 vo4567p0 = vbias;
 
       // vi0x89AB = ( vi0B, vi0A, vi09, vi08 )
       const psimd_f32 vi0x89AB = psimd_load_f32(i0);
-      i0 = (const float*) ((uintptr_t) i0 + input_tuple_stride);
+      i0 += 4;
       // vi1x89AB = ( vi1B, vi0A, vi09, vi08 )
       const psimd_f32 vi1x89AB = psimd_load_f32(i1);
-      i1 = (const float*) ((uintptr_t) i1 + input_tuple_stride);
+      i1 += 4;
       // vi2x89AB = ( vi2B, vi0A, vi09, vi08 )
       const psimd_f32 vi2x89AB = psimd_load_f32(i2);
-      i2 = (const float*) ((uintptr_t) i2 + input_tuple_stride);
+      i2 += 4;
 
       // vi0x7456 = ( vi06, vi05, vi04, vi07 )
       const psimd_f32 vi0x7456 = rotright_f32(vi0x4567);
@@ -169,11 +161,11 @@ void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd(
       vo = psimd_min_f32(vo, vmax);
 
       psimd_store_f32(output, vo);
-      output = (float*) ((uintptr_t) output + output_tuple_stride);
+      output += 4;
     }
     // Always process the last block of 1..4 pixels.
-    assert(k >= 1);
-    assert(k <= 4);
+    assert(w >= 1 * sizeof(float));
+    assert(w <= 4 * sizeof(float));
     {
       psimd_f32 vo4567p0 = vbias;
 
@@ -228,28 +220,24 @@ void xnn_f32_dwconv_chw_ukernel_3x3p1__psimd(
       vo = psimd_max_f32(vo, vmin);
       vo = psimd_min_f32(vo, vmax);
 
-      if XNN_LIKELY(k == 4) {
+      if XNN_LIKELY(w == 4 * sizeof(float)) {
         psimd_store_f32(output, vo);
+        output += 4;
       } else {
-        float* output_lo = output;
-        if (k & 2) {
-          psimd_store2_f32(output_lo, vo);
-          output_lo += 2;
+        if (w & (2 * sizeof(float))) {
+          psimd_store2_f32(output, vo);
+          output += 2;
           vo = psimd_concat_hi_f32(vo, vo);
         }
-        if (k & 1) {
-          psimd_store1_f32(output_lo, vo);
+        if (w & (1 * sizeof(float))) {
+          psimd_store1_f32(output, vo);
+          output += 1;
         }
       }
     }
 
-    i0 = (const float*) ((uintptr_t) i1 - input_width_decrement);
-    i1 = (const float*) ((uintptr_t) i1 + input_width_increment);
-    i2 = (const float*) ((uintptr_t) i2 + input_width_increment);
-    output = (float*) ((uintptr_t) output + output_width_increment);
-    m -= 1;
-    if (m == 1) {
-      i2 = zero;
-    }
-  } while (m != 0);
+    i0 = (const float*) ((uintptr_t) i1 - input_decrement);
+    i1 = (const float*) ((uintptr_t) i2 - input_decrement);
+    i2 = (const float*) ((uintptr_t) i1 + input_width);
+  } while (--output_height != 0);
 }

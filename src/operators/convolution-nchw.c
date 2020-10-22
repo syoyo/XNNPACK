@@ -690,7 +690,7 @@ static enum xnn_status setup_convolution2d_nchw(
       xnn_update_f32_chw_params((union xnn_f32_chw_params*) chw_params, (uint32_t) input_width);
       convolution_op->context.dwconv2d = (struct dwconv2d_context) {
         .input_height = input_height,
-        .input_width = input_width,
+        .input_width = input_width << log2_input_element_size,
         .input = input,
         .zero = zero_buffer,
         .input_padding_top = convolution_op->padding_top,
@@ -702,10 +702,6 @@ static enum xnn_status setup_convolution2d_nchw(
         .output = output,
         .output_channel_stride = output_height * output_width << log2_output_element_size,
         .output_batch_stride = output_batch_stride,
-        .input_tuple_stride = convolution_op->ukernel.dwconv2d.input_width_tile << log2_input_element_size,
-        .output_tuple_stride = convolution_op->ukernel.dwconv2d.output_width_tile << log2_output_element_size,
-        .input_pixel_stride = input_width << log2_input_element_size,
-        .output_pixel_stride = output_width << log2_output_element_size,
         .chw_ukernel = convolution_op->ukernel.dwconv2d.chw_function,
       };
       memcpy(&convolution_op->context.dwconv2d.params, chw_params, sizeof(convolution_op->context.dwconv2d.params));

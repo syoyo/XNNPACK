@@ -249,10 +249,10 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-conv-hwc/3x3s2p1c3x4-scalar-1x1.c
   src/f32-conv-hwc/3x3s2p0p1c3x4-scalar-1x1.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-scalar-1x1.c
-  src/f32-dwconv-chw/3x3p1-scalar.c
-  src/f32-dwconv-chw/3x3s2p1-scalar.c
-  src/f32-dwconv-chw/5x5p2-scalar.c
-  src/f32-dwconv-chw/5x5s2p2-scalar.c
+  src/f32-dwconv-chw/3x3p1-scalar-1x1-acc3.c
+  src/f32-dwconv-chw/3x3s2p1-scalar-1x1-acc3.c
+  src/f32-dwconv-chw/5x5p2-scalar-1x1-acc5.c
+  src/f32-dwconv-chw/5x5s2p2-scalar-1x1-acc5.c
   src/f32-dwconv/gen/up1x4-scalar.c
   src/f32-dwconv/gen/up1x4-scalar-acc2.c
   src/f32-dwconv/gen/up1x9-scalar.c
@@ -301,6 +301,9 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-ibilinear/gen/scalar-c1.c
   src/f32-ibilinear/gen/scalar-c2.c
   src/f32-ibilinear/gen/scalar-c4.c
+  src/f32-ibilinear-chw/gen/scalar-p1.c
+  src/f32-ibilinear-chw/gen/scalar-p2.c
+  src/f32-ibilinear-chw/gen/scalar-p4.c
   src/f32-igemm/gen/1x4-scalar.c
   src/f32-igemm/gen/2x4-scalar.c
   src/f32-igemm/gen/4x2-scalar.c
@@ -598,10 +601,10 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
 
 SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
   src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c
-  src/f32-dwconv-chw/3x3p1-psimd.c
-  src/f32-dwconv-chw/3x3s2p1-psimd.c
-  src/f32-dwconv-chw/5x5p2-psimd.c
-  src/f32-dwconv-chw/5x5s2p2-psimd.c)
+  src/f32-dwconv-chw/3x3p1-psimd-1x4-acc3.c
+  src/f32-dwconv-chw/3x3s2p1-psimd-1x4-acc3.c
+  src/f32-dwconv-chw/5x5p2-psimd-3x4.c
+  src/f32-dwconv-chw/5x5s2p2-psimd-1x4-acc2.c)
 
 SET(XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS
   src/qs8-requantization/fp32-psimd.c
@@ -1096,10 +1099,10 @@ SET(XNNPACK_AARCH64_NEONFMA_MICROKERNEL_SRCS
   src/f32-conv-hwc/gen/3x3s2p1c3x4-neonfma-2x2.c
   src/f32-conv-hwc/gen/3x3s2p1c3x8-neonfma-2x2.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-neonfma-2x2.c
-  src/f32-dwconv-chw/3x3p1-neonfma.c
-  src/f32-dwconv-chw/5x5p2-neonfma.c
-  src/f32-dwconv-chw/3x3s2p1-neonfma.c
-  src/f32-dwconv-chw/5x5s2p2-neonfma.c
+  src/f32-dwconv-chw/3x3p1-neonfma-3x4.c
+  src/f32-dwconv-chw/3x3s2p1-neonfma-1x4-acc3.c
+  src/f32-dwconv-chw/5x5p2-neonfma-3x4.c
+  src/f32-dwconv-chw/5x5s2p2-neonfma-1x4-acc2.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-div-x4.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-div-x8.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-div-x12.c
@@ -1258,8 +1261,8 @@ SET(XNNPACK_SSE_MICROKERNEL_SRCS
   src/f32-clamp/gen/sse-x8.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-sse-1x1.c
   src/f32-conv-hwc2chw/3x3s2p1c3x4-sse-2x2.c
-  src/f32-dwconv-chw/3x3p1-sse.c
-  src/f32-dwconv-chw/3x3s2p1-sse.c
+  src/f32-dwconv-chw/3x3p1-sse-1x4-acc3.c
+  src/f32-dwconv-chw/3x3s2p1-sse-1x4-acc3.c
   src/f32-dwconv/gen/up4x25-minmax-sse-acc2.c
   src/f32-dwconv/gen/up4x25-minmax-sse.c
   src/f32-dwconv/gen/up4x4-minmax-sse-acc2.c
@@ -2428,17 +2431,40 @@ TARGET_COMPILE_DEFINITIONS(XNNPACK PRIVATE "XNN_LOG_LEVEL=$<$<CONFIG:Debug>:5>$<
 IF(MSVC)
   # Even though MSVC has __restrict, it can't be used in all the same contexts as the C99 restrict keyword
   TARGET_COMPILE_DEFINITIONS(XNNPACK PRIVATE "restrict=")
-  SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: /O2 >")
-  SET_PROPERTY(SOURCE ${XNNPACK_HOT_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: /O2 >")
-  SET_PROPERTY(SOURCE ${XNNPACK_COLD_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: /O1 >")
+  IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+    IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+      SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " /O2 ")
+      SET_PROPERTY(SOURCE ${XNNPACK_HOT_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " /O2 ")
+      SET_PROPERTY(SOURCE ${XNNPACK_COLD_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " /O1 ")
+    ENDIF()
+  ELSE()
+    SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: /O2 >")
+    SET_PROPERTY(SOURCE ${XNNPACK_HOT_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: /O2 >")
+    SET_PROPERTY(SOURCE ${XNNPACK_COLD_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: /O1 >")
+  ENDIF()
 ELSE()
-  SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O2 >")
-  SET_PROPERTY(SOURCE ${XNNPACK_HOT_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O2 >")
-  SET_PROPERTY(SOURCE ${XNNPACK_COLD_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -Os >")
+  IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+    IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+      SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O2 ")
+      SET_PROPERTY(SOURCE ${XNNPACK_HOT_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O2 ")
+      SET_PROPERTY(SOURCE ${XNNPACK_COLD_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -Os ")
+    ENDIF()
+  ELSE()
+    SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O2 >")
+    SET_PROPERTY(SOURCE ${XNNPACK_HOT_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O2 >")
+    SET_PROPERTY(SOURCE ${XNNPACK_COLD_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -Os >")
+  ENDIF()
 ENDIF()
 IF(NOT EMSCRIPTEN)
-  SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O3 >")
-  SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O3 -ffast-math >")
+  IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
+    IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+      SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O3 ")
+      SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O3 -ffast-math ")
+    ENDIF()
+  ELSE()
+    SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O3 >")
+    SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O3 -ffast-math >")
+  ENDIF()
 ENDIF()
 
 TARGET_INCLUDE_DIRECTORIES(XNNPACK PUBLIC include)
