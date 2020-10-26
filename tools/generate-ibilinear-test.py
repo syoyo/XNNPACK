@@ -133,6 +133,7 @@ TEST(${TEST_NAME}, input_offset) {
     }
   }
 }
+
 TEST(${TEST_NAME}, output_stride) {
   $if ISA_CHECK:
     ${ISA_CHECK};

@@ -18,13 +18,13 @@ void xnn_f32_ibilinear_chw_ukernel__scalar_p1(
     const float**restrict input,
     size_t input_offset,
     const float*restrict weights,
-    float*restrict output)
+    float*restrict output,
+    size_t input_increment)
 {
   assert(output_pixels != 0);
   assert(channels != 0);
-  assert(channels % sizeof(float) == 0);
+  assert(input_increment % sizeof(float) == 0);
 
-  const size_t input_offset_increment = output_pixels * 4 * sizeof(float);
   size_t c = channels;
   do {
     const float** i = input;
@@ -33,10 +33,10 @@ void xnn_f32_ibilinear_chw_ukernel__scalar_p1(
     size_t p = output_pixels;
     do {
       const float* i0 = (const float*) ((uintptr_t) i[0] + input_offset);
-      const float* i1 = (const float*) ((uintptr_t) i[1] + input_offset);
-      const float* i2 = (const float*) ((uintptr_t) i[2] + input_offset);
-      const float* i3 = (const float*) ((uintptr_t) i[3] + input_offset);
-      i += 4;
+      const float* i1 = i0 + 1;
+      const float* i2 = (const float*) ((uintptr_t) i[1] + input_offset);
+      const float* i3 = i2 + 1;
+      i += 2;
 
       const float valphah = w[0];
       const float valphav = w[1];
@@ -61,8 +61,8 @@ void xnn_f32_ibilinear_chw_ukernel__scalar_p1(
 
     } while (--p != 0);
 
-    input_offset += input_offset_increment;
+    input_offset += input_increment;
 
-    c -= sizeof(float);
+    c--;
   } while (c != 0);
 }
