@@ -1906,8 +1906,8 @@ static void init(void) {
     };
     #ifndef XNN_NO_NCHW_OPERATORS
       xnn_params.f32.spmm = (struct spmm_parameters) {
-        .ukernel = (xnn_spmm_ukernel_function) xnn_f32_spmm_minmax_ukernel_16x1__sse,
-        .mr = 16,
+        .ukernel = (xnn_spmm_ukernel_function) xnn_f32_spmm_minmax_ukernel_32x1__sse,
+        .mr = 32,
         .nr = 1,
       };
       xnn_params.f32.conv_hwc2chw_3x3c3s2 = (struct conv_hwc2chw_parameters) {
@@ -1928,6 +1928,18 @@ static void init(void) {
         .input_width_tile = 4,
         .output_width_tile = 4,
         .output_height_tile = 1,
+      };
+      xnn_params.f32.dwconv2d_chw_5x5 = (struct dwconv2d_chw_parameters) {
+        .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_5x5p2__sse_4x4,
+        .input_width_tile = 4,
+        .output_width_tile = 4,
+        .output_height_tile = 4,
+      };
+      xnn_params.f32.dwconv2d_chw_5x5s2 = (struct dwconv2d_chw_parameters) {
+        .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_5x5s2p2__sse_2x4,
+        .input_width_tile = 4,
+        .output_width_tile = 4,
+        .output_height_tile = 2,
       };
       xnn_params.f32.gavgpool_cw = (struct gavgpool_cw_parameters) {
         .ukernel = (xnn_gavgpool_cw_ukernel_function) xnn_f32_gavgpool_cw_ukernel__sse_x4,
@@ -2355,8 +2367,8 @@ static void init(void) {
     }
     #ifndef XNN_NO_NCHW_OPERATORS
       xnn_params.f32.spmm = (struct spmm_parameters) {
-        .ukernel = (xnn_spmm_ukernel_function) xnn_f32_spmm_minmax_ukernel_16x1__wasmsimd_x86,
-        .mr = 16,
+        .ukernel = (xnn_spmm_ukernel_function) xnn_f32_spmm_minmax_ukernel_32x1__wasmsimd_x86,
+        .mr = 32,
         .nr = 1,
       };
       xnn_params.f32.conv_hwc2chw_3x3c3s2 = (struct conv_hwc2chw_parameters) {
