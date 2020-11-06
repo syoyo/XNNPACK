@@ -910,6 +910,30 @@ typedef void (*xnn_x32_fill_ukernel_function)(
     size_t output_stride,
     const uint32_t* fill_value);
 
+typedef void (*xnn_depth_to_space_chw2hwc_ukernel_function)(
+    size_t output_channels,
+    size_t input_height,
+    size_t input_width,
+    size_t block_size,
+    const void* input,
+    void* output,
+    size_t input_channel_stride,
+    size_t input_height_stride,
+    size_t output_height_stride,
+    size_t output_width_stride);
+
+typedef void (*xnn_x32_depth_to_space_chw2hwc_ukernel_function)(
+    size_t output_channels,
+    size_t input_height,
+    size_t input_width,
+    size_t block_size,
+    const uint32_t* input,
+    uint32_t* output,
+    size_t input_channel_stride,
+    size_t input_height_stride,
+    size_t output_height_stride,
+    size_t output_width_stride);
+
 typedef void (*xnn_pad_ukernel_function)(
     size_t rows,
     size_t channels,
@@ -1829,6 +1853,16 @@ struct dwconv_parameters {
   uint8_t incremental_tile;
 };
 
+struct depth_to_space_chw2hwc_parameters {
+  xnn_depth_to_space_chw2hwc_ukernel_function ukernel;
+  // Number of output pixels in a tile.
+  // For best efficiency, micro-kernel must produce a multiple of this number of pixels in each call.
+  uint8_t pixel_tile;
+  // Number of channels in a tile.
+  // For best efficiency, micro-kernel must process a multiple of this number of channels in each call.
+  uint8_t channel_tile;
+};
+
 struct gavgpool_parameters {
   xnn_gavgpool_unipass_ukernel_function up;
   xnn_gavgpool_multipass_ukernel_function mp;
@@ -2041,6 +2075,8 @@ struct xnn_parameters {
     struct fill_parameters fill;
     xnn_unpool_ukernel_function unpool;
     struct zip_parameters zip;
+    // Depth to space in CHW to HWC layout.
+    struct depth_to_space_chw2hwc_parameters depth_to_space_chw2hwc;
   } x32;
 };
 

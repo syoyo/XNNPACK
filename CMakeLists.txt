@@ -166,6 +166,7 @@ SET(XNNPACK_OPERATOR_SRCS
   src/operators/convolution-nchw.c
   src/operators/convolution-nhwc.c
   src/operators/deconvolution-nhwc.c
+  src/operators/depth-to-space-chw2hwc.c
   src/operators/fully-connected-nc.c
   src/operators/global-average-pooling-ncw.c
   src/operators/global-average-pooling-nwc.c
@@ -190,6 +191,7 @@ SET(XNNPACK_SUBGRAPH_SRCS
   src/subgraph/convolution-2d.c
   src/subgraph/deconvolution-2d.c
   src/subgraph/depthwise-convolution-2d.c
+  src/subgraph/depth-to-space.c
   src/subgraph/divide.c
   src/subgraph/floor.c
   src/subgraph/fully-connected.c
@@ -629,6 +631,7 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/x32-pad/scalar-float.c
   src/x32-pad/scalar-int.c
   src/x32-unpool/scalar.c
+  src/x32-depth-to-space-chw2hwc/scalar.c
   src/x32-zip/x2-scalar.c
   src/x32-zip/x3-scalar.c
   src/x32-zip/x4-scalar.c
@@ -2921,6 +2924,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_LINK_LIBRARIES(deconvolution-nhwc-test PRIVATE XNNPACK gtest gtest_main)
   ADD_TEST(deconvolution-nhwc-test deconvolution-nhwc-test)
 
+  ADD_EXECUTABLE(depth-to-space-test test/depth-to-space.cc)
+  SET_TARGET_PROPERTIES(depth-to-space-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(depth-to-space-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(depth-to-space-test PRIVATE XNNPACK gtest gtest_main)
+  ADD_TEST(depth-to-space-test depth-to-space-test)
+
   ADD_EXECUTABLE(divide-nd-test test/divide-nd.cc)
   SET_TARGET_PROPERTIES(divide-nd-test PROPERTIES
     CXX_STANDARD 11
@@ -4257,6 +4269,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_INCLUDE_DIRECTORIES(x32-unpool-test PRIVATE src test)
   TARGET_LINK_LIBRARIES(x32-unpool-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(x32-unpool-test x32-unpool-test)
+
+  ADD_EXECUTABLE(x32-depth-to-space-chw2hwc-test test/x32-depth-to-space-chw2hwc.cc)
+  SET_TARGET_PROPERTIES(x32-depth-to-space-chw2hwc-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(x32-depth-to-space-chw2hwc-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(x32-depth-to-space-chw2hwc-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(x32-depth-to-space-chw2hwc-test x32-depth-to-space-chw2hwc-test)
 
   ADD_EXECUTABLE(x32-zip-test test/x32-zip.cc)
   SET_TARGET_PROPERTIES(x32-zip-test PROPERTIES
