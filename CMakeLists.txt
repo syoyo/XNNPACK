@@ -166,7 +166,7 @@ SET(XNNPACK_OPERATOR_SRCS
   src/operators/convolution-nchw.c
   src/operators/convolution-nhwc.c
   src/operators/deconvolution-nhwc.c
-  src/operators/depth-to-space-chw2hwc.c
+  src/operators/depth-to-space-nchw2nhwc.c
   src/operators/fully-connected-nc.c
   src/operators/global-average-pooling-ncw.c
   src/operators/global-average-pooling-nwc.c
@@ -190,8 +190,8 @@ SET(XNNPACK_SUBGRAPH_SRCS
   src/subgraph/clamp.c
   src/subgraph/convolution-2d.c
   src/subgraph/deconvolution-2d.c
-  src/subgraph/depthwise-convolution-2d.c
   src/subgraph/depth-to-space.c
+  src/subgraph/depthwise-convolution-2d.c
   src/subgraph/divide.c
   src/subgraph/floor.c
   src/subgraph/fully-connected.c
@@ -623,6 +623,7 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/x8-zip/x3-scalar.c
   src/x8-zip/x4-scalar.c
   src/x8-zip/xm-scalar.c
+  src/x32-depth-to-space-chw2hwc/scalar.c
   src/x32-fill/scalar-float.c
   src/x32-fill/scalar-int.c
   src/x32-packx/x2-scalar.c
@@ -631,18 +632,13 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/x32-pad/scalar-float.c
   src/x32-pad/scalar-int.c
   src/x32-unpool/scalar.c
-  src/x32-depth-to-space-chw2hwc/scalar.c
   src/x32-zip/x2-scalar.c
   src/x32-zip/x3-scalar.c
   src/x32-zip/x4-scalar.c
   src/x32-zip/xm-scalar.c)
 
 SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
-  src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c
-  src/f32-dwconv2d-chw/3x3p1-psimd-1x4-acc3.c
-  src/f32-dwconv2d-chw/3x3s2p1-psimd-1x4-acc3.c
-  src/f32-dwconv2d-chw/5x5p2-psimd-3x4.c
-  src/f32-dwconv2d-chw/5x5s2p2-psimd-1x4-acc2.c)
+  src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c)
 
 SET(XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS
   src/qs8-requantization/fp32-psimd.c
@@ -1433,8 +1429,8 @@ SET(XNNPACK_SSE_MICROKERNEL_SRCS
   src/f32-dwconv2d-chw/gen/5x5s2p2-minmax-sse-2x4-acc2.c
   src/f32-dwconv2d-chw/gen/5x5s2p2-minmax-sse-2x4-acc3.c
   src/f32-dwconv2d-chw/gen/5x5s2p2-minmax-sse-2x4.c
-  src/f32-dwconv2d-chw/gen/5x5s2p2-minmax-sse-3x4.c
   src/f32-dwconv2d-chw/gen/5x5s2p2-minmax-sse-3x4-acc2.c
+  src/f32-dwconv2d-chw/gen/5x5s2p2-minmax-sse-3x4.c
   src/f32-gavgpool-cw/sse-x4.c
   src/f32-gavgpool/7p7x-minmax-sse-c4.c
   src/f32-gavgpool/7x-minmax-sse-c4.c
