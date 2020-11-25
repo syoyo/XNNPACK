@@ -68,7 +68,7 @@ void xnn_math_f32_sigmoid__neon_rr1_lut64_p2_nr2recps(
     // Shift bits 6:14 into 23:31 (position of floating-point exponent).
     const int32x4_t ve = vshlq_n_s32(vreinterpretq_s32_f32(vn), 17);
 
-    // Use bits 0:6 bits of n, as integer, as an index for table lookup of l := 2**frac(n).
+    // Use bits 0:6 of n, as integer, as an index for table lookup of l := 2**frac(n).
     const uint64x2_t vidx = vreinterpretq_u64_s32(vshlq_n_s32(vandq_s32(vreinterpretq_s32_f32(vn), vindex_mask), 2));
     const uint64_t vidx_lo = vgetq_lane_u64(vidx, 0);
     const uint64_t vidx_hi = vgetq_lane_u64(vidx, 1);
@@ -86,7 +86,7 @@ void xnn_math_f32_sigmoid__neon_rr1_lut64_p2_nr2recps(
     // Compute reduced argument t := (z + n * log(2)). Note that -t = -z - n * log(2).
     float32x4_t vt = vmlaq_f32(vz, vn, vln2);
 
-    // Compute degree-2 polynomial approxiatmion for exp(-t) on [-log(2)/128, log(2)/128].
+    // Compute degree-2 polynomial approximation for exp(-t) on [-log(2)/128, log(2)/128].
     //   P(t) = 1 + t * (-1 + t * c2) = 1 - (t - t * (t * c2)) = 1 - p
     float32x4_t vp = vmulq_f32(vt, vc2);
     vp = vmlsq_f32(vt, vp, vt);

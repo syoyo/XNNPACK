@@ -113,6 +113,7 @@ SUBGRAPH_SRCS = [
 TABLE_SRCS = [
     "src/tables/exp2-k-over-64.c",
     "src/tables/exp2-k-over-2048.c",
+    "src/tables/exp2minus-k-over-16.c",
     "src/tables/exp2minus-k-over-64.c",
     "src/tables/exp2minus-k-over-2048.c",
 ]
@@ -449,9 +450,13 @@ SCALAR_UKERNELS = [
     "src/f32-vunary/gen/vsqr-scalar-x1.c",
     "src/f32-vunary/gen/vsqr-scalar-x2.c",
     "src/f32-vunary/gen/vsqr-scalar-x4.c",
-    "src/math/expminus-scalar-lut64-p2.c",
-    "src/math/expminus-scalar-lut2048-p1.c",
-    "src/math/expminus-scalar-p5.c",
+    "src/math/expm1minus-scalar-rr2-lut16-p3.c",
+    "src/math/expm1minus-scalar-rr2-lut16-p4.c",
+    "src/math/expm1minus-scalar-rr2-p5.c",
+    "src/math/expm1minus-scalar-rr2-p6.c",
+    "src/math/expminus-scalar-rr2-lut64-p2.c",
+    "src/math/expminus-scalar-rr2-lut2048-p1.c",
+    "src/math/expminus-scalar-rr2-p5.c",
     "src/math/roundd-scalar-addsub.c",
     "src/math/roundd-scalar-cvt.c",
     "src/math/roundd-scalar-floor.c",
@@ -500,7 +505,7 @@ SCALAR_UKERNELS = [
     "src/x8-zip/x3-scalar.c",
     "src/x8-zip/x4-scalar.c",
     "src/x8-zip/xm-scalar.c",
-    "src/x32-depth-to-space-chw2hwc/scalar.c",
+    "src/x32-depthtospace2d-chw2hwc/scalar.c",
     "src/x32-fill/scalar-float.c",
     "src/x32-fill/scalar-int.c",
     "src/x32-packx/x2-scalar.c",
@@ -513,6 +518,7 @@ SCALAR_UKERNELS = [
     "src/x32-zip/x3-scalar.c",
     "src/x32-zip/x4-scalar.c",
     "src/x32-zip/xm-scalar.c",
+    "src/xx-copy/memcpy.c",
 ]
 
 WASM_UKERNELS = [
@@ -702,6 +708,7 @@ WASMSIMD_UKERNELS = [
     "src/f32-clamp/gen/wasmsimd-arm-x8.c",
     "src/f32-clamp/gen/wasmsimd-x86-x4.c",
     "src/f32-clamp/gen/wasmsimd-x86-x8.c",
+    "src/f32-conv-hwc2chw/3x3s2p1c3x4-wasmsimd-2x2.c",
     "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-acc2-arm.c",
     "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-acc2-x86.c",
     "src/f32-dwconv/gen/up4x4-minmax-wasmsimd-arm.c",
@@ -732,8 +739,26 @@ WASMSIMD_UKERNELS = [
     "src/f32-dwconv/gen/up8x25-minmax-wasmsimd-arm.c",
     "src/f32-dwconv/gen/up8x25-minmax-wasmsimd-x86.c",
     "src/f32-dwconv/gen/up8x25-wasmsimd.c",
-    "src/f32-dwconv2d-chw/gen/3x3p1-wasmsimd-1x4-acc3-arm.c",
-    "src/f32-dwconv2d-chw/gen/3x3p1-wasmsimd-1x4-acc3-x86.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-1x4-acc2.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-1x4-acc3.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-1x4-acc4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-1x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-2x4-acc2.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-2x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-3x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-4x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-5x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-arm-6x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-1x4-acc2.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-1x4-acc3.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-1x4-acc4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-1x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-2x4-acc2.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-2x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-3x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-4x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-5x4.c",
+    "src/f32-dwconv2d-chw/gen/3x3p1-minmax-wasmsimd-x86-6x4.c",
     "src/f32-dwconv2d-chw/gen/3x3s2p1-wasmsimd-1x4-acc3-arm.c",
     "src/f32-dwconv2d-chw/gen/3x3s2p1-wasmsimd-1x4-acc3-x86.c",
     "src/f32-dwconv2d-chw/gen/5x5p2-wasmsimd-3x4-arm.c",
@@ -1191,10 +1216,6 @@ WASMSIMD_UKERNELS = [
     "src/x32-zip/x3-wasmsimd.c",
     "src/x32-zip/x4-wasmsimd.c",
     "src/x32-zip/xm-wasmsimd.c",
-]
-
-PSIMD_FASTMATH_UKERNELS = [
-    "src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c",
 ]
 
 PSIMD_ACCMATH_UKERNELS = [
@@ -1655,11 +1676,11 @@ NEONFMA_UKERNELS = [
     "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x32.c",
     "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x36.c",
     "src/f32-vsqrt/gen/neonfma-nr2fma1adj-x40.c",
-    "src/math/exp-neonfma-lut64-p2.c",
-    "src/math/exp-neonfma-p5.c",
-    "src/math/expminus-neonfma-lut64-p2.c",
-    "src/math/expminus-neonfma-lut2048-p1.c",
-    "src/math/expminus-neonfma-p5.c",
+    "src/math/exp-neonfma-rr2-lut64-p2.c",
+    "src/math/exp-neonfma-rr2-p5.c",
+    "src/math/expminus-neonfma-rr2-lut64-p2.c",
+    "src/math/expminus-neonfma-rr2-lut2048-p1.c",
+    "src/math/expminus-neonfma-rr2-p5.c",
     "src/math/sigmoid-neonfma-rr1-lut64-p2-nr1recps1fma.c",
     "src/math/sigmoid-neonfma-rr1-lut64-p2-nr2fma.c",
     "src/math/sigmoid-neonfma-rr1-lut64-p2-nr2recps.c",
@@ -2132,9 +2153,11 @@ SSE2_UKERNELS = [
     "src/f32-vrnd/gen/vrndu-sse2-x8.c",
     "src/f32-vrnd/gen/vrndz-sse2-x4.c",
     "src/f32-vrnd/gen/vrndz-sse2-x8.c",
-    "src/math/exp-sse2-lut64-p2.c",
-    "src/math/exp-sse2-p5.c",
-    "src/math/expminus-sse2-p5.c",
+    "src/math/exp-sse2-rr2-lut64-p2.c",
+    "src/math/exp-sse2-rr2-p5.c",
+    "src/math/expm1minus-sse2-rr2-p5.c",
+    "src/math/expm1minus-sse2-rr2-p6.c",
+    "src/math/expminus-sse2-rr2-p5.c",
     "src/math/roundd-sse2-cvt.c",
     "src/math/roundne-sse2-cvt.c",
     "src/math/roundu-sse2-cvt.c",
@@ -2473,7 +2496,7 @@ AVX_UKERNELS = [
     "src/f32-vunary/gen/vneg-avx-x16.c",
     "src/f32-vunary/gen/vsqr-avx-x8.c",
     "src/f32-vunary/gen/vsqr-avx-x16.c",
-    "src/math/exp-avx-p5.c",
+    "src/math/exp-avx-rr2-p5.c",
     "src/math/sigmoid-avx-rr2-lut64-p2-div.c",
     "src/math/sigmoid-avx-rr2-p5-div.c",
     "src/math/sigmoid-avx-rr2-p5-nr1.c",
@@ -2677,10 +2700,10 @@ AVX2_UKERNELS = [
     "src/f32-vscaleextexp/gen/avx2-p5-x80.c",
     "src/f32-vscaleextexp/gen/avx2-p5-x88.c",
     "src/f32-vscaleextexp/gen/avx2-p5-x96.c",
-    "src/math/exp-avx2-lut8-p3-perm.c",
-    "src/math/exp-avx2-lut8-p4-perm.c",
-    "src/math/exp-avx2-p5.c",
-    "src/math/expminus-avx2-p5.c",
+    "src/math/exp-avx2-rr2-lut8-p3-perm.c",
+    "src/math/exp-avx2-rr2-lut8-p4-perm.c",
+    "src/math/exp-avx2-rr2-p5.c",
+    "src/math/expminus-avx2-rr2-p5.c",
     "src/math/extexp-avx2-p5.c",
     "src/math/sigmoid-avx2-rr1-lut64-p2-gather-div.c",
     "src/math/sigmoid-avx2-rr1-lut64-p2-gather-nr1fma.c",
@@ -2926,12 +2949,12 @@ AVX512F_UKERNELS = [
     "src/f32-vunary/gen/vneg-avx512f-x32.c",
     "src/f32-vunary/gen/vsqr-avx512f-x16.c",
     "src/f32-vunary/gen/vsqr-avx512f-x32.c",
-    "src/math/exp-avx512f-lut16-p3-perm-scalef.c",
-    "src/math/exp-avx512f-lut16-p3-perm.c",
-    "src/math/exp-avx512f-lut32-p2-perm2-scalef.c",
-    "src/math/exp-avx512f-lut32-p2-perm2.c",
-    "src/math/exp-avx512f-p5-scalef.c",
-    "src/math/exp-avx512f-p5.c",
+    "src/math/exp-avx512f-rr2-lut16-p3-perm-scalef.c",
+    "src/math/exp-avx512f-rr2-lut16-p3-perm.c",
+    "src/math/exp-avx512f-rr2-lut32-p2-perm2-scalef.c",
+    "src/math/exp-avx512f-rr2-lut32-p2-perm2.c",
+    "src/math/exp-avx512f-rr2-p5-scalef.c",
+    "src/math/exp-avx512f-rr2-p5.c",
     "src/math/extexp-avx512f-p5.c",
     "src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-div.c",
     "src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-nr1fma.c",
@@ -3257,56 +3280,6 @@ xnnpack_cc_library(
         ":tables",
         "@FP16",
         "@FXdiv",
-        "@pthreadpool",
-    ],
-)
-
-xnnpack_cc_library(
-    name = "psimd_fastmath_ukernels",
-    hdrs = INTERNAL_HDRS,
-    aarch32_copts = [
-        "-marm",
-        "-mfpu=neon",
-    ],
-    gcc_copts = xnnpack_gcc_std_copts(),
-    gcc_x86_copts = ["-msse2"],
-    msvc_copts = xnnpack_msvc_std_copts(),
-    optimized_copts = [
-        "-O3",
-        "-ffast-math",
-    ],
-    psimd_srcs = PSIMD_FASTMATH_UKERNELS,
-    deps = [
-        ":tables",
-        "@FP16",
-        "@psimd",
-        "@pthreadpool",
-    ],
-)
-
-xnnpack_cc_library(
-    name = "psimd_fastmath_ukernels_test_mode",
-    hdrs = INTERNAL_HDRS,
-    aarch32_copts = [
-        "-marm",
-        "-mfpu=neon",
-    ],
-    copts = [
-        "-UNDEBUG",
-        "-DXNN_TEST_MODE=1",
-    ],
-    gcc_copts = xnnpack_gcc_std_copts(),
-    gcc_x86_copts = ["-msse2"],
-    msvc_copts = xnnpack_msvc_std_copts(),
-    optimized_copts = [
-        "-O3",
-        "-ffast-math",
-    ],
-    psimd_srcs = PSIMD_FASTMATH_UKERNELS,
-    deps = [
-        ":tables",
-        "@FP16",
-        "@psimd",
         "@pthreadpool",
     ],
 )
@@ -3973,7 +3946,6 @@ xnnpack_aggregate_library(
         ":scalar_ukernels",
     ],
     psimd_deps = [
-        ":psimd_fastmath_ukernels",
         ":psimd_accmath_ukernels",
     ],
     wasm_deps = [
@@ -4018,7 +3990,6 @@ xnnpack_aggregate_library(
         ":scalar_ukernels_test_mode",
     ],
     psimd_deps = [
-        ":psimd_fastmath_ukernels_test_mode",
         ":psimd_accmath_ukernels_test_mode",
     ],
     wasm_deps = [
@@ -4063,7 +4034,6 @@ xnnpack_aggregate_library(
         ":scalar_ukernels",
     ],
     psimd_deps = [
-        ":psimd_fastmath_ukernels",
         ":psimd_accmath_ukernels",
     ],
     wasm_deps = [
@@ -5110,6 +5080,15 @@ xnnpack_benchmark(
     name = "f32_expminus_eval",
     srcs = [
         "eval/f32-expminus.cc",
+        "src/xnnpack/AlignedAllocator.h",
+    ] + ACCURACY_EVAL_HDRS,
+    deps = ACCURACY_EVAL_DEPS,
+)
+
+xnnpack_benchmark(
+    name = "f32_expm1minus_eval",
+    srcs = [
+        "eval/f32-expm1minus.cc",
         "src/xnnpack/AlignedAllocator.h",
     ] + ACCURACY_EVAL_HDRS,
     deps = ACCURACY_EVAL_DEPS,
@@ -6321,10 +6300,10 @@ xnnpack_unit_test(
 )
 
 xnnpack_unit_test(
-    name = "x32_depth_to_space_chw2hwc_test",
+    name = "x32_depthtospace2d_chw2hwc_test",
     srcs = [
-        "test/x32-depth-to-space-chw2hwc.cc",
-        "test/depth-to-space-microkernel-tester.h",
+        "test/x32-depthtospace2d-chw2hwc.cc",
+        "test/depthtospace-microkernel-tester.h",
     ] + MICROKERNEL_TEST_HDRS,
     deps = MICROKERNEL_TEST_DEPS,
 )

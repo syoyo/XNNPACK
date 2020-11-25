@@ -92,6 +92,13 @@ static void init(void) {
     }
   #endif
 
+  /**************************** XX micro-kernels ****************************/
+  #ifndef XNN_NO_XX_OPERATORS
+    init_flags |= XNN_INIT_FLAG_XX;
+
+    xnn_params.xx.copy = (xnn_univector_ukernel_function) xnn_xx_copy_ukernel__memcpy;
+  #endif
+
   if (cpuinfo_has_arm_neon()) {
     /**************************** QS8 micro-kernels ****************************/
     #ifndef XNN_NO_QS8_OPERATORS
@@ -435,8 +442,8 @@ static void init(void) {
         .xm = (xnn_zipv_ukernel_function) xnn_x32_zip_xm_ukernel__neon,
       };
       #ifndef XNN_NO_NCHW_OPERATORS
-        xnn_params.x32.depth_to_space_chw2hwc = (struct depth_to_space_chw2hwc_parameters) {
-          .ukernel = (xnn_depth_to_space_chw2hwc_ukernel_function) xnn_x32_depth_to_space_chw2hwc_ukernel__scalar,
+        xnn_params.x32.depthtospace2d_chw2hwc = (struct depthtospace2d_chw2hwc_parameters) {
+          .ukernel = (xnn_depthtospace2d_chw2hwc_ukernel_function) xnn_x32_depthtospace2d_chw2hwc_ukernel__scalar,
           .channel_tile = 1,
           .pixel_tile = 1,
         };
@@ -723,8 +730,8 @@ static void init(void) {
         .xm = (xnn_zipv_ukernel_function) xnn_x32_zip_xm_ukernel__scalar,
       };
       #ifndef XNN_NO_NCHW_OPERATORS
-        xnn_params.x32.depth_to_space_chw2hwc = (struct depth_to_space_chw2hwc_parameters) {
-          .ukernel = (xnn_depth_to_space_chw2hwc_ukernel_function) xnn_x32_depth_to_space_chw2hwc_ukernel__scalar,
+        xnn_params.x32.depthtospace2d_chw2hwc = (struct depthtospace2d_chw2hwc_parameters) {
+          .ukernel = (xnn_depthtospace2d_chw2hwc_ukernel_function) xnn_x32_depthtospace2d_chw2hwc_ukernel__scalar,
           .channel_tile = 1,
           .pixel_tile = 1,
         };
@@ -733,6 +740,13 @@ static void init(void) {
   }
 
 #elif XNN_ARCH_ARM64
+
+  /**************************** XX micro-kernels ****************************/
+  #ifndef XNN_NO_XX_OPERATORS
+    init_flags |= XNN_INIT_FLAG_XX;
+
+    xnn_params.xx.copy = (xnn_univector_ukernel_function) xnn_xx_copy_ukernel__memcpy;
+  #endif
 
   /**************************** QS8 micro-kernels ****************************/
   #ifndef XNN_NO_QS8_OPERATORS
@@ -1353,8 +1367,8 @@ static void init(void) {
       .xm = (xnn_zipv_ukernel_function) xnn_x32_zip_xm_ukernel__neon,
     };
     #ifndef XNN_NO_NCHW_OPERATORS
-      xnn_params.x32.depth_to_space_chw2hwc = (struct depth_to_space_chw2hwc_parameters) {
-        .ukernel = (xnn_depth_to_space_chw2hwc_ukernel_function) xnn_x32_depth_to_space_chw2hwc_ukernel__scalar,
+      xnn_params.x32.depthtospace2d_chw2hwc = (struct depthtospace2d_chw2hwc_parameters) {
+        .ukernel = (xnn_depthtospace2d_chw2hwc_ukernel_function) xnn_x32_depthtospace2d_chw2hwc_ukernel__scalar,
         .channel_tile = 1,
         .pixel_tile = 1,
       };
@@ -1366,6 +1380,13 @@ static void init(void) {
     xnn_log_error("XNNPACK initialization failed: SSE2 is not supported");
     return;
   }
+
+  /**************************** XX micro-kernels ****************************/
+  #ifndef XNN_NO_XX_OPERATORS
+    init_flags |= XNN_INIT_FLAG_XX;
+
+    xnn_params.xx.copy = (xnn_univector_ukernel_function) xnn_xx_copy_ukernel__memcpy;
+  #endif
 
   /**************************** QS8 micro-kernels ****************************/
   #ifndef XNN_NO_QS8_OPERATORS
@@ -1939,12 +1960,21 @@ static void init(void) {
         .output_height_tile = 2,
         .output_width_tile = 2,
       };
-      xnn_params.f32.dwconv2d_chw_3x3 = (struct dwconv2d_chw_parameters) {
-        .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__sse_2x4_acc2,
-        .input_width_tile = 4,
-        .output_width_tile = 4,
-        .output_height_tile = 2,
-      };
+      if (!XNN_PLATFORM_MOBILE && cpuinfo_has_x86_ssse3()) {
+        xnn_params.f32.dwconv2d_chw_3x3 = (struct dwconv2d_chw_parameters) {
+          .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__ssse3_2x4_acc2,
+          .input_width_tile = 4,
+          .output_width_tile = 4,
+          .output_height_tile = 2,
+        };
+      } else {
+        xnn_params.f32.dwconv2d_chw_3x3 = (struct dwconv2d_chw_parameters) {
+          .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__sse_2x4_acc2,
+          .input_width_tile = 4,
+          .output_width_tile = 4,
+          .output_height_tile = 2,
+        };
+      }
       xnn_params.f32.dwconv2d_chw_3x3s2 = (struct dwconv2d_chw_parameters) {
         .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3s2p1__sse_1x4_acc3,
         .input_width_tile = 4,
@@ -1995,8 +2025,8 @@ static void init(void) {
       .xm = (xnn_zipv_ukernel_function) xnn_x32_zip_xm_ukernel__sse2,
     };
     #ifndef XNN_NO_NCHW_OPERATORS
-      xnn_params.x32.depth_to_space_chw2hwc = (struct depth_to_space_chw2hwc_parameters) {
-        .ukernel = (xnn_depth_to_space_chw2hwc_ukernel_function) xnn_x32_depth_to_space_chw2hwc_ukernel__scalar,
+      xnn_params.x32.depthtospace2d_chw2hwc = (struct depthtospace2d_chw2hwc_parameters) {
+        .ukernel = (xnn_depthtospace2d_chw2hwc_ukernel_function) xnn_x32_depthtospace2d_chw2hwc_ukernel__scalar,
         .channel_tile = 1,
         .pixel_tile = 1,
       };
@@ -2004,6 +2034,14 @@ static void init(void) {
   #endif  // XNN_NO_X32_OPERATORS
 
 #elif XNN_ARCH_WASMSIMD
+
+  /**************************** XX micro-kernels ****************************/
+  #ifndef XNN_NO_XX_OPERATORS
+    init_flags |= XNN_INIT_FLAG_XX;
+
+    xnn_params.xx.copy = (xnn_univector_ukernel_function) xnn_xx_copy_ukernel__memcpy;
+  #endif
+
   /**************************** QS8 micro-kernels ****************************/
   #ifndef XNN_NO_QS8_OPERATORS
     init_flags |= XNN_INIT_FLAG_QS8;
@@ -2410,17 +2448,17 @@ static void init(void) {
       }
       xnn_params.f32.conv_hwc2chw_3x3c3s2 = (struct conv_hwc2chw_parameters) {
         .ukernel_with_symm_padding =
-          (xnn_conv_hwc2chw_ukernel_function) xnn_f32_conv_hwc2chw_ukernel_3x3s2p1c3x4__psimd_2x2,
+          (xnn_conv_hwc2chw_ukernel_function) xnn_f32_conv_hwc2chw_ukernel_3x3s2p1c3x4__wasmsimd_2x2,
         .output_channel_tile = 4,
         .output_height_tile = 2,
         .output_width_tile = 2,
       };
       if (is_wasm_x86) {
         xnn_params.f32.dwconv2d_chw_3x3 = (struct dwconv2d_chw_parameters) {
-          .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__wasmsimd_x86_1x4_acc3,
+          .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__wasmsimd_x86_2x4,
           .input_width_tile = 4,
           .output_width_tile = 4,
-          .output_height_tile = 1,
+          .output_height_tile = 2,
         };
         xnn_params.f32.dwconv2d_chw_3x3s2 = (struct dwconv2d_chw_parameters) {
           .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3s2p1__wasmsimd_x86_1x4_acc3,
@@ -2442,10 +2480,10 @@ static void init(void) {
         };
       } else {
         xnn_params.f32.dwconv2d_chw_3x3 = (struct dwconv2d_chw_parameters) {
-          .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__wasmsimd_arm_1x4_acc3,
+          .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3p1__wasmsimd_arm_2x4,
           .input_width_tile = 4,
           .output_width_tile = 4,
-          .output_height_tile = 1,
+          .output_height_tile = 2,
         };
         xnn_params.f32.dwconv2d_chw_3x3s2 = (struct dwconv2d_chw_parameters) {
           .ukernel = (xnn_dwconv2d_chw_ukernel_function) xnn_f32_dwconv2d_chw_ukernel_3x3s2p1__wasmsimd_arm_1x4_acc3,
@@ -2505,8 +2543,8 @@ static void init(void) {
       .xm = (xnn_zipv_ukernel_function) xnn_x32_zip_xm_ukernel__wasmsimd,
     };
     #ifndef XNN_NO_NCHW_OPERATORS
-      xnn_params.x32.depth_to_space_chw2hwc = (struct depth_to_space_chw2hwc_parameters) {
-        .ukernel = (xnn_depth_to_space_chw2hwc_ukernel_function) xnn_x32_depth_to_space_chw2hwc_ukernel__scalar,
+      xnn_params.x32.depthtospace2d_chw2hwc = (struct depthtospace2d_chw2hwc_parameters) {
+        .ukernel = (xnn_depthtospace2d_chw2hwc_ukernel_function) xnn_x32_depthtospace2d_chw2hwc_ukernel__scalar,
         .channel_tile = 1,
         .pixel_tile = 1,
       };
@@ -2514,6 +2552,14 @@ static void init(void) {
   #endif  // XNN_NO_X32_OPERATORS
 
 #elif XNN_ARCH_WASM
+
+  /**************************** XX micro-kernels ****************************/
+  #ifndef XNN_NO_XX_OPERATORS
+    init_flags |= XNN_INIT_FLAG_XX;
+
+    xnn_params.xx.copy = (xnn_univector_ukernel_function) xnn_xx_copy_ukernel__memcpy;
+  #endif
+
   /**************************** QU8 micro-kernels ****************************/
   #ifndef XNN_NO_QU8_OPERATORS
     init_flags |= XNN_INIT_FLAG_QU8;
@@ -2827,8 +2873,8 @@ static void init(void) {
       .xm = (xnn_zipv_ukernel_function) xnn_x32_zip_xm_ukernel__scalar,
     };
     #ifndef XNN_NO_NCHW_OPERATORS
-      xnn_params.x32.depth_to_space_chw2hwc = (struct depth_to_space_chw2hwc_parameters) {
-        .ukernel = (xnn_depth_to_space_chw2hwc_ukernel_function) xnn_x32_depth_to_space_chw2hwc_ukernel__scalar,
+      xnn_params.x32.depthtospace2d_chw2hwc = (struct depthtospace2d_chw2hwc_parameters) {
+        .ukernel = (xnn_depthtospace2d_chw2hwc_ukernel_function) xnn_x32_depthtospace2d_chw2hwc_ukernel__scalar,
         .channel_tile = 1,
         .pixel_tile = 1,
       };

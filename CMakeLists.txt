@@ -63,7 +63,7 @@ IF(NOT CMAKE_SYSTEM_PROCESSOR)
   ELSE()
     MESSAGE(FATAL_ERROR "CMAKE_SYSTEM_PROCESSOR is not defined")
   ENDIF()
-ELSEIF(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86|x86_64|AMD64|armv[5-8].*|aarch64)$")
+ELSEIF(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86|x86_64|AMD64|armv[5-8].*|aarch64|arm64)$")
   MESSAGE(FATAL_ERROR "Unrecognized CMAKE_SYSTEM_PROCESSOR = ${CMAKE_SYSTEM_PROCESSOR}")
 ENDIF()
 
@@ -572,9 +572,13 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-vunary/gen/vsqr-scalar-x1.c
   src/f32-vunary/gen/vsqr-scalar-x2.c
   src/f32-vunary/gen/vsqr-scalar-x4.c
-  src/math/expminus-scalar-lut64-p2.c
-  src/math/expminus-scalar-lut2048-p1.c
-  src/math/expminus-scalar-p5.c
+  src/math/expm1minus-scalar-rr2-lut16-p3.c
+  src/math/expm1minus-scalar-rr2-lut16-p4.c
+  src/math/expm1minus-scalar-rr2-p5.c
+  src/math/expm1minus-scalar-rr2-p6.c
+  src/math/expminus-scalar-rr2-lut64-p2.c
+  src/math/expminus-scalar-rr2-lut2048-p1.c
+  src/math/expminus-scalar-rr2-p5.c
   src/math/roundd-scalar-addsub.c
   src/math/roundd-scalar-cvt.c
   src/math/roundd-scalar-floor.c
@@ -623,7 +627,7 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/x8-zip/x3-scalar.c
   src/x8-zip/x4-scalar.c
   src/x8-zip/xm-scalar.c
-  src/x32-depth-to-space-chw2hwc/scalar.c
+  src/x32-depthtospace2d-chw2hwc/scalar.c
   src/x32-fill/scalar-float.c
   src/x32-fill/scalar-int.c
   src/x32-packx/x2-scalar.c
@@ -635,10 +639,8 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/x32-zip/x2-scalar.c
   src/x32-zip/x3-scalar.c
   src/x32-zip/x4-scalar.c
-  src/x32-zip/xm-scalar.c)
-
-SET(XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS
-  src/f32-conv-hwc2chw/3x3s2p1c3x4-psimd-2x2.c)
+  src/x32-zip/xm-scalar.c
+  src/xx-copy/memcpy.c)
 
 SET(XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS
   src/qs8-requantization/fp32-psimd.c
@@ -1095,11 +1097,11 @@ SET(XNNPACK_NEONFMA_MICROKERNEL_SRCS
   src/f32-vsqrt/gen/neonfma-nr2fma1adj-x32.c
   src/f32-vsqrt/gen/neonfma-nr2fma1adj-x36.c
   src/f32-vsqrt/gen/neonfma-nr2fma1adj-x40.c
-  src/math/exp-neonfma-lut64-p2.c
-  src/math/exp-neonfma-p5.c
-  src/math/expminus-neonfma-lut64-p2.c
-  src/math/expminus-neonfma-lut2048-p1.c
-  src/math/expminus-neonfma-p5.c
+  src/math/exp-neonfma-rr2-lut64-p2.c
+  src/math/exp-neonfma-rr2-p5.c
+  src/math/expminus-neonfma-rr2-lut64-p2.c
+  src/math/expminus-neonfma-rr2-lut2048-p1.c
+  src/math/expminus-neonfma-rr2-p5.c
   src/math/sigmoid-neonfma-rr1-lut64-p2-nr1recps1fma.c
   src/math/sigmoid-neonfma-rr1-lut64-p2-nr2fma.c
   src/math/sigmoid-neonfma-rr1-lut64-p2-nr2recps.c
@@ -1566,9 +1568,11 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/f32-vrnd/gen/vrndu-sse2-x8.c
   src/f32-vrnd/gen/vrndz-sse2-x4.c
   src/f32-vrnd/gen/vrndz-sse2-x8.c
-  src/math/exp-sse2-lut64-p2.c
-  src/math/exp-sse2-p5.c
-  src/math/expminus-sse2-p5.c
+  src/math/exp-sse2-rr2-lut64-p2.c
+  src/math/exp-sse2-rr2-p5.c
+  src/math/expm1minus-sse2-rr2-p5.c
+  src/math/expm1minus-sse2-rr2-p6.c
+  src/math/expminus-sse2-rr2-p5.c
   src/math/roundd-sse2-cvt.c
   src/math/roundne-sse2-cvt.c
   src/math/roundu-sse2-cvt.c
@@ -1902,7 +1906,7 @@ SET(XNNPACK_AVX_MICROKERNEL_SRCS
   src/f32-vunary/gen/vneg-avx-x16.c
   src/f32-vunary/gen/vsqr-avx-x8.c
   src/f32-vunary/gen/vsqr-avx-x16.c
-  src/math/exp-avx-p5.c
+  src/math/exp-avx-rr2-p5.c
   src/math/sigmoid-avx-rr2-lut64-p2-div.c
   src/math/sigmoid-avx-rr2-p5-div.c
   src/math/sigmoid-avx-rr2-p5-nr1.c
@@ -2105,10 +2109,10 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/f32-vscaleextexp/gen/avx2-p5-x80.c
   src/f32-vscaleextexp/gen/avx2-p5-x88.c
   src/f32-vscaleextexp/gen/avx2-p5-x96.c
-  src/math/exp-avx2-lut8-p3-perm.c
-  src/math/exp-avx2-lut8-p4-perm.c
-  src/math/exp-avx2-p5.c
-  src/math/expminus-avx2-p5.c
+  src/math/exp-avx2-rr2-lut8-p3-perm.c
+  src/math/exp-avx2-rr2-lut8-p4-perm.c
+  src/math/exp-avx2-rr2-p5.c
+  src/math/expminus-avx2-rr2-p5.c
   src/math/extexp-avx2-p5.c
   src/math/sigmoid-avx2-rr1-lut64-p2-gather-div.c
   src/math/sigmoid-avx2-rr1-lut64-p2-gather-nr1fma.c
@@ -2353,12 +2357,12 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/f32-vunary/gen/vneg-avx512f-x32.c
   src/f32-vunary/gen/vsqr-avx512f-x16.c
   src/f32-vunary/gen/vsqr-avx512f-x32.c
-  src/math/exp-avx512f-lut16-p3-perm-scalef.c
-  src/math/exp-avx512f-lut16-p3-perm.c
-  src/math/exp-avx512f-lut32-p2-perm2-scalef.c
-  src/math/exp-avx512f-lut32-p2-perm2.c
-  src/math/exp-avx512f-p5-scalef.c
-  src/math/exp-avx512f-p5.c
+  src/math/exp-avx512f-rr2-lut16-p3-perm-scalef.c
+  src/math/exp-avx512f-rr2-lut16-p3-perm.c
+  src/math/exp-avx512f-rr2-lut32-p2-perm2-scalef.c
+  src/math/exp-avx512f-rr2-lut32-p2-perm2.c
+  src/math/exp-avx512f-rr2-p5-scalef.c
+  src/math/exp-avx512f-rr2-p5.c
   src/math/extexp-avx512f-p5.c
   src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-div.c
   src/math/sigmoid-avx512f-rr1-lut16-p3-perm-scalef-nr1fma.c
@@ -2497,7 +2501,6 @@ SET(XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS
 
 SET(XNNPACK_MICROKERNEL_SRCS ${XNNPACK_SCALAR_MICROKERNEL_SRCS})
 IF(NOT EMSCRIPTEN AND NOT MSVC AND NOT CMAKE_C_COMPILER_ID STREQUAL "Intel")
-  LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS})
   LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS})
 ENDIF()
 IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[5-8]" OR IOS_ARCH MATCHES "^armv7")
@@ -2507,7 +2510,7 @@ IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[5-8]" OR IOS_ARCH MATCHES "^armv7")
   LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_NEONDOT_MICROKERNEL_SRCS})
   LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_AARCH32_ASM_MICROKERNEL_SRCS})
 ENDIF()
-IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR IOS_ARCH MATCHES "^arm64.*")
+IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$" OR IOS_ARCH MATCHES "^arm64.*")
   LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_NEON_MICROKERNEL_SRCS})
   LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_NEONFMA_MICROKERNEL_SRCS})
   LIST(APPEND XNNPACK_MICROKERNEL_SRCS ${XNNPACK_NEONV8_MICROKERNEL_SRCS})
@@ -2543,7 +2546,7 @@ SET_TARGET_PROPERTIES(XNNPACK PROPERTIES
   C_EXTENSIONS YES)
 IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[5-8]" OR IOS_ARCH MATCHES "^armv7")
   SET_PROPERTY(SOURCE ${XNNPACK_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -marm ")
-  SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv7-a -mfpu=neon ")
+  SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv7-a -mfpu=neon ")
   SET_PROPERTY(SOURCE ${XNNPACK_NEON_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv7-a -mfpu=neon ")
   SET_PROPERTY(SOURCE ${XNNPACK_NEONFMA_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv7-a -mfpu=neon-vfpv4 ")
   SET_PROPERTY(SOURCE ${XNNPACK_NEONV8_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv8-a -mfpu=neon-fp-armv8 ")
@@ -2560,7 +2563,7 @@ IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^armv[5-8]" OR IOS_ARCH MATCHES "^armv7")
     SET_PROPERTY(SOURCE ${XNNPACK_NEONDOT_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -mfloat-abi=softfp ")
   ENDIF()
 ENDIF()
-IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR IOS_ARCH MATCHES "^arm64.*")
+IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64)$" OR IOS_ARCH MATCHES "^arm64.*")
   SET_PROPERTY(SOURCE ${XNNPACK_AARCH64_NEONFP16ARITH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv8.2-a+fp16 ")
   SET_PROPERTY(SOURCE ${XNNPACK_NEONDOT_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv8.2-a+dotprod ")
   SET_PROPERTY(SOURCE ${XNNPACK_AARCH64_ASM_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -march=armv8.2-a+fp16+dotprod ")
@@ -2584,7 +2587,6 @@ IF(CMAKE_SYSTEM_PROCESSOR MATCHES "^(i[3-6]86|x86|x86_64|AMD64)$" OR IOS_ARCH MA
     SET_PROPERTY(SOURCE ${XNNPACK_AVX512SKX_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " /arch:AVX512 ")
   ELSE()
     SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -msse2 ")
-    SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -msse2 ")
     SET_PROPERTY(SOURCE ${XNNPACK_SSE_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -msse ")
     SET_PROPERTY(SOURCE ${XNNPACK_SSE2_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -msse2 ")
     SET_PROPERTY(SOURCE ${XNNPACK_SSSE3_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -mssse3 ")
@@ -2634,11 +2636,9 @@ IF(NOT EMSCRIPTEN)
   IF(${CMAKE_VERSION} VERSION_LESS "3.8.0")
     IF(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
       SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O3 ")
-      SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS " -O3 -ffast-math ")
     ENDIF()
   ELSE()
     SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_ACCMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O3 >")
-    SET_PROPERTY(SOURCE ${XNNPACK_PSIMD_FASTMATH_MICROKERNEL_SRCS} APPEND_STRING PROPERTY COMPILE_FLAGS "$<$<NOT:$<CONFIG:Debug>>: -O3 -ffast-math >")
   ENDIF()
 ENDIF()
 
@@ -4337,6 +4337,14 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_EXTENSIONS NO)
   TARGET_INCLUDE_DIRECTORIES(f32-expminus-eval PRIVATE src)
   TARGET_LINK_LIBRARIES(f32-expminus-eval PRIVATE XNNPACK benchmark fp16)
+
+  ADD_EXECUTABLE(f32-expm1minus-eval eval/f32-expm1minus.cc)
+  SET_TARGET_PROPERTIES(f32-expm1minus-eval PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(f32-expm1minus-eval PRIVATE src)
+  TARGET_LINK_LIBRARIES(f32-expm1minus-eval PRIVATE XNNPACK benchmark fp16)
 
   ADD_EXECUTABLE(f32-extexp-eval eval/f32-extexp.cc)
   SET_TARGET_PROPERTIES(f32-extexp-eval PROPERTIES
