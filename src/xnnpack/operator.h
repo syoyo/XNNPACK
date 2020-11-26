@@ -55,6 +55,7 @@ enum xnn_operator_type {
   xnn_operator_type_deconvolution_nhwc_f32,
   xnn_operator_type_deconvolution_nhwc_qu8,
   xnn_operator_type_depth_to_space_nchw2nhwc_x32,
+  xnn_operator_type_depth_to_space_nhwc_x32,
   xnn_operator_type_divide_nd_f32,
   xnn_operator_type_fully_connected_nc_f32,
   xnn_operator_type_fully_connected_nc_qu8,
@@ -214,10 +215,8 @@ struct xnn_operator {
   size_t input_width;
   size_t input_pixel_stride;
   const void* input;
-  const void** indirection_buffer;
-
-  size_t input2_pixel_stride;
   const void* input2;
+  const void** indirection_buffer;
 
   size_t output_height;
   size_t output_width;
@@ -312,6 +311,7 @@ struct xnn_operator {
     struct dwconv2d_context dwconv2d;
     struct dwconv_context dwconv;
     struct depthtospace2d_chw2hwc_context depthtospace2d_chw;
+    struct depthtospace2d_hwc_context depthtospace2d_hwc;
     struct elementwise_binary_context elementwise_binary;
     struct gemm_context gemm;
     struct global_average_pooling_nwc_context global_average_pooling_nwc;
