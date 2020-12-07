@@ -14,7 +14,7 @@
 
 #include <benchmark/benchmark.h>
 #include <fp16/fp16.h>
-#include "bench/gemm.h"
+#include "bench/spmm.h"
 #include "bench/utils.h"
 #include <xnnpack/AlignedAllocator.h>
 #include <xnnpack/common.h>
@@ -155,7 +155,11 @@ static void SpMMBenchmark(benchmark::State& state,
       &params);
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * num_nonzeroes, benchmark::Counter::kIsRate);
 
@@ -190,14 +194,14 @@ static void SpMMBenchmark(benchmark::State& state,
     SpMMBenchmark(state, xnn_f16_spmm_minmax_ukernel_32x1__neonfp16arith_x2, 32, 1, 0.8f);
   }
 
-  BENCHMARK_GEMM(spmm80_8x1__neonfp16arith)
-  BENCHMARK_GEMM(spmm80_8x1__neonfp16arith_x2)
-  BENCHMARK_GEMM(spmm80_16x1__neonfp16arith)
-  BENCHMARK_GEMM(spmm80_16x1__neonfp16arith_x2)
-  BENCHMARK_GEMM(spmm80_24x1__neonfp16arith)
-  BENCHMARK_GEMM(spmm80_24x1__neonfp16arith_x2)
-  BENCHMARK_GEMM(spmm80_32x1__neonfp16arith)
-  BENCHMARK_GEMM(spmm80_32x1__neonfp16arith_x2)
+  BENCHMARK_SPMM(spmm80_8x1__neonfp16arith)
+  BENCHMARK_SPMM(spmm80_8x1__neonfp16arith_x2)
+  BENCHMARK_SPMM(spmm80_16x1__neonfp16arith)
+  BENCHMARK_SPMM(spmm80_16x1__neonfp16arith_x2)
+  BENCHMARK_SPMM(spmm80_24x1__neonfp16arith)
+  BENCHMARK_SPMM(spmm80_24x1__neonfp16arith_x2)
+  BENCHMARK_SPMM(spmm80_32x1__neonfp16arith)
+  BENCHMARK_SPMM(spmm80_32x1__neonfp16arith_x2)
 #endif  // XNN_ARCH_ARM64
 
 #ifndef XNNPACK_BENCHMARK_NO_MAIN

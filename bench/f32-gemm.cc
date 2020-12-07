@@ -15,8 +15,6 @@
 #include <random>
 #include <vector>
 
-#include <cpuinfo.h>
-
 #include <benchmark/benchmark.h>
 #ifdef BENCHMARK_RUY
 #include "ruy/ruy.h"
@@ -38,10 +36,6 @@ static void GEMMBenchmark(benchmark::State& state,
   size_t mr, size_t nr, size_t kr, size_t sr,
   benchmark::utils::IsaCheckFunction isa_check = nullptr)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
-    return;
-  }
   if (isa_check && !isa_check(state)) {
     return;
   }
@@ -101,7 +95,11 @@ static void GEMMBenchmark(benchmark::State& state,
     }
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
@@ -112,10 +110,6 @@ static void PPMM1PBenchmark(benchmark::State& state,
   size_t mr, size_t nr,
   benchmark::utils::IsaCheckFunction isa_check = nullptr)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
-    return;
-  }
   if (isa_check && !isa_check(state)) {
     return;
   }
@@ -177,7 +171,11 @@ static void PPMM1PBenchmark(benchmark::State& state,
     }
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
@@ -188,10 +186,6 @@ static void PPMM2PBenchmark(benchmark::State& state,
   size_t mr, size_t nr,
   benchmark::utils::IsaCheckFunction isa_check = nullptr)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
-    return;
-  }
   if (isa_check && !isa_check(state)) {
     return;
   }
@@ -257,7 +251,11 @@ static void PPMM2PBenchmark(benchmark::State& state,
     }
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
@@ -335,7 +333,11 @@ static void RuyBenchmark(benchmark::State& state, uint32_t threads)
     ruy::Mul(ruy_a, ruy_b, mul_params, &context, &ruy_c);
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }

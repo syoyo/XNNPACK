@@ -23,6 +23,7 @@ XNNPACK implements the following neural network operators:
 - 2D ArgMax Pooling (Max Pooling + indices)
 - 2D Unpooling
 - 2D Bilinear Resize
+- 2D Depth-to-Space (AKA Pixel Shuffle)
 - Add (including broadcasting, two inputs only)
 - Subtract (including broadcasting)
 - Divide (including broadcasting)
@@ -38,6 +39,7 @@ XNNPACK implements the following neural network operators:
 - Ceiling (rounding to integer above)
 - Clamp (includes ReLU and ReLU6)
 - Copy
+- ELU
 - Floor (rounding to integer below)
 - HardSwish
 - Leaky ReLU
@@ -106,6 +108,8 @@ Benchmarked on May 22, 2020 with `end2end-bench --benchmark_min_time=5` on a Ras
 - [TensorFlow.js WebAssembly backend](https://blog.tensorflow.org/2020/03/introducing-webassembly-backend-for-tensorflow-js.html).
 - [PyTorch Mobile](https://pytorch.org/mobile).
 - [MediaPipe for the Web](https://developers.googleblog.com/2020/01/mediapipe-on-web.html).
+- [Alibaba HALO (Heterogeneity-Aware Lowering and Optimization)](https://github.com/alibaba/heterogeneity-aware-lowering-and-optimization)
+- [Samsung ONE (On-device Neural Engine)](https://github.com/Samsung/ONE)
 
 ## Acknowledgements
 

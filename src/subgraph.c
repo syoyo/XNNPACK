@@ -206,8 +206,9 @@ uint32_t xnn_check_nchw_compatibility(xnn_subgraph_t subgraph, struct xnn_node* 
         default:
           return 0;
       }
-    case xnn_node_type_global_average_pooling_2d:
     case xnn_node_type_depth_to_space:
+      return XNN_LAYOUT_FLAG_COMPATIBLE_NCHW2NHWC;
+    case xnn_node_type_global_average_pooling_2d:
       return XNN_LAYOUT_FLAG_COMPATIBLE_NCHW | XNN_LAYOUT_FLAG_COMPATIBLE_NCHW2NHWC;
     case xnn_node_type_add2:
     case xnn_node_type_multiply2:
@@ -624,7 +625,9 @@ enum xnn_status xnn_subgraph_optimize(
   }
 
   #if XNN_ENABLE_SPARSE
-    xnn_subgraph_rewrite_for_nchw(subgraph);
+    if (flags & XNN_ENABLE_SPARSE_INFERENCE) {
+      xnn_subgraph_rewrite_for_nchw(subgraph);
+    }
   #endif
 
   return xnn_status_success;

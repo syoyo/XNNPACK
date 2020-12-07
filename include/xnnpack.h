@@ -27,6 +27,11 @@ extern "C" {
 /// Maximum number of dimensions in tensor shape.
 #define XNN_MAX_TENSOR_DIMS 6
 
+/// Allow sparse inference in a Runtime.
+///
+/// Note: this flag forces XNNPACK to consider sparse inference, but does not guarantee it.
+#define XNN_FLAG_SPARSE_INFERENCE 0x00000001
+
 /// The convolution operator represents a depthwise convolution, and use HWGo layout for filters.
 #define XNN_FLAG_DEPTHWISE_CONVOLUTION 0x00000001
 
@@ -909,6 +914,21 @@ enum xnn_status xnn_define_clamp(
   uint32_t output_id,
   uint32_t flags);
 
+/// Define an ELU (Exponential Linear Unit) Node and add it to a Subgraph.
+///
+/// @param subgraph - a Subgraph object that will own the created Node.
+/// @param alpha - scale factor for negative output elements.
+/// @param input_id - Value ID for the input tensor. The input tensor must be defined in the @a subgraph.
+/// @param output_id - Value ID for the output tensor. The output tensor must be defined in the @a subgraph, and its
+///                    shape must match the shape of the input tensor.
+/// @param flags - binary features of the ELU Node. No supported flags are currently defined.
+enum xnn_status xnn_define_elu(
+  xnn_subgraph_t subgraph,
+  float alpha,
+  uint32_t input_id,
+  uint32_t output_id,
+  uint32_t flags);
+
 /// Define a Floor Node and add it to a Subgraph.
 ///
 /// @param subgraph - a Subgraph object that will own the created Node.
@@ -1019,13 +1039,13 @@ enum xnn_status xnn_define_square_root(
 /// Runtime is a combination of an execution plan for subgraph Nodes and a memory manager for subgraph Values.
 typedef struct xnn_runtime* xnn_runtime_t;
 
-/// Create a empty Runtime object from a subgraph.
+/// Create a Runtime object from a subgraph.
 ///
 /// @param subgraph - a Subgraph object with all Values and Nodes that would be handled by the runtime. No Values or
 ///                   Nodes can be added to the runtime once it is constructed.
 /// @param threadpool - the thread pool to be used for parallelisation of computations in the runtime. If the thread
 ///                     pool is NULL, the computation would run on the caller thread without parallelization.
-/// @param flags - binary features of the subgraph. No supported flags are currently defined.
+/// @param flags - binary features of the runtime. The only currently supported value is XNN_FLAG_SPARSE_INFERENCE.
 /// @param runtime_out - pointer to the variable that will be initialized with a handle to the Runtime object upon
 ///                      successful return. Once constructed, the Runtime object is independent of the Subgraph object
 ///                      used to create it.
@@ -1283,6 +1303,21 @@ enum xnn_status xnn_setup_divide_nd_f32(
   const size_t* input2_shape,
   const float* input1,
   const float* input2,
+  float* output,
+  pthreadpool_t threadpool);
+
+enum xnn_status xnn_create_elu_nc_f32(
+  size_t channels,
+  size_t input_stride,
+  size_t output_stride,
+  float alpha,
+  uint32_t flags,
+  xnn_operator_t* elu_op_out);
+
+enum xnn_status xnn_setup_elu_nc_f32(
+  xnn_operator_t elu_op,
+  size_t batch_size,
+  const float* input,
   float* output,
   pthreadpool_t threadpool);
 

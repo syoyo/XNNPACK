@@ -25,10 +25,11 @@
 
 static void DConvHWC2CHW3X3S2P1Benchmark(benchmark::State& state,
   xnn_f32_conv_hwc2chw_ukernel_function conv,
-  uint32_t output_channels_tile)
+  uint32_t output_channels_tile,
+  benchmark::utils::IsaCheckFunction isa_check = nullptr)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
+  if (isa_check && !isa_check(state)) {
+    return;
   }
 
   const size_t input_height = state.range(0);
@@ -100,7 +101,11 @@ static void DConvHWC2CHW3X3S2P1Benchmark(benchmark::State& state,
       &params);
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 *
       output_height * output_width *
@@ -111,7 +116,7 @@ static void DConvHWC2CHW3X3S2P1Benchmark(benchmark::State& state,
 
 #if XNN_ARCH_ARM64
   static void f32_conv_hwc2chw_3x3s2p1c3x4__neonfma_2x2(benchmark::State& state, const char* net) {
-    DConvHWC2CHW3X3S2P1Benchmark(state, xnn_f32_conv_hwc2chw_ukernel_3x3s2p1c3x4__neonfma_2x2, 4);
+    DConvHWC2CHW3X3S2P1Benchmark(state, xnn_f32_conv_hwc2chw_ukernel_3x3s2p1c3x4__neonfma_2x2, 4, benchmark::utils::CheckNEONFMA);
   }
 
   BENCHMARK_DCONV(f32_conv_hwc2chw_3x3s2p1c3x4__neonfma_2x2);

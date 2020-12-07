@@ -16,8 +16,6 @@
 #include <random>
 #include <vector>
 
-#include <cpuinfo.h>
-
 #include <benchmark/benchmark.h>
 #ifdef BENCHMARK_GEMMLOWP
 #include "gemmlowp/public/gemmlowp.h"
@@ -37,13 +35,9 @@
 
 static void GEMMBenchmark(benchmark::State& state,
   xnn_qu8_gemm_ukernel_function gemm,
-  size_t mr, size_t nr, size_t kr, size_t sr)
+  size_t mr, size_t nr, size_t kr, size_t sr,
+  benchmark::utils::IsaCheckFunction isa_check = nullptr)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
-    return;
-  }
-
   const size_t mc = state.range(0);
   const size_t nc = state.range(1);
   const size_t kc = state.range(2);
@@ -104,7 +98,11 @@ static void GEMMBenchmark(benchmark::State& state,
     }
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["OPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
@@ -145,11 +143,6 @@ struct GemmlowpOutputPipeline {
 
 static void GemmlowpBenchmark(benchmark::State& state, uint32_t threads)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
-    return;
-  }
-
   const size_t mc = state.range(0);
   const size_t nc = state.range(1);
   const size_t kc = state.range(2);
@@ -194,7 +187,11 @@ static void GemmlowpBenchmark(benchmark::State& state, uint32_t threads)
         &threadingContext, AM, BM, &CM, 127, 127, outputPipeline);
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["OPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
@@ -284,7 +281,11 @@ static void RuyBenchmark(benchmark::State& state, size_t threads)
     ruy::Mul(ruy_a, ruy_b, mul_params, &context, &ruy_c);
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["OPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 * mc * nc * kc, benchmark::Counter::kIsRate);
 }
@@ -298,11 +299,11 @@ static void ruy_st(benchmark::State& state, const char* net)
 
 #if XNN_ARCH_ARM || XNN_ARCH_ARM64
   static void qu8_gemm_4x8__neon(benchmark::State& state, const char* net) {
-    GEMMBenchmark(state, xnn_qu8_gemm_minmax_ukernel_4x8__neon, 4, 8, 1, 1);
+    GEMMBenchmark(state, xnn_qu8_gemm_minmax_ukernel_4x8__neon, 4, 8, 1, 1, benchmark::utils::CheckNEON);
   }
 
   static void qu8_gemm_8x8__neon(benchmark::State& state, const char* net) {
-    GEMMBenchmark(state, xnn_qu8_gemm_minmax_ukernel_8x8__neon, 8, 8, 1, 1);
+    GEMMBenchmark(state, xnn_qu8_gemm_minmax_ukernel_8x8__neon, 8, 8, 1, 1, benchmark::utils::CheckNEON);
   }
 
   BENCHMARK_GEMM(qu8_gemm_4x8__neon)

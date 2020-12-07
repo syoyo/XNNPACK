@@ -10,8 +10,6 @@
 #include <random>
 #include <vector>
 
-#include <cpuinfo.h>
-
 #include <benchmark/benchmark.h>
 #include "bench/conv.h"
 #include "bench/utils.h"
@@ -26,10 +24,10 @@
 
 static void Im2ColGEMMBenchmark(benchmark::State& state,
   xnn_f32_gemm_minmax_ukernel_function f32_gemm,
-  uint32_t mr, uint32_t nr, uint32_t kr, uint32_t sr)
+  uint32_t mr, uint32_t nr, uint32_t kr, uint32_t sr,
+  benchmark::utils::IsaCheckFunction isa_check = nullptr)
 {
-  if (!cpuinfo_initialize()) {
-    state.SkipWithError("cpuinfo initialization failed");
+  if (isa_check && !isa_check(state)) {
     return;
   }
 
@@ -124,7 +122,11 @@ static void Im2ColGEMMBenchmark(benchmark::State& state,
     }
   }
 
-  state.counters["Freq"] = benchmark::utils::GetCurrentCpuFrequency();
+  const uint64_t cpu_frequency = benchmark::utils::GetCurrentCpuFrequency();
+  if (cpu_frequency != 0) {
+    state.counters["cpufreq"] = cpu_frequency;
+  }
+
   state.counters["FLOPS"] = benchmark::Counter(
     uint64_t(state.iterations()) * 2 *
       output_height * output_width *

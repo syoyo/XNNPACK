@@ -194,6 +194,7 @@ SET(XNNPACK_SUBGRAPH_SRCS
   src/subgraph/depth-to-space.c
   src/subgraph/depthwise-convolution-2d.c
   src/subgraph/divide.c
+  src/subgraph/elu.c
   src/subgraph/floor.c
   src/subgraph/fully-connected.c
   src/subgraph/global-average-pooling-2d.c
@@ -546,6 +547,18 @@ SET(XNNPACK_SCALAR_MICROKERNEL_SRCS
   src/f32-vbinary/gen/vsubc-scalar-x2.c
   src/f32-vbinary/gen/vsubc-scalar-x4.c
   src/f32-vbinary/gen/vsubc-scalar-x8.c
+  src/f32-velu/gen/velu-scalar-rr2-lut16-p3-x1.c
+  src/f32-velu/gen/velu-scalar-rr2-lut16-p3-x2.c
+  src/f32-velu/gen/velu-scalar-rr2-lut16-p3-x3.c
+  src/f32-velu/gen/velu-scalar-rr2-lut16-p3-x4.c
+  src/f32-velu/gen/velu-scalar-rr2-lut16-p3-x5.c
+  src/f32-velu/gen/velu-scalar-rr2-lut16-p3-x6.c
+  src/f32-velu/gen/velu-scalar-rr2-p6-x1.c
+  src/f32-velu/gen/velu-scalar-rr2-p6-x2.c
+  src/f32-velu/gen/velu-scalar-rr2-p6-x3.c
+  src/f32-velu/gen/velu-scalar-rr2-p6-x4.c
+  src/f32-velu/gen/velu-scalar-rr2-p6-x5.c
+  src/f32-velu/gen/velu-scalar-rr2-p6-x6.c
   src/f32-vlrelu/gen/vlrelu-scalar-x1.c
   src/f32-vlrelu/gen/vlrelu-scalar-x2.c
   src/f32-vlrelu/gen/vlrelu-scalar-x4.c
@@ -820,7 +833,6 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-relu/gen/neon-x4.c
   src/f32-relu/gen/neon-x8.c
   src/f32-rmax/neon.c
-  src/f32-sigmoid/gen/neon-frac-p9-p10-nr1recps-x16.c
   src/f32-sigmoid/gen/neon-rr2-lut64-p2-nr2recps-x4.c
   src/f32-sigmoid/gen/neon-rr2-lut64-p2-nr2recps-x8.c
   src/f32-sigmoid/gen/neon-rr2-lut64-p2-nr2recps-x12.c
@@ -839,6 +851,19 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-sigmoid/gen/neon-rr2-p5-nr2recps-x16.c
   src/f32-sigmoid/gen/neon-rr2-p5-nr2recps-x20.c
   src/f32-sigmoid/gen/neon-rr2-p5-nr2recps-x24.c
+  src/f32-spmm/gen/4x1-minmax-neon-pipelined.c
+  src/f32-spmm/gen/4x1-minmax-neon-x2.c
+  src/f32-spmm/gen/4x1-minmax-neon.c
+  src/f32-spmm/gen/8x1-minmax-neon-pipelined.c
+  src/f32-spmm/gen/8x1-minmax-neon-x2.c
+  src/f32-spmm/gen/8x1-minmax-neon.c
+  src/f32-spmm/gen/12x1-minmax-neon.c
+  src/f32-spmm/gen/16x1-minmax-neon-pipelined.c
+  src/f32-spmm/gen/16x1-minmax-neon-x2.c
+  src/f32-spmm/gen/16x1-minmax-neon.c
+  src/f32-spmm/gen/32x1-minmax-neon-pipelined.c
+  src/f32-spmm/gen/32x1-minmax-neon-x2.c
+  src/f32-spmm/gen/32x1-minmax-neon.c
   src/f32-vbinary/gen/vadd-minmax-neon-x4.c
   src/f32-vbinary/gen/vadd-minmax-neon-x8.c
   src/f32-vbinary/gen/vaddc-minmax-neon-x4.c
@@ -865,6 +890,18 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-vbinary/gen/vsub-minmax-neon-x8.c
   src/f32-vbinary/gen/vsubc-minmax-neon-x4.c
   src/f32-vbinary/gen/vsubc-minmax-neon-x8.c
+  src/f32-velu/gen/velu-neon-rr2-lut16-p3-x4.c
+  src/f32-velu/gen/velu-neon-rr2-lut16-p3-x8.c
+  src/f32-velu/gen/velu-neon-rr2-lut16-p3-x12.c
+  src/f32-velu/gen/velu-neon-rr2-lut16-p3-x16.c
+  src/f32-velu/gen/velu-neon-rr2-lut16-p3-x20.c
+  src/f32-velu/gen/velu-neon-rr2-lut16-p3-x24.c
+  src/f32-velu/gen/velu-neon-rr2-p6-x4.c
+  src/f32-velu/gen/velu-neon-rr2-p6-x8.c
+  src/f32-velu/gen/velu-neon-rr2-p6-x12.c
+  src/f32-velu/gen/velu-neon-rr2-p6-x16.c
+  src/f32-velu/gen/velu-neon-rr2-p6-x20.c
+  src/f32-velu/gen/velu-neon-rr2-p6-x24.c
   src/f32-vlrelu/gen/vlrelu-neon-x4.c
   src/f32-vlrelu/gen/vlrelu-neon-x8.c
   src/f32-vmulcaddc/gen/c4-minmax-neon-2x.c
@@ -892,10 +929,6 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/math/roundu-neon-cvt.c
   src/math/roundz-neon-addsub.c
   src/math/roundz-neon-cvt.c
-  src/math/sigmoid-neon-frac-p9-p10-nr1recps.c
-  src/math/sigmoid-neon-rr1-lut64-p2-nr2recps.c
-  src/math/sigmoid-neon-rr1-lut2048-p1-nr2recps.c
-  src/math/sigmoid-neon-rr1-p5-nr2recps.c
   src/math/sigmoid-neon-rr2-lut64-p2-nr2recps.c
   src/math/sigmoid-neon-rr2-lut2048-p1-nr2recps.c
   src/math/sigmoid-neon-rr2-p5-nr2recps.c
@@ -1084,6 +1117,31 @@ SET(XNNPACK_NEONFMA_MICROKERNEL_SRCS
   src/f32-sigmoid/gen/neonfma-rr1-p5-nr2recps-x16.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-nr2recps-x20.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-nr2recps-x24.c
+  src/f32-spmm/gen/4x1-minmax-neonfma-pipelined.c
+  src/f32-spmm/gen/4x1-minmax-neonfma-x2.c
+  src/f32-spmm/gen/4x1-minmax-neonfma.c
+  src/f32-spmm/gen/8x1-minmax-neonfma-pipelined.c
+  src/f32-spmm/gen/8x1-minmax-neonfma-x2.c
+  src/f32-spmm/gen/8x1-minmax-neonfma.c
+  src/f32-spmm/gen/12x1-minmax-neonfma.c
+  src/f32-spmm/gen/16x1-minmax-neonfma-pipelined.c
+  src/f32-spmm/gen/16x1-minmax-neonfma-x2.c
+  src/f32-spmm/gen/16x1-minmax-neonfma.c
+  src/f32-spmm/gen/32x1-minmax-neonfma-pipelined.c
+  src/f32-spmm/gen/32x1-minmax-neonfma-x2.c
+  src/f32-spmm/gen/32x1-minmax-neonfma.c
+  src/f32-velu/gen/velu-neonfma-rr1-lut16-p3-x4.c
+  src/f32-velu/gen/velu-neonfma-rr1-lut16-p3-x8.c
+  src/f32-velu/gen/velu-neonfma-rr1-lut16-p3-x12.c
+  src/f32-velu/gen/velu-neonfma-rr1-lut16-p3-x16.c
+  src/f32-velu/gen/velu-neonfma-rr1-lut16-p3-x20.c
+  src/f32-velu/gen/velu-neonfma-rr1-lut16-p3-x24.c
+  src/f32-velu/gen/velu-neonfma-rr1-p6-x4.c
+  src/f32-velu/gen/velu-neonfma-rr1-p6-x8.c
+  src/f32-velu/gen/velu-neonfma-rr1-p6-x12.c
+  src/f32-velu/gen/velu-neonfma-rr1-p6-x16.c
+  src/f32-velu/gen/velu-neonfma-rr1-p6-x20.c
+  src/f32-velu/gen/velu-neonfma-rr1-p6-x24.c
   src/f32-vmulcaddc/gen/c4-minmax-neonfma-2x.c
   src/f32-vmulcaddc/gen/c8-minmax-neonfma-2x.c
   src/f32-vsqrt/gen/neonfma-nr1rsqrts1fma1adj-x4.c
@@ -1108,11 +1166,11 @@ SET(XNNPACK_NEONFMA_MICROKERNEL_SRCS
   src/f32-vsqrt/gen/neonfma-nr2fma1adj-x40.c
   src/math/exp-neonfma-rr2-lut64-p2.c
   src/math/exp-neonfma-rr2-p5.c
+  src/math/expm1minus-neonfma-rr1-lut16-p3.c
+  src/math/expm1minus-neonfma-rr1-p6.c
   src/math/expminus-neonfma-rr2-lut64-p2.c
   src/math/expminus-neonfma-rr2-lut2048-p1.c
   src/math/expminus-neonfma-rr2-p5.c
-  src/math/expm1minus-neonfma-rr1-lut16-p3.c
-  src/math/expm1minus-neonfma-rr1-p6.c
   src/math/sigmoid-neonfma-rr1-lut64-p2-nr1recps1fma.c
   src/math/sigmoid-neonfma-rr1-lut64-p2-nr2fma.c
   src/math/sigmoid-neonfma-rr1-lut64-p2-nr2recps.c
@@ -1240,27 +1298,14 @@ SET(XNNPACK_AARCH64_NEONFMA_MICROKERNEL_SRCS
   src/f32-sigmoid/gen/neonfma-rr1-p5-div-x16.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-div-x20.c
   src/f32-sigmoid/gen/neonfma-rr1-p5-div-x24.c
-  src/f32-spmm/gen/4x1-minmax-neonfma-pipelined.c
-  src/f32-spmm/gen/4x1-minmax-neonfma-x2.c
-  src/f32-spmm/gen/4x1-minmax-neonfma.c
   src/f32-spmm/gen/4x2-minmax-neonfma.c
   src/f32-spmm/gen/4x4-minmax-neonfma.c
-  src/f32-spmm/gen/8x1-minmax-neonfma-pipelined.c
-  src/f32-spmm/gen/8x1-minmax-neonfma-x2.c
-  src/f32-spmm/gen/8x1-minmax-neonfma.c
   src/f32-spmm/gen/8x2-minmax-neonfma.c
   src/f32-spmm/gen/8x4-minmax-neonfma.c
-  src/f32-spmm/gen/12x1-minmax-neonfma.c
   src/f32-spmm/gen/12x2-minmax-neonfma.c
   src/f32-spmm/gen/12x4-minmax-neonfma.c
-  src/f32-spmm/gen/16x1-minmax-neonfma-pipelined.c
-  src/f32-spmm/gen/16x1-minmax-neonfma-x2.c
-  src/f32-spmm/gen/16x1-minmax-neonfma.c
   src/f32-spmm/gen/16x2-minmax-neonfma.c
   src/f32-spmm/gen/16x4-minmax-neonfma.c
-  src/f32-spmm/gen/32x1-minmax-neonfma-pipelined.c
-  src/f32-spmm/gen/32x1-minmax-neonfma-x2.c
-  src/f32-spmm/gen/32x1-minmax-neonfma.c
   src/f32-spmm/gen/32x2-minmax-neonfma.c
   src/f32-spmm/gen/32x4-minmax-neonfma.c
   src/f32-vbinary/gen/vdiv-minmax-neon-x4.c
@@ -1569,6 +1614,18 @@ SET(XNNPACK_SSE2_MICROKERNEL_SRCS
   src/f32-sigmoid/gen/sse2-p5-div-x16.c
   src/f32-sigmoid/gen/sse2-p5-div-x20.c
   src/f32-sigmoid/gen/sse2-p5-div-x24.c
+  src/f32-velu/gen/velu-sse2-rr2-lut16-p3-x4.c
+  src/f32-velu/gen/velu-sse2-rr2-lut16-p3-x8.c
+  src/f32-velu/gen/velu-sse2-rr2-lut16-p3-x12.c
+  src/f32-velu/gen/velu-sse2-rr2-lut16-p3-x16.c
+  src/f32-velu/gen/velu-sse2-rr2-lut16-p3-x20.c
+  src/f32-velu/gen/velu-sse2-rr2-lut16-p3-x24.c
+  src/f32-velu/gen/velu-sse2-rr2-p6-x4.c
+  src/f32-velu/gen/velu-sse2-rr2-p6-x8.c
+  src/f32-velu/gen/velu-sse2-rr2-p6-x12.c
+  src/f32-velu/gen/velu-sse2-rr2-p6-x16.c
+  src/f32-velu/gen/velu-sse2-rr2-p6-x20.c
+  src/f32-velu/gen/velu-sse2-rr2-p6-x24.c
   src/f32-vlrelu/gen/vlrelu-sse2-x4.c
   src/f32-vlrelu/gen/vlrelu-sse2-x8.c
   src/f32-vrnd/gen/vrndd-sse2-x4.c
@@ -1729,6 +1786,18 @@ SET(XNNPACK_SSE41_MICROKERNEL_SRCS
   src/f32-sigmoid/gen/sse41-p5-div-x16.c
   src/f32-sigmoid/gen/sse41-p5-div-x20.c
   src/f32-sigmoid/gen/sse41-p5-div-x24.c
+  src/f32-velu/gen/velu-sse41-rr2-lut16-p3-x4.c
+  src/f32-velu/gen/velu-sse41-rr2-lut16-p3-x8.c
+  src/f32-velu/gen/velu-sse41-rr2-lut16-p3-x12.c
+  src/f32-velu/gen/velu-sse41-rr2-lut16-p3-x16.c
+  src/f32-velu/gen/velu-sse41-rr2-lut16-p3-x20.c
+  src/f32-velu/gen/velu-sse41-rr2-lut16-p3-x24.c
+  src/f32-velu/gen/velu-sse41-rr2-p6-x4.c
+  src/f32-velu/gen/velu-sse41-rr2-p6-x8.c
+  src/f32-velu/gen/velu-sse41-rr2-p6-x12.c
+  src/f32-velu/gen/velu-sse41-rr2-p6-x16.c
+  src/f32-velu/gen/velu-sse41-rr2-p6-x20.c
+  src/f32-velu/gen/velu-sse41-rr2-p6-x24.c
   src/f32-vlrelu/gen/vlrelu-sse41-x4.c
   src/f32-vlrelu/gen/vlrelu-sse41-x8.c
   src/f32-vrnd/gen/vrndd-sse41-x4.c
@@ -1898,6 +1967,24 @@ SET(XNNPACK_AVX_MICROKERNEL_SRCS
   src/f32-vbinary/gen/vsub-minmax-avx-x16.c
   src/f32-vbinary/gen/vsubc-minmax-avx-x8.c
   src/f32-vbinary/gen/vsubc-minmax-avx-x16.c
+  src/f32-velu/gen/velu-avx-rr2-lut4-p4-perm-x8.c
+  src/f32-velu/gen/velu-avx-rr2-lut4-p4-perm-x16.c
+  src/f32-velu/gen/velu-avx-rr2-lut4-p4-perm-x24.c
+  src/f32-velu/gen/velu-avx-rr2-lut4-p4-perm-x32.c
+  src/f32-velu/gen/velu-avx-rr2-lut4-p4-perm-x40.c
+  src/f32-velu/gen/velu-avx-rr2-lut4-p4-perm-x48.c
+  src/f32-velu/gen/velu-avx-rr2-lut16-p3-x8.c
+  src/f32-velu/gen/velu-avx-rr2-lut16-p3-x16.c
+  src/f32-velu/gen/velu-avx-rr2-lut16-p3-x24.c
+  src/f32-velu/gen/velu-avx-rr2-lut16-p3-x32.c
+  src/f32-velu/gen/velu-avx-rr2-lut16-p3-x40.c
+  src/f32-velu/gen/velu-avx-rr2-lut16-p3-x48.c
+  src/f32-velu/gen/velu-avx-rr2-p6-x8.c
+  src/f32-velu/gen/velu-avx-rr2-p6-x16.c
+  src/f32-velu/gen/velu-avx-rr2-p6-x24.c
+  src/f32-velu/gen/velu-avx-rr2-p6-x32.c
+  src/f32-velu/gen/velu-avx-rr2-p6-x40.c
+  src/f32-velu/gen/velu-avx-rr2-p6-x48.c
   src/f32-vlrelu/gen/vlrelu-avx-x8.c
   src/f32-vlrelu/gen/vlrelu-avx-x16.c
   src/f32-vrnd/gen/vrndd-avx-x8.c
@@ -2099,6 +2186,46 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/f32-sigmoid/gen/avx2-rr1-p5-nr2fma-x64.c
   src/f32-sigmoid/gen/avx2-rr1-p5-nr2fma-x72.c
   src/f32-sigmoid/gen/avx2-rr1-p5-nr2fma-x80.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x8.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x16.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x24.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x32.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x40.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x48.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x56.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x64.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x72.c
+  src/f32-velu/gen/velu-avx2-rr1-lut4-p4-perm-x80.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x8.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x16.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x24.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x32.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x40.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x48.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x56.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x64.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x72.c
+  src/f32-velu/gen/velu-avx2-rr1-lut8-p4-perm-x80.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x8.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x16.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x24.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x32.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x40.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x48.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x56.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x64.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x72.c
+  src/f32-velu/gen/velu-avx2-rr1-lut16-p3-gather-x80.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x8.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x16.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x24.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x32.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x40.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x48.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x56.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x64.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x72.c
+  src/f32-velu/gen/velu-avx2-rr1-p6-x80.c
   src/f32-vscaleexpminusmax/gen/avx2-p5-x8.c
   src/f32-vscaleexpminusmax/gen/avx2-p5-x16.c
   src/f32-vscaleexpminusmax/gen/avx2-p5-x24.c
@@ -2126,11 +2253,11 @@ SET(XNNPACK_AVX2_MICROKERNEL_SRCS
   src/math/exp-avx2-rr2-lut8-p3-perm.c
   src/math/exp-avx2-rr2-lut8-p4-perm.c
   src/math/exp-avx2-rr2-p5.c
-  src/math/expminus-avx2-rr2-p5.c
   src/math/expm1minus-avx2-rr1-lut4-p4-perm.c
   src/math/expm1minus-avx2-rr1-lut8-p4-perm.c
   src/math/expm1minus-avx2-rr1-lut16-p3-gather.c
   src/math/expm1minus-avx2-rr1-p6.c
+  src/math/expminus-avx2-rr2-p5.c
   src/math/extexp-avx2-p5.c
   src/math/sigmoid-avx2-rr1-lut64-p2-gather-div.c
   src/math/sigmoid-avx2-rr1-lut64-p2-gather-nr1fma.c
@@ -2326,6 +2453,22 @@ SET(XNNPACK_AVX512F_MICROKERNEL_SRCS
   src/f32-vbinary/gen/vsub-minmax-avx512f-x32.c
   src/f32-vbinary/gen/vsubc-minmax-avx512f-x16.c
   src/f32-vbinary/gen/vsubc-minmax-avx512f-x32.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x16.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x32.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x48.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x64.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x80.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x96.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x112.c
+  src/f32-velu/gen/velu-avx512f-rr1-lut16-p3-perm-x128.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x16.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x32.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x48.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x64.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x80.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x96.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x112.c
+  src/f32-velu/gen/velu-avx512f-rr1-p6-x128.c
   src/f32-vlrelu/gen/vlrelu-avx512f-x16.c
   src/f32-vlrelu/gen/vlrelu-avx512f-x32.c
   src/f32-vrnd/gen/vrndd-avx512f-x16.c
@@ -2966,6 +3109,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_INCLUDE_DIRECTORIES(divide-nd-test PRIVATE src test)
   TARGET_LINK_LIBRARIES(divide-nd-test PRIVATE XNNPACK fp16 gtest gtest_main)
   ADD_TEST(divide-nd-test divide-nd-test)
+
+  ADD_EXECUTABLE(elu-nc-test test/elu-nc.cc)
+  SET_TARGET_PROPERTIES(elu-nc-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(elu-nc-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(elu-nc-test PRIVATE XNNPACK gtest gtest_main)
+  ADD_TEST(elu-nc-test elu-nc-test)
 
   ADD_EXECUTABLE(fully-connected-nc-test test/fully-connected-nc.cc)
   SET_TARGET_PROPERTIES(fully-connected-nc-test PROPERTIES
@@ -3809,6 +3961,15 @@ IF(XNNPACK_BUILD_TESTS)
   TARGET_LINK_LIBRARIES(f32-vrdivc-relu-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
   ADD_TEST(f32-vrdivc-relu-test f32-vrdivc-relu-test)
 
+  ADD_EXECUTABLE(f32-velu-test test/f32-velu.cc)
+  SET_TARGET_PROPERTIES(f32-velu-test PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f32-velu-test PRIVATE src test)
+  TARGET_LINK_LIBRARIES(f32-velu-test PRIVATE XNNPACK cpuinfo fp16 gtest gtest_main)
+  ADD_TEST(f32-velu-test f32-velu-test)
+
   ADD_EXECUTABLE(f32-vlrelu-test test/f32-vlrelu.cc)
   SET_TARGET_PROPERTIES(f32-vlrelu-test PROPERTIES
     CXX_STANDARD 11
@@ -4356,32 +4517,32 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
-  TARGET_INCLUDE_DIRECTORIES(f32-exp-eval PRIVATE src)
-  TARGET_LINK_LIBRARIES(f32-exp-eval PRIVATE XNNPACK benchmark fp16)
+  TARGET_INCLUDE_DIRECTORIES(f32-exp-eval PRIVATE . src)
+  TARGET_LINK_LIBRARIES(f32-exp-eval PRIVATE XNNPACK benchmark bench-utils cpuinfo fp16 pthreadpool)
 
   ADD_EXECUTABLE(f32-expminus-eval eval/f32-expminus.cc)
   SET_TARGET_PROPERTIES(f32-expminus-eval PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
-  TARGET_INCLUDE_DIRECTORIES(f32-expminus-eval PRIVATE src)
-  TARGET_LINK_LIBRARIES(f32-expminus-eval PRIVATE XNNPACK benchmark fp16)
+  TARGET_INCLUDE_DIRECTORIES(f32-expminus-eval PRIVATE . src)
+  TARGET_LINK_LIBRARIES(f32-expminus-eval PRIVATE XNNPACK benchmark bench-utils cpuinfo fp16 pthreadpool)
 
   ADD_EXECUTABLE(f32-expm1minus-eval eval/f32-expm1minus.cc)
   SET_TARGET_PROPERTIES(f32-expm1minus-eval PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
-  TARGET_INCLUDE_DIRECTORIES(f32-expm1minus-eval PRIVATE src)
-  TARGET_LINK_LIBRARIES(f32-expm1minus-eval PRIVATE XNNPACK benchmark bench-utils fp16)
+  TARGET_INCLUDE_DIRECTORIES(f32-expm1minus-eval PRIVATE . src)
+  TARGET_LINK_LIBRARIES(f32-expm1minus-eval PRIVATE XNNPACK benchmark bench-utils cpuinfo fp16 pthreadpool)
 
   ADD_EXECUTABLE(f32-extexp-eval eval/f32-extexp.cc)
   SET_TARGET_PROPERTIES(f32-extexp-eval PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS YES)
-  TARGET_INCLUDE_DIRECTORIES(f32-extexp-eval PRIVATE src)
-  TARGET_LINK_LIBRARIES(f32-extexp-eval PRIVATE XNNPACK benchmark fp16)
+  TARGET_INCLUDE_DIRECTORIES(f32-extexp-eval PRIVATE . src)
+  TARGET_LINK_LIBRARIES(f32-extexp-eval PRIVATE XNNPACK benchmark bench-utils cpuinfo fp16 pthreadpool)
 
   ADD_EXECUTABLE(f32-roundne-eval eval/f32-roundne.cc)
   SET_TARGET_PROPERTIES(f32-roundne-eval PROPERTIES
@@ -4420,8 +4581,8 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
-  TARGET_INCLUDE_DIRECTORIES(f32-sigmoid-eval PRIVATE src)
-  TARGET_LINK_LIBRARIES(f32-sigmoid-eval PRIVATE XNNPACK fp16 benchmark)
+  TARGET_INCLUDE_DIRECTORIES(f32-sigmoid-eval PRIVATE . src)
+  TARGET_LINK_LIBRARIES(f32-sigmoid-eval PRIVATE XNNPACK benchmark bench-utils cpuinfo fp16 pthreadpool)
 
   ADD_EXECUTABLE(f32-sqrt-eval eval/f32-sqrt.cc)
   SET_TARGET_PROPERTIES(f32-sqrt-eval PROPERTIES
@@ -4429,7 +4590,7 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO)
   TARGET_INCLUDE_DIRECTORIES(f32-sqrt-eval PRIVATE . src)
-  TARGET_LINK_LIBRARIES(f32-sqrt-eval PRIVATE XNNPACK fp16 benchmark bench-utils)
+  TARGET_LINK_LIBRARIES(f32-sqrt-eval PRIVATE XNNPACK benchmark bench-utils cpuinfo fp16 pthreadpool)
 
   # ---[ Build end-to-end microbenchmarks
   ADD_LIBRARY(bench-models STATIC
@@ -4522,6 +4683,14 @@ IF(XNNPACK_BUILD_BENCHMARKS)
     CXX_EXTENSIONS NO)
   TARGET_INCLUDE_DIRECTORIES(deconvolution-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   TARGET_LINK_LIBRARIES(deconvolution-bench PRIVATE XNNPACK benchmark bench-utils)
+
+  ADD_EXECUTABLE(elu-bench bench/elu.cc)
+  SET_TARGET_PROPERTIES(elu-bench PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS NO)
+  TARGET_INCLUDE_DIRECTORIES(elu-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  TARGET_LINK_LIBRARIES(elu-bench PRIVATE XNNPACK benchmark bench-utils)
 
   ADD_EXECUTABLE(floor-bench bench/floor.cc)
   SET_TARGET_PROPERTIES(floor-bench PROPERTIES
@@ -4742,6 +4911,15 @@ IF(XNNPACK_BUILD_BENCHMARKS)
   TARGET_INCLUDE_DIRECTORIES(f32-softmax-bench PRIVATE src)
   TARGET_INCLUDE_DIRECTORIES(f32-softmax-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
   TARGET_LINK_LIBRARIES(f32-softmax-bench PRIVATE XNNPACK fp16 benchmark bench-utils)
+
+  ADD_EXECUTABLE(f32-velu-bench bench/f32-velu.cc)
+  SET_TARGET_PROPERTIES(f32-velu-bench PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED YES
+    CXX_EXTENSIONS YES)
+  TARGET_INCLUDE_DIRECTORIES(f32-velu-bench PRIVATE src)
+  TARGET_INCLUDE_DIRECTORIES(f32-velu-bench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+  TARGET_LINK_LIBRARIES(f32-velu-bench PRIVATE XNNPACK fp16 benchmark bench-utils)
 
   ADD_EXECUTABLE(f32-vsqrt-bench bench/f32-vsqrt.cc)
   SET_TARGET_PROPERTIES(f32-vsqrt-bench PROPERTIES
