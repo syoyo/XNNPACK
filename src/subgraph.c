@@ -254,6 +254,7 @@ uint32_t xnn_check_nchw_compatibility(xnn_subgraph_t subgraph, struct xnn_node* 
     case xnn_node_type_bankers_rounding:
     case xnn_node_type_ceiling:
     case xnn_node_type_clamp:
+    case xnn_node_type_elu:
     case xnn_node_type_floor:
     case xnn_node_type_hardswish:
     case xnn_node_type_leaky_relu:
@@ -421,6 +422,37 @@ void xnn_subgraph_rewrite_for_nchw(xnn_subgraph_t subgraph)
       }
     }
   }
+  // Evaluate if it is profitable to run the model as sparse:
+  // - Compute the number of parameters and zeroes in 1x1 Convolution weights
+  // - Disable sparse rewriting for clusters without 1x1 Convolutions (num_params == 0)
+  //   or with less than 2/3rd of zeroes in 1x1 Convolution filters
+  for (uint32_t n = 0; n < subgraph->num_nodes; n++) {
+    struct xnn_node* node = &subgraph->nodes[n];
+    if ((subgraph->nodes[node->cluster_leader].layout_flags & XNN_LAYOUT_FLAG_INCOMPATIBLE_CLUSTER) != 0) {
+      continue;
+    }
+
+    if (node->type == xnn_node_type_convolution_2d &&
+        max(node->params.convolution_2d.kernel_height, node->params.convolution_2d.kernel_width) == 1)
+    {
+      assert(node->num_inputs >= 2);
+
+      const struct xnn_value* filter = &subgraph->values[node->inputs[1]];
+      assert(filter->data != NULL);
+      assert(filter->shape.num_dims == 4);
+
+      const size_t num_params = filter->shape.dim[0] * filter->shape.dim[3];
+      subgraph->nodes[node->cluster_leader].num_params += num_params;
+
+      const float* data = (const float*) filter->data;
+      size_t num_zeroes = 0;
+      for (size_t i = 0; i < num_params; i++) {
+        num_zeroes += (size_t) (data[i] == 0.0f);
+      }
+      xnn_log_debug("1x1 Convolution 2D Node #%" PRIu32 ": %zu / %zu sparsity", n, num_zeroes, num_params);
+      subgraph->nodes[node->cluster_leader].num_zeroes += num_zeroes;
+    }
+  }
   for (uint32_t n = 0; n < subgraph->num_nodes; n++) {
     struct xnn_node* node = &subgraph->nodes[n];
     if ((subgraph->nodes[node->cluster_leader].layout_flags & XNN_LAYOUT_FLAG_INCOMPATIBLE_CLUSTER) != 0) {
@@ -428,6 +460,12 @@ void xnn_subgraph_rewrite_for_nchw(xnn_subgraph_t subgraph)
     }
 
     if ((node->layout_flags & (XNN_LAYOUT_FLAG_COMPATIBLE_NCHW2NHWC | XNN_LAYOUT_FLAG_COMPATIBLE_NCHW)) == 0) {
+      continue;
+    }
+
+    if (subgraph->nodes[node->cluster_leader].num_zeroes * 3 <= subgraph->nodes[node->cluster_leader].num_params * 2) {
+      xnn_log_info("Node #%" PRIu32 ": sparse inference disabled: 1x1 Convolutions contain %zu / %zu zero weights",
+        n, subgraph->nodes[node->cluster_leader].num_zeroes, subgraph->nodes[node->cluster_leader].num_params);
       continue;
     }
 
@@ -625,7 +663,7 @@ enum xnn_status xnn_subgraph_optimize(
   }
 
   #if XNN_ENABLE_SPARSE
-    if (flags & XNN_ENABLE_SPARSE_INFERENCE) {
+    if ((flags & XNN_FLAG_SPARSE_INFERENCE) && (xnn_params.init_flags & XNN_INIT_FLAG_CHW_OPT)) {
       xnn_subgraph_rewrite_for_nchw(subgraph);
     }
   #endif

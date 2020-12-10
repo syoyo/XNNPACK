@@ -1848,8 +1848,6 @@ struct conv_hwc2chw_parameters {
 
 struct dwconv2d_chw_parameters {
   xnn_dwconv2d_chw_ukernel_function ukernel;
-  // Number of input width pixels in a tile.
-  uint8_t input_width_tile;
   // Number of output width pixels in a tile.
   uint8_t output_width_tile;
   // Number of output height pixels in a tile.
@@ -2002,6 +2000,8 @@ struct vmulcaddc_parameters {
 #define XNN_INIT_FLAG_X8      0x00000100
 // Indicates that XX XNNPACK microkernels are available for use.
 #define XNN_INIT_FLAG_XX      0x00000200
+// Indicates that CHW XNNPACK microkernels are optimized for the host platform.
+#define XNN_INIT_FLAG_CHW_OPT 0x00000400
 
 struct xnn_parameters {
   // Bitwise combination of XNN_INIT_FLAG_* flags

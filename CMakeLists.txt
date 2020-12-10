@@ -16,6 +16,7 @@ SET(XNNPACK_LIBRARY_TYPE "default" CACHE STRING "Type of library (shared, static
 SET_PROPERTY(CACHE XNNPACK_LIBRARY_TYPE PROPERTY STRINGS default static shared)
 OPTION(XNNPACK_ENABLE_ASSEMBLY "Build XNNPACK with assembly micro-kernels" ON)
 OPTION(XNNPACK_ENABLE_MEMOPT "Build XNNPACK with optimized memory allocation scheme" ON)
+OPTION(XNNPACK_ENABLE_SPARSE "Build XNNPACK with graph rewriting for sparse inference" ON)
 OPTION(XNNPACK_BUILD_TESTS "Build XNNPACK unit tests" ON)
 OPTION(XNNPACK_BUILD_BENCHMARKS "Build XNNPACK benchmarks" ON)
 OPTION(XNNPACK_USE_SYSTEM_LIBS "Use system-provided dependency libraries" OFF)
@@ -37,6 +38,12 @@ IF(XNNPACK_ENABLE_MEMOPT)
   ADD_DEFINITIONS(-DXNN_ENABLE_MEMOPT=1)
 ELSE()
   ADD_DEFINITIONS(-DXNN_ENABLE_MEMOPT=0)
+ENDIF()
+
+IF(XNNPACK_ENABLE_SPARSE)
+  ADD_DEFINITIONS(-DXNN_ENABLE_SPARSE=1)
+ELSE()
+  ADD_DEFINITIONS(-DXNN_ENABLE_SPARSE=0)
 ENDIF()
 
 IF(CMAKE_C_COMPILER_ID STREQUAL "MSVC")
@@ -684,6 +691,7 @@ SET(XNNPACK_NEON_MICROKERNEL_SRCS
   src/f32-conv-hwc/gen/3x3s2p1c3x4-neon-2x2.c
   src/f32-conv-hwc/gen/3x3s2p1c3x8-neon-2x1.c
   src/f32-conv-hwc/gen/3x3s2p1c3x8-neon-2x2.c
+  src/f32-conv-hwc2chw/3x3s2p1c3x4-neon-2x2.c
   src/f32-dwconv/gen/up4x4-minmax-neon-acc2.c
   src/f32-dwconv/gen/up4x4-minmax-neon.c
   src/f32-dwconv/gen/up4x9-minmax-neon-acc2.c
